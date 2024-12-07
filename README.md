@@ -38,6 +38,13 @@
       - [Añadir un Usuario a Mosquitto](#añadir-un-usuario-a-mosquitto)
     - [Conexión remota a Mosquitto](#conexión-remota-a-mosquitto)
       - [Ejemplo con MQTT Explorer](#ejemplo-con-mqtt-explorer)
+    - [Integrando Node-RED con Mosquitto](#integrando-node-red-con-mosquitto)
+      - [Añadir el Dashboard a la integración entre Node-RED y Mosquitto](#añadir-el-dashboard-a-la-integración-entre-node-red-y-mosquitto)
+  - [Bases de Datos](#bases-de-datos)
+    - [Configurar autenticación de InfluxDB](#configurar-autenticación-de-influxdb)
+    - [Escribir en InfluxDB desde Node-RED](#escribir-en-influxdb-desde-node-red)
+    - [Leer de InfluxDB desde Node-RED](#leer-de-influxdb-desde-node-red)
+  - [Grafana en RBPi](#grafana-en-rbpi)
 
 ---
 
@@ -716,3 +723,215 @@ Desde la RBPi ejecutar: <font color="#d6ff33">*mosquitto_sub -h localhost -u mos
 ![alt text](image-45.png)
 
 ![alt text](image-46.png)
+
+### Integrando Node-RED con Mosquitto
+
+En Node-RED exite un nodo _mqtt in_ que sirve para la conexión. Está en el bloque _network_:
+
+![alt text](image-47.png)
+
+Agregamos el _mqtt-broker_:
+
+![alt text](image-48.png)
+
+Añadimos en la pestaña de _Security_ nuestro usuario y la contraseña:
+
+![alt text](image-49.png)
+
+Debemos especificar el _tópico_ a usar:
+
+![alt text](image-50.png)
+
+Ahora el servidor estaría configurado. Ya podrá conectarse y suscribirse al _test_ y ver los mensajes que llegan. Para ver los mensajes añadimos un nodo _debug_.
+
+![alt text](image-51.png)
+
+Publicamos mensajes, para ello escribimos el siguiente comando desde terminal de la RBPi:
+
+- <font color="#d6ff33">*mosquitto_pub -h 192.168.0.110 -u mosquitto - P miClave -t test -m 25*</font>
+
+Una vez ejecutado en el comando anterior, en el _debug_ de Node-RED aparecerá el valor de 25:
+
+![alt text](image-52.png)
+
+También podemos publicar desde MQTT Explorer, por ejemplo el valor de 20:
+
+![alt text](image-53.png)
+
+En Node-RED aparecerá el valor de 20:
+
+![alt text](image-54.png)
+
+#### Añadir el Dashboard a la integración entre Node-RED y Mosquitto
+
+Añadir un nodo _chart_ que sirve para representar una gráfica de línea, la cual conectaremos al nodo _test_ (mqtt in):
+
+![alt text](image-55.png)
+
+Configuramos el nodo, añadiendo la etiqueta:
+
+![alt text](image-56.png)
+
+Accedemos al Dashboard:
+
+![alt text](image-57.png)
+
+Se muestra el resultado del Dashboard, cada vez que se publique en el tópico _test_:
+
+![alt text](image-59.png)
+
+Si en nuestro _dashboard_ de Node-RED ponemos un botón y queremos activar/desactivar algo remotamente usamos el nodo _mqtt out_. En la configuración le pondremos un nombre nuevo en el tópico.
+
+![alt text](image-60.png)
+
+Añadimos dos botones usando el nodo _button_. Este botón lo conectamos a la entrada del nodo _mqtt out_.
+
+![alt text](image-65.png)
+
+Confgiramos el nombre del nodo _button_ (apertura puerta, cerrar puerta):
+
+![alt text](image-62.png)
+
+Configuramos el _payload_ es el mensaje que se envía al remoto:
+
+![alt text](image-63.png)
+
+![alt text](image-64.png)
+
+En el Dashboard tendremos dos botones: uno para abrir puerta y otro para cerrar puerta.
+
+![alt text](image-66.png)
+
+Al pulsar en el botón de abrir puerta del Dashboard, en MQTT Explorer aparece el mensaje recibido (payload):
+
+![alt text](image-67.png)
+
+Si pulsamos en el botón cerrar puerta, el mensaje recibido es:
+
+![alt text](image-68.png)
+
+---
+
+## Bases de Datos
+
+>[!TIP]
+>
+>Instalando InfluxDB en RBPi.</br>
+><font color="gree">`sudo apt update`</font></br>
+><font color="gree">`sudo apt upgrade`</font></br>
+>Descarga y agregamos la llave del repositorio:</br>
+><font color="gree">`wget -qO- https://repos.influxdata.com/influxdb.key | sudo apt-key add -`</font></br>
+>Si nuestra _raspbian_ es _strech_:</br>
+><font color="gree">`echo "deb https://repos.influxdata.com/debian stretch stable" | sudo tee /etc/apt/sources.list.d/influxdb.list`</font></br>
+>Si nuestra _raspbian_ es _buster_:</br>
+><font color="gree">`echo "deb https://repos.influxdata.com/debian buster stable" | sudo tee /etc/apt/sources.list.d/influxdb.list`</font></br>
+><font color="gree">`sudo apt update`</font></br>
+><font color="gree">`sudo apt install influxdb`</font></br>
+>Para iniciar el porceso InfluxDB</br>
+><font color="gree">`sudo systemctl unmask influxdb`</font></br>
+><font color="gree">`sudo systemctl enable influxdb`</font></br>
+><font color="gree">`sudo systemctl start influxdb`</font></br>
+
+>[!NOTE]
+>
+>Para saber qué versión de raspbian tenemos:</br>
+><font color="blue">`cat /etc/os-release`</font>
+
+### Configurar autenticación de InfluxDB
+
+Accedemos a la base de datos, con el comando: `influx`. Y configuramos un usuario:
+
+```influx
+InfluxDB shell version: 1.8.4
+> CREATE USER admin WITH PASSWORD '1234miPWD' WITH ALL PRIVILEGES
+> exit
+```
+
+Configurar InfluxDB para usar la autenticación: `sudo vi /etc/influxdb.conf`.
+
+La sección que nos interesa es _http_:
+
+```influxdb.conf
+[http]
+  auth-enable = true
+  pprof-enabled = true
+  pprof-auth-enable = true
+  ping-auth-enabled= true
+```
+
+Una vez guardados los cambios, reiniciamos el servicio: `sudo systemctl restart influxdb`.
+
+Para iniciar usando el usuario creado: `influx -username admin -password`. Si todo ha ido bien, estaremos conectados a la base de datos.
+
+>[!IMPORTANT]
+>
+>Nos conectamos a InfluxBD con el comando siguiente:</br>
+><font color="#9b33ff">`influx -username admin -password`</font></br>
+>Usamos la _password_ elegida.</br>
+>Para crear una base de datos, estando dentro Influx:</br>
+><font color="#9b33ff">`CREATE DATABASE iot`</font>
+
+### Escribir en InfluxDB desde Node-RED
+
+Lo primero en Node-RED es instalar los paquetes de software para poder conectarnos a la base de datos. En _Manager Palette_ en la pestaña _Install_ buscar 'influx'. Instalar el de la primera opción _node-red-contrib-influxdb_.
+
+![alt text](image-69.png)
+
+En la sección _storage_ aparecerán los nuevos nodos. Seleccionar el que permite escribir en la base de datos _influxdb out_:
+
+![alt text](image-70.png)
+
+Configuramos la base de datos:
+
+![alt text](image-71.png)
+
+De las opciones diponibles seleccionar: nombre, versión, URL, nombre de usuario y contraseña.
+
+![alt text](image-72.png)
+
+Una vez agregada la base de datos. Accedemos a la base de datos:
+
+![alt text](image-73.png)
+
+El siguiente paso es obtener los valores del sensor y darlo un formato para escribirlos en la base de datos. Para ello, añadimos un nodo _function_ conectado entre la salida del sensor y la entrada del _influxdb out_:
+
+![alt text](image-74.png)
+
+La configuración del nodo _function_ añadimos el código JS:
+
+![alt text](image-75.png)
+
+Para probar podemos añadir un nodo _debug_ para visualizar el dato a enviar a la base de datos:
+
+![alt text](image-76.png)
+
+![alt text](image-77.png)
+
+### Leer de InfluxDB desde Node-RED
+
+En la página web:
+
+- [InfluxDB](https://docs.influxdata.com/influxdb/v2/)
+- [Consultas InfluxDB](https://docs.influxdata.com/influxdb/v2/query-data/get-started/query-influxdb/)
+
+Tenemos las explicaciones del uso, tanto para leer como para escribir en la base de datos.
+
+Añadimos un nodo _influxdb in_ y lo configuramos:
+
+![alt text](image-78.png)
+
+Seleccionar la base de datos previamente configurada, e ingresar la consulta (query):
+
+![alt text](image-79.png)
+
+Añadirmos un nodo _function_ para leer un dato del array de objetos:
+
+![alt text](image-80.png)
+
+![alt text](image-81.png)
+
+![alt text](image-82.png)
+
+---
+
+## Grafana en RBPi
