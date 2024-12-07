@@ -25,6 +25,19 @@
     - [PWM con Pytohn en RBPi](#pwm-con-pytohn-en-rbpi)
   - [Programar la ejecución de scripts Pytohn](#programar-la-ejecución-de-scripts-pytohn)
     - [Usando CRON](#usando-cron)
+  - [Node-RED](#node-red)
+    - [Introducción a Node-RED](#introducción-a-node-red)
+    - [Instalar Node-RED](#instalar-node-red)
+    - [Seguridad en Node-RED](#seguridad-en-node-red)
+    - [Sensor ON-OFF en Node-RED](#sensor-on-off-en-node-red)
+    - [Sensor DS18B20 en Node-RED](#sensor-ds18b20-en-node-red)
+    - [Relay en Node-RED](#relay-en-node-red)
+    - [Panel IoT con Node-RED](#panel-iot-con-node-red)
+  - [Dispositivos Remotos - Mosquitto](#dispositivos-remotos---mosquitto)
+    - [Configuración de Mosquitto](#configuración-de-mosquitto)
+      - [Añadir un Usuario a Mosquitto](#añadir-un-usuario-a-mosquitto)
+    - [Conexión remota a Mosquitto](#conexión-remota-a-mosquitto)
+      - [Ejemplo con MQTT Explorer](#ejemplo-con-mqtt-explorer)
 
 ---
 
@@ -453,3 +466,253 @@ En Terminal de RBPi ejecutar: _`sudo crontab -l`_. Para listar los usuarios que 
 - <font color="green">_`crontab -e`_</font>. Abre un editor de texto (nano, vi). Al final del fichero se escribe lo determinado en la página web [Crontab Guru](https://crontab.guru/). Ejemplo:<font color="orange"> _*/5 * * * * python leersensor.py_ >> valorSensor.dat</font>
 
 El ejemplo anterior ejecuta cada 5 minutos creando un archivo (valorSensor.dat) y escribiendo en el mismo en línea nueva cada cinco minutos.
+
+---
+
+## Node-RED
+
+>[!TIP]
+>
+>Programación de bajo código para aplicaciones basadas en eventos.</br>
+>Última versión: v4.0.5 (npm)
+
+### Introducción a Node-RED
+
+**Node-RED** entorno de desarrollo en plataforma. En la página web oficial de [Node-RED](https://nodered.org/) está la documentación necesaria.
+
+### Instalar Node-RED
+
+La instalación puede realizarse desde varias plataforma y de distintas maneras; para la instalación desde RBPi consultar la siguiente web [Instalar en RBPi](https://nodered.org/docs/getting-started/raspberrypi). Ejemplo a realizar desde la consola:
+
+- <font color="orange">_sudo apt-get update_</font>
+- <font color="orange">_sudo apt-get install nodered_</font>
+
+Una vez instalado, para iniciar el programa: lo podemos hacer desde la línea de comandos o programar un servicio que lo inicie en una fecha y hora determinados.
+
+- <font color="orange">_node-red-pi --max-old-space-size=256_</font>
+
+Una vez iniciado desde el terminal, en el navegador escribir en el url la IP asignada seguido del puerto 1880 que asigna por defecto: `http://192.168.0.110:1880`. Accedemos así al _Dashboard_ panel principal.
+
+Para hacer funcionar al Node-RED como servicio:
+
+- <font color="orange">_node-red-start_</font>. Para iniciar el servicio.
+- <font color="orange">_node-red-stop_</font>. Para parar el servicio.
+- <font color="orange">_node-red-restart_</font>. Para reiniciar el servicio.
+- <font color="orange">_node-red-log_</font>. Para mostrar el registro del servicio.
+
+Si queremos que el servicio Node-RED se ejecute en el inicio de la RBPi:
+
+-<font color="orange">_sudo systemctl enable nodered.service_</font>. Se ejecuta automáticamente.
+<font color="orange">_sudo systemctl disable nodered.service_</font>. Deshabilita el servicio.
+
+### Seguridad en Node-RED
+
+Se permite habilitar el acceso al servicio Node-RED a través de _HTTPS_. Utilizando _HTTP_ se puede añadir algo de seguridad, a pesar de que la información no está encriptada, para ello:
+
+  1. Generar un HASH de la contraseña. Mirar en la documentación [Seguridad Node-RED](https://nodered.org/docs/user-guide/runtime/securing-node-red).
+     1. <font color="orange">_node-red-admin hash-pw_</font>. Para generer la contraseña devolviéndonos el HASH creado.
+  2. Incluir el fichero HASH en la configuración de Node-RED. Para poder loguearnos con este usuario y contraseña.
+     1. El HASH generado se debe copiar en al fichero _settings.js_ que está en la carpeta de iinstalación del programa <font color="orange">_vim .node-red/settings.js_</font>. Descomentar la parte del código de _adminAuth_ y pegar el HASH en la línea de código correcto _password_.
+
+### Sensor ON-OFF en Node-RED
+
+En Node-RED, seleccionar _rpi gpio in_ que está en el grupo _Raspberry Pi_:
+
+![alt text](image-7.png)
+
+Haciendo doble clic sobre el elemento, se nos despliega el grupo de pines disponibles en RBPi:
+
+![alt text](image-8.png)
+
+Seleccionamos el pin al que está conectado el pulsado, por ejemplo: Pin-17. Se puede añadir tiempo de retardo _Debounce_ en milisegundos. Dejar 5 ms.
+
+![alt text](image-9.png)
+
+Agregar otro elemento _rpi gpio in_ donde conectaresmo el sensor magnético y seleccionar el pin:
+
+![alt text](image-10.png)
+
+Añadirmos dos bloques _Debug_ que están dentro del grupo _common_, que sirven para ver las salidas:
+
+![alt text](image-11.png)
+
+Pulsamos en _Deplay_ botón ubicado en la esquina superior izquierda del _Dashbard_, nos muestra la información según como estén los sensores.
+
+![alt text](image-12.png)
+
+### Sensor DS18B20 en Node-RED
+
+Para leer el sensor desde Node-RED utilizaremos una librería, para ello accedemos _Manage Palette_ haciendo clic en icono esquina superior derecha:
+
+![alt text](image-13.png)
+
+En la pestaña _Install_ buscamos _ds18_ y elegimos una de las librerías disponibles para la instalación.
+
+![alt text](image-14.png)
+
+Añadimos un elemento _Inject_ que está en el bloque _common_, y lo vamos a configurar para que se repita en un intervalo definido, cada 30 segundos:
+
+![alt text](image-15.png)
+
+El siguiente elemento será _rpi ds18b20_ que lee el sensor conectado:
+
+![alt text](image-16.png)
+
+Añadimos un elemento de salida _debug_ para poder ver los resultados:
+
+![alt text](image-17.png)
+
+Hacemos clic en _Deplay_ y observamos los resultados:
+
+![alt text](image-18.png)
+
+### Relay en Node-RED
+
+Usar el nodo _rpi-gpio out_ dentro del bloque _Raspberry Pi_. Seleccionamos el pin 22 que corresponde con GPIO25, además de seleccionar el tipo de salida (digital o PWM):
+
+![alt text](image-19.png)
+
+![alt text](image-20.png)
+
+Es útil inicializar el estado del pin, marcar la opción _Initiallise pin state?_:
+
+![alt text](image-21.png)
+
+Añadir dos nodos de entrada _Inject_ que están en el bloque _common_ que son para indicar opciones de _false_ o _true_ (boolean):
+
+![alt text](image-22.png)
+
+Probamos hacienod clic en _Deplay_ y al hacer clic sobre las entradas, observamos como el nodo _PIN 22_ cambia de estado:
+
+![alt text](image-23.png)
+
+### Panel IoT con Node-RED
+
+Instalar librerías desde _Manage Palette_ y buscamos _dash_ y de las opciones seleccionar _node-red-dashboard_:
+
+![alt text](image-24.png)
+
+Una vez instalado aparecerá un icono para activar el Dashboard:
+
+![alt text](image-25.png)
+
+El nodo _gauge_ sirve para mostrar la información de un sensor:
+
+![alt text](image-26.png)
+
+Hacer clic sobre el nodo _gauge_ para configurarlo:
+
+![alt text](image-27.png)
+
+En el Dashboard (Tablero principal) se vería: el grupo Habitación, la variable Temperatura interna, el rango 0 a 40 ºC:
+
+![alt text](image-28.png)
+
+Podemos agrgar una gráfica de la temperatura, usando el nodo _Chart_ conectado a la salida del nodo _rpi-ds-18b20_:
+
+![alt text](image-29.png)
+
+Configuración del nodo _Chart_:
+
+![alt text](image-30.png)
+
+Hacer clic en _Deplay_ y en Dashboard tendremos los resultados:
+
+![alt text](image-31.png)
+
+Podemos añadir el nodo _function_ que permite incorporar código en Javascript. Para el ejemplo lo conectaremos al nodo _PIN 16_ que es una entrada de la RBPi conectada a un sensor ON-OFF:
+
+![alt text](image-32.png)
+
+Clic sobre el nodo _function_ para añadir el siguiente código:
+
+![alt text](image-33.png)
+
+Añadimos un nodo _text_ conectado a la salida del anterior. Sirve para visualizar la salida:
+
+![alt text](image-34.png)
+
+Configuramos el nodo _text_:
+
+![alt text](image-36.png)
+
+Resultados obtenidos (puerta abierta o puerta cerrada) dependiendo de como esté el sensor ON-OFF:
+
+![alt text](image-37.png)
+
+Para el control del Relay añadiremos un nodo _switch_ configurándolo de la siguiente forma:
+
+![alt text](image-38.png)
+
+Conectamos la salida del nodo _switch_ a la entrada del nodo _PIN 13_:
+
+![alt text](image-39.png)
+
+El resultado en el Dashboard:
+
+![alt text](image-40.png)
+
+---
+
+## Dispositivos Remotos - Mosquitto
+
+>[!IMPORTANT]
+>
+>Instalar _Mosquitto_ en RBPi</br>
+><font color="orange">_sudo apt-get update_</font></br>
+><font color="orange">_sudo apt-get upgrade_</font></br>
+><font color="orange">_sudo apt-get install mosquitto mosquitto-clients_</font>
+
+### Configuración de Mosquitto
+
+Acceder al archivo de configuración de mosquitto <font color="green">_`vim /etc/mosquitto/mosquitto.conf`_</font>. Existe un archivo de configuración de ejemplo en la ruta <font color="green">_`/usr/share/doc/mosquitto/examples/mosquitto.conf.gz`_</font>. El archivo está comprimido, para descomprimirlo: <font color="green">_`sudo gunzip mosquitto.conf.gz`_</font>.
+
+Visualizando el archivo de configuración de ejemplo _mosquitto.conf_ veremos las configuraciones por defecto:
+
+- El puerto por defecto que utiliza Mosquitto es el 1883 TCP/IP.
+- Escucha en todas las interfaces, tanto WiFi con Ethernet.
+
+Copiamos el archivo a la carpeta de Mosquitto: <font color="green">_`sudo cp mosquitto.conf /etc/mosquitto/conf.d/mosquitto.conf`_</font>. Nos desplazamos al directorio <font color="green">_`cd /etc/mosquitto/conf.d/`_</font> para realizar las modificacioines que nos interesan.
+
+#### Añadir un Usuario a Mosquitto
+
+Creamos el usuario y la contraseña con el siguiente comando:
+
+- <font color="#d6ff33">_sudo mosquitto_passwd -c /etc/mosquitto/passwd mosquitto_</font> donde el usuario elegido es _mosquitto_. Pide la constraseña tras el clic.
+- El archivo _passwd_ contendrá el usuario y el HASH de la contraseña introducida.
+- Ejecutamos <font color="#d6ff33">_sudo vim mosquitto.conf_</font> para modificar la configuración.
+  - Descomentar (quitar #) de la opción: <font color="#d6ff33">*allow_anonymous true*</font> y cambiar el _true_ por el _false_; <font color="#d6ff33">*allow_anonymous false*</font>
+  - En la línea <font color="#d6ff33">*password_file*</font> (quitar #) y añador la ruta donde se encuentra el fichero: <font color="#d6ff33">*password_file /etc/mosquitto/passwd*</font>.
+
+Guardar los cambios y reiniciar <font color="#d6ff33">_sudo systemctl restart mosquitto.servive_</font>.
+
+### Conexión remota a Mosquitto
+
+Clientes MQTT gratis:
+
+- [MQTT Explorer](https://mqtt-explorer.com/)
+- [MQTTLens](https://chromewebstore.google.com/detail/mqttlens/hemojaaeigabkbcookmlgmdigohjobjm?hl=es)
+
+Esta última, es una extensión para Chrome.
+
+#### Ejemplo con MQTT Explorer
+
+Tras la instalación, realizar una conexión con Mosquitto.
+
+Pantalla de conexión: añadir conexión, nombre, protocolo (mqtt://), IP Host, el puerto 1883 el usuario y la contraseña.
+
+![alt text](image-43.png)
+
+Una vez conectados, para publicar se aceptan tres formatos:
+
+- _raw_
+- _xml_
+- _json_
+
+![alt text](image-44.png)
+
+Desde la RBPi ejecutar: <font color="#d6ff33">*mosquitto_sub -h localhost -u mosquitto -P miClave -t test -q 2*</font>. Donde localhost es la IP de la RBPi, _test_ es el tópico al que queremos suscribirnos, está creado en MQTT Explorer y _-q 2_ es un parámetro de calidad. Este cliente mostrará en pantalla cada vez que publicamos un valor en el tópico _test_.
+
+![alt text](image-45.png)
+
+![alt text](image-46.png)
