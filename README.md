@@ -22,6 +22,9 @@
       - [Función wait\_for\_edge()](#función-wait_for_edge)
     - [Control de una salida RBPi con Python](#control-de-una-salida-rbpi-con-python)
     - [Leer sensor D18B20 con Python](#leer-sensor-d18b20-con-python)
+    - [PWM con Pytohn en RBPi](#pwm-con-pytohn-en-rbpi)
+  - [Programar la ejecución de scripts Pytohn](#programar-la-ejecución-de-scripts-pytohn)
+    - [Usando CRON](#usando-cron)
 
 ---
 
@@ -326,8 +329,7 @@ while True:
 
 ### Control de una salida RBPi con Python
 
-<p style="color:blue">
-Para probar el código, conectaremos un LED al pin GPIO-24 con resistor de 220 $\Omega$ en serie.</p>
+<font color="blue">Para probar el código, conectaremos un LED al pin GPIO-24 con resistor de 220 $\Omega$ en serie.</font>
 
 ```python
 # Script control LED en GPIO-24
@@ -351,3 +353,103 @@ GPIO.output(pin, on_off)
 
 ### Leer sensor D18B20 con Python
 
+<font color="blue">La librería necesaria para usar en Python es [W1ThermSensor](https://pypi.org/project/w1thermsensor/). Soportando varios modelos de sensores.</font>
+
+<font color="blue">La librería se puede instalar desde: `pip install w1thermsensor` o usando `sudo apt-get install python3-w1thermsensor`.</font>
+
+Script de ejemplo:
+
+```python
+from w1thermsensor import W1ThermSensor
+
+# sirve para varios sensores conectados en serie
+for sensor in W1ThermSensor.get_available_sensors():
+  print("El sensor "+sensor.id+" marca la temperatura: "+sensor.get_temperature())
+```
+
+### PWM con Pytohn en RBPi
+
+>[!IMPORTANT]
+>
+>Se utilizará el LED conectado al pin GPIO-24 a través de resistencia de 220 $\Omega$.</br>
+>Usa la librería _raspberry-gpio-python_.
+
+<font color="blue">Ejemplo para hacer parpadear un LED una vez cada dos segundos:</font>
+
+```python
+import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(12, GPIO.OUT)
+
+p = GPIO.PWM(12, 0.5)
+p.start(1)
+input('Press return to stop:')   # use raw_input for Python 2
+p.stop()
+GPIO.cleanup()
+```
+
+<font color="blue">Ejemplo para aumentar o disminuir el brillo de un LED:</font>
+
+```python
+import time
+import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(12, GPIO.OUT)
+
+p = GPIO.PWM(12, 50)  # channel=12 frequency=50Hz
+p.start(0)
+try:
+    while 1:
+        for dc in range(0, 101, 5):
+            p.ChangeDutyCycle(dc)
+            time.sleep(0.1)
+        for dc in range(100, -1, -5):
+            p.ChangeDutyCycle(dc)
+            time.sleep(0.1)
+except KeyboardInterrupt:
+    pass
+p.stop()
+GPIO.cleanup()
+```
+
+<font color="blue">Ejemplo tres. Para ejecutar el script se precisa pasar como argumentos: número de pin, frecuencia y ciclo en porcentaje.</font>
+
+```python
+# para ejecutar el script: python pwm.py 24 1 50
+import RPi.GPIO as GPIO
+import sys
+import signal
+
+pin = int(sys.argv[1])
+frec = int(sys.argv[2])
+ciclo = int(sys.argv[3])
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(pin, GPIO.OUT)
+
+p = GPIO.PWM(pin, frec)
+p.start(ciclo)
+
+def signal_handler(sig, frame):
+  p.stop()
+  GPIO.cleanup()
+  sys.exit()
+
+while True:
+  signal.signal(signal.SIGINT, signal_handler)
+```
+
+## Programar la ejecución de scripts Pytohn
+
+### Usando CRON
+
+_CRON_ es un demonio (servicio que funciona en segundo plano) que funciona en Linux. Permite programar la ejecución de un código, estableciendo fecha y hora.
+
+Una página web [Crontab Guru](https://crontab.guru/) permite configurar de forma fácil las fechas y horas de inicio de ejecución.
+
+En Terminal de RBPi ejecutar: _`sudo crontab -l`_. Para listar los usuarios que tienen la posibilidad de programar eventos.
+
+- <font color="green">_`sudo crontab -l`_</font>. Para listar los usuarios con privilegios programar eventos.
+- <font color="green">_`crontab -e`_</font>. Abre un editor de texto (nano, vi). Al final del fichero se escribe lo determinado en la página web [Crontab Guru](https://crontab.guru/). Ejemplo:<font color="orange"> _*/5 * * * * python leersensor.py_ >> valorSensor.dat</font>
+
+El ejemplo anterior ejecuta cada 5 minutos creando un archivo (valorSensor.dat) y escribiendo en el mismo en línea nueva cada cinco minutos.
