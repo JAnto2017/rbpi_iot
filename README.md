@@ -45,6 +45,8 @@
     - [Escribir en InfluxDB desde Node-RED](#escribir-en-influxdb-desde-node-red)
     - [Leer de InfluxDB desde Node-RED](#leer-de-influxdb-desde-node-red)
   - [Grafana en RBPi](#grafana-en-rbpi)
+    - [Conexión InfluxDB con Grafana](#conexión-influxdb-con-grafana)
+    - [Crear un Dashboard (tablero) en Grafana](#crear-un-dashboard-tablero-en-grafana)
 
 ---
 
@@ -935,3 +937,42 @@ Añadirmos un nodo _function_ para leer un dato del array de objetos:
 ---
 
 ## Grafana en RBPi
+
+>[!NOTE]
+>
+>Instalación de Grafana en RBPi.
+> * <font color="#1c68e5">`sudo apt-get update`</font>
+> * <font color="#1c68e5">`sudo apt-get upgrade`</font>
+> * <font color="#1c68e5">`wget https://dl.grafana.com/oss/release/grafana-rpi_8.0.6_armhf.deb`</font>
+> * <font color="#1c68e5">`sudo dpkg -i grafana-rpi_8.0.6_armhf.deb`</font></br>
+> * Cambiar la versión al último paquete, para ello [Grafana](https://grafana.com/grafana/download?pg=get&plcmt=selfmanaged-box1-cta1)</br>
+> * Para iniciar al arrancar en RBPi: <font color="#1c68e5">`sudo systemctl enable grafana-server`</font>
+
+>[!TIP]
+>
+>Para acceder a _Grafana_ a través del navegador web: </br>
+> * <font color="##1ce558">`http://dirección-ip-de-tu-raspberry:3000`</font>
+> * Ingresar: usuario y contraseña para entrar a la plataforma
+> * Credenciales por defecto: <font color="##1ce558">_admin_</font> y <font color="##1ce558">_admin_</font>
+
+### Conexión InfluxDB con Grafana
+
+![alt text](image-83.png)
+
+![alt text](image-84.png)
+
+![alt text](image-85.png)
+
+### Crear un Dashboard (tablero) en Grafana
+
+![alt text](image-86.png)
+
+![alt text](image-87.png)
+
+![alt text](image-88.png)
+
+![alt text](image-89.png)
+
+![alt text](image-90.png)
+
+![alt text](image-91.png)
