@@ -322,8 +322,7 @@ while True:
   signal.signal(signal.SIGINT, signal_handler)
 ```
 
-<p style="color:blue">
-Script que permite la ejecución de las interrupciones sin para el códigp principal del programa.</p>
+Script que permite la ejecución de las interrupciones sin para el códigp principal del programa.<
 
 ```python
 import RPi.GPIO as GPIO
@@ -351,7 +350,7 @@ while True:
 
 ### Control de una salida RBPi con Python
 
-<font color="blue">Para probar el código, conectaremos un LED al pin GPIO-24 con resistor de 220 $\Omega$ en serie.</font>
+Para probar el código, conectaremos un LED al pin GPIO-24 con resistor de 220 $\Omega$ en serie.
 
 ```python
 # Script control LED en GPIO-24
@@ -375,9 +374,9 @@ GPIO.output(pin, on_off)
 
 ### Leer sensor D18B20 con Python
 
-<font color="blue">La librería necesaria para usar en Python es [W1ThermSensor](https://pypi.org/project/w1thermsensor/). Soportando varios modelos de sensores.</font>
+La librería necesaria para usar en Python es [W1ThermSensor](https://pypi.org/project/w1thermsensor/). Soportando varios modelos de sensores.
 
-<font color="blue">La librería se puede instalar desde: `pip install w1thermsensor` o usando `sudo apt-get install python3-w1thermsensor`.</font>
+La librería se puede instalar desde: `pip install w1thermsensor` o usando `sudo apt-get install python3-w1thermsensor`.
 
 Script de ejemplo:
 
@@ -396,7 +395,7 @@ for sensor in W1ThermSensor.get_available_sensors():
 >Se utilizará el LED conectado al pin GPIO-24 a través de resistencia de 220 $\Omega$.</br>
 >Usa la librería _raspberry-gpio-python_.
 
-<font color="blue">Ejemplo para hacer parpadear un LED una vez cada dos segundos:</font>
+Ejemplo para hacer parpadear un LED una vez cada dos segundos:
 
 ```python
 import RPi.GPIO as GPIO
@@ -410,7 +409,7 @@ p.stop()
 GPIO.cleanup()
 ```
 
-<font color="blue">Ejemplo para aumentar o disminuir el brillo de un LED:</font>
+Ejemplo para aumentar o disminuir el brillo de un LED:
 
 ```python
 import time
@@ -434,7 +433,7 @@ p.stop()
 GPIO.cleanup()
 ```
 
-<font color="blue">Ejemplo tres. Para ejecutar el script se precisa pasar como argumentos: número de pin, frecuencia y ciclo en porcentaje.</font>
+Ejemplo tres. Para ejecutar el script se precisa pasar como argumentos: número de pin, frecuencia y ciclo en porcentaje.
 
 ```python
 # para ejecutar el script: python pwm.py 24 1 50
@@ -471,8 +470,9 @@ Una página web [Crontab Guru](https://crontab.guru/) permite configurar de form
 
 En Terminal de RBPi ejecutar: _`sudo crontab -l`_. Para listar los usuarios que tienen la posibilidad de programar eventos.
 
-- <font color="green">_`sudo crontab -l`_</font>. Para listar los usuarios con privilegios programar eventos.
-- <font color="green">_`crontab -e`_</font>. Abre un editor de texto (nano, vi). Al final del fichero se escribe lo determinado en la página web [Crontab Guru](https://crontab.guru/). Ejemplo:<font color="orange"> _*/5 * * * * python leersensor.py_ >> valorSensor.dat</font>
+- _`sudo crontab -l`_. Para listar los usuarios con privilegios programar eventos.
+- _`crontab -e`_. Abre un editor de texto (nano, vi). Al final del fichero se escribe lo determinado en la página web [Crontab Guru](https://crontab.guru/).
+- Ejemplo: _`*/5 * * * * python leersensor.py_ >> valorSensor.dat`_.
 
 El ejemplo anterior ejecuta cada 5 minutos creando un archivo (valorSensor.dat) y escribiendo en el mismo en línea nueva cada cinco minutos.
 
@@ -493,35 +493,35 @@ El ejemplo anterior ejecuta cada 5 minutos creando un archivo (valorSensor.dat) 
 
 La instalación puede realizarse desde varias plataforma y de distintas maneras; para la instalación desde RBPi consultar la siguiente web [Instalar en RBPi](https://nodered.org/docs/getting-started/raspberrypi). Ejemplo a realizar desde la consola:
 
-- <font color="orange">_sudo apt-get update_</font>
-- <font color="orange">_sudo apt-get install nodered_</font>
+- _`sudo apt-get update`_
+- _`sudo apt-get install nodered`_
 
 Una vez instalado, para iniciar el programa: lo podemos hacer desde la línea de comandos o programar un servicio que lo inicie en una fecha y hora determinados.
 
-- <font color="orange">_node-red-pi --max-old-space-size=256_</font>
+- _`node-red-pi --max-old-space-size=256`_
 
 Una vez iniciado desde el terminal, en el navegador escribir en el url la IP asignada seguido del puerto 1880 que asigna por defecto: `http://192.168.0.110:1880`. Accedemos así al _Dashboard_ panel principal.
 
 Para hacer funcionar al Node-RED como servicio:
 
-- <font color="orange">_node-red-start_</font>. Para iniciar el servicio.
-- <font color="orange">_node-red-stop_</font>. Para parar el servicio.
-- <font color="orange">_node-red-restart_</font>. Para reiniciar el servicio.
-- <font color="orange">_node-red-log_</font>. Para mostrar el registro del servicio.
+- _`node-red-start`_. Para iniciar el servicio.
+- _`node-red-stop`_ Para parar el servicio.
+- _`node-red-restart`_. Para reiniciar el servicio.
+- _`node-red-log`_. Para mostrar el registro del servicio.
 
 Si queremos que el servicio Node-RED se ejecute en el inicio de la RBPi:
 
--<font color="orange">_sudo systemctl enable nodered.service_</font>. Se ejecuta automáticamente.
-<font color="orange">_sudo systemctl disable nodered.service_</font>. Deshabilita el servicio.
+- _`sudo systemctl enable nodered.service`_. Se ejecuta automáticamente.
+- _`sudo systemctl disable nodered.service`_. Deshabilita el servicio.
 
 ### Seguridad en Node-RED
 
 Se permite habilitar el acceso al servicio Node-RED a través de _HTTPS_. Utilizando _HTTP_ se puede añadir algo de seguridad, a pesar de que la información no está encriptada, para ello:
 
   1. Generar un HASH de la contraseña. Mirar en la documentación [Seguridad Node-RED](https://nodered.org/docs/user-guide/runtime/securing-node-red).
-     1. <font color="orange">_node-red-admin hash-pw_</font>. Para generer la contraseña devolviéndonos el HASH creado.
+     1. _`node-red-admin hash-pw`_. Para generer la contraseña devolviéndonos el HASH creado.
   2. Incluir el fichero HASH en la configuración de Node-RED. Para poder loguearnos con este usuario y contraseña.
-     1. El HASH generado se debe copiar en al fichero _settings.js_ que está en la carpeta de iinstalación del programa <font color="orange">_vim .node-red/settings.js_</font>. Descomentar la parte del código de _adminAuth_ y pegar el HASH en la línea de código correcto _password_.
+     1. El HASH generado se debe copiar en al fichero _settings.js_ que está en la carpeta de iinstalación del programa _`vim .node-red/settings.js`_. Descomentar la parte del código de _adminAuth_ y pegar el HASH en la línea de código correcto _password_.
 
 ### Sensor ON-OFF en Node-RED
 
@@ -668,32 +668,32 @@ El resultado en el Dashboard:
 >[!IMPORTANT]
 >
 >Instalar _Mosquitto_ en RBPi</br>
-><font color="orange">_sudo apt-get update_</font></br>
-><font color="orange">_sudo apt-get upgrade_</font></br>
-><font color="orange">_sudo apt-get install mosquitto mosquitto-clients_</font>
+>_`sudo apt-get update`_</br>
+>_`sudo apt-get upgrade`_</br>
+>_`sudo apt-get install mosquitto mosquitto-clients`_
 
 ### Configuración de Mosquitto
 
-Acceder al archivo de configuración de mosquitto <font color="green">_`vim /etc/mosquitto/mosquitto.conf`_</font>. Existe un archivo de configuración de ejemplo en la ruta <font color="green">_`/usr/share/doc/mosquitto/examples/mosquitto.conf.gz`_</font>. El archivo está comprimido, para descomprimirlo: <font color="green">_`sudo gunzip mosquitto.conf.gz`_</font>.
+Acceder al archivo de configuración de mosquitto _`vim /etc/mosquitto/mosquitto.conf`_. Existe un archivo de configuración de ejemplo en la ruta _`/usr/share/doc/mosquitto/examples/mosquitto.conf.gz`_. El archivo está comprimido, para descomprimirlo: _`sudo gunzip mosquitto.conf.gz`_.
 
 Visualizando el archivo de configuración de ejemplo _mosquitto.conf_ veremos las configuraciones por defecto:
 
 - El puerto por defecto que utiliza Mosquitto es el 1883 TCP/IP.
 - Escucha en todas las interfaces, tanto WiFi con Ethernet.
 
-Copiamos el archivo a la carpeta de Mosquitto: <font color="green">_`sudo cp mosquitto.conf /etc/mosquitto/conf.d/mosquitto.conf`_</font>. Nos desplazamos al directorio <font color="green">_`cd /etc/mosquitto/conf.d/`_</font> para realizar las modificacioines que nos interesan.
+Copiamos el archivo a la carpeta de Mosquitto: _`sudo cp mosquitto.conf /etc/mosquitto/conf.d/mosquitto.conf`_. Nos desplazamos al directorio _`cd /etc/mosquitto/conf.d/`_ para realizar las modificacioines que nos interesan.
 
 #### Añadir un Usuario a Mosquitto
 
 Creamos el usuario y la contraseña con el siguiente comando:
 
-- <font color="#d6ff33">_sudo mosquitto_passwd -c /etc/mosquitto/passwd mosquitto_</font> donde el usuario elegido es _mosquitto_. Pide la constraseña tras el clic.
+- _`sudo mosquitto_passwd -c /etc/mosquitto/passwd mosquitto`_, donde el usuario elegido es _mosquitto_. Pide la constraseña tras el clic.
 - El archivo _passwd_ contendrá el usuario y el HASH de la contraseña introducida.
-- Ejecutamos <font color="#d6ff33">_sudo vim mosquitto.conf_</font> para modificar la configuración.
-  - Descomentar (quitar #) de la opción: <font color="#d6ff33">*allow_anonymous true*</font> y cambiar el _true_ por el _false_; <font color="#d6ff33">*allow_anonymous false*</font>
-  - En la línea <font color="#d6ff33">*password_file*</font> (quitar #) y añador la ruta donde se encuentra el fichero: <font color="#d6ff33">*password_file /etc/mosquitto/passwd*</font>.
+- Ejecutamos _`sudo vim mosquitto.conf`_, para modificar la configuración.
+  - Descomentar (quitar #) de la opción: *allow_anonymous true* y cambiar el _true_ por el _false_; *allow_anonymous false*.
+  - En la línea *password_file* (quitar #) y añador la ruta donde se encuentra el fichero: *password_file /etc/mosquitto/passwd*.
 
-Guardar los cambios y reiniciar <font color="#d6ff33">_sudo systemctl restart mosquitto.servive_</font>.
+Guardar los cambios y reiniciar _`sudo systemctl restart mosquitto.servive`_.
 
 ### Conexión remota a Mosquitto
 
@@ -720,7 +720,7 @@ Una vez conectados, para publicar se aceptan tres formatos:
 
 ![alt text](image-44.png)
 
-Desde la RBPi ejecutar: <font color="#d6ff33">*mosquitto_sub -h localhost -u mosquitto -P miClave -t test -q 2*</font>. Donde localhost es la IP de la RBPi, _test_ es el tópico al que queremos suscribirnos, está creado en MQTT Explorer y _-q 2_ es un parámetro de calidad. Este cliente mostrará en pantalla cada vez que publicamos un valor en el tópico _test_.
+Desde la RBPi ejecutar: _`mosquitto_sub -h localhost -u mosquitto -P miClave -t test -q 2`_. Donde localhost es la IP de la RBPi, _test_ es el tópico al que queremos suscribirnos, está creado en MQTT Explorer y _-q 2_ es un parámetro de calidad. Este cliente mostrará en pantalla cada vez que publicamos un valor en el tópico _test_.
 
 ![alt text](image-45.png)
 
@@ -750,7 +750,7 @@ Ahora el servidor estaría configurado. Ya podrá conectarse y suscribirse al _t
 
 Publicamos mensajes, para ello escribimos el siguiente comando desde terminal de la RBPi:
 
-- <font color="#d6ff33">*mosquitto_pub -h 192.168.0.110 -u mosquitto - P miClave -t test -m 25*</font>
+- `mosquitto_pub -h 192.168.0.110 -u mosquitto - P miClave -t test -m 25`
 
 Una vez ejecutado en el comando anterior, en el _debug_ de Node-RED aparecerá el valor de 25:
 
@@ -819,25 +819,26 @@ Si pulsamos en el botón cerrar puerta, el mensaje recibido es:
 >[!TIP]
 >
 >Instalando InfluxDB en RBPi.</br>
-><font color="gree">`sudo apt update`</font></br>
-><font color="gree">`sudo apt upgrade`</font></br>
+>`sudo apt update`</br>
+>`sudo apt upgrade`</br>
 >Descarga y agregamos la llave del repositorio:</br>
-><font color="gree">`wget -qO- https://repos.influxdata.com/influxdb.key | sudo apt-key add -`</font></br>
+>`wget -qO- https://repos.influxdata.com/influxdb.key | sudo apt-key add -`</br>
 >Si nuestra _raspbian_ es _strech_:</br>
-><font color="gree">`echo "deb https://repos.influxdata.com/debian stretch stable" | sudo tee /etc/apt/sources.list.d/influxdb.list`</font></br>
+>`echo "deb https://repos.influxdata.com/debian stretch stable" | sudo tee /etc/apt/sources.list.d/influxdb.list`</br>
 >Si nuestra _raspbian_ es _buster_:</br>
-><font color="gree">`echo "deb https://repos.influxdata.com/debian buster stable" | sudo tee /etc/apt/sources.list.d/influxdb.list`</font></br>
-><font color="gree">`sudo apt update`</font></br>
-><font color="gree">`sudo apt install influxdb`</font></br>
+>`echo "deb https://repos.influxdata.com/debian buster stable" | sudo tee /etc/apt/sources.list.d/influxdb.list`</br>
+>`sudo apt update`</br>
+>`sudo apt install influxdb`</br>
 >Para iniciar el porceso InfluxDB</br>
-><font color="gree">`sudo systemctl unmask influxdb`</font></br>
-><font color="gree">`sudo systemctl enable influxdb`</font></br>
-><font color="gree">`sudo systemctl start influxdb`</font></br>
+>`sudo systemctl unmask influxdb`</br>
+>`sudo systemctl enable influxdb`</br>
+>`sudo systemctl start influxdb`</br>
+
+Para saber qué versión de raspbian tenemos:
 
 >[!NOTE]
 >
->Para saber qué versión de raspbian tenemos:</br>
-><font color="blue">`cat /etc/os-release`</font>
+>`cat /etc/os-release`
 
 ### Configurar autenticación de InfluxDB
 
@@ -868,10 +869,10 @@ Para iniciar usando el usuario creado: `influx -username admin -password`. Si to
 >[!IMPORTANT]
 >
 >Nos conectamos a InfluxBD con el comando siguiente:</br>
-><font color="#9b33ff">`influx -username admin -password`</font></br>
+>`influx -username admin -password`</br>
 >Usamos la _password_ elegida.</br>
 >Para crear una base de datos, estando dentro Influx:</br>
-><font color="#9b33ff">`CREATE DATABASE iot`</font>
+>`CREATE DATABASE iot`
 
 ### Escribir en InfluxDB desde Node-RED
 
@@ -941,19 +942,23 @@ Añadirmos un nodo _function_ para leer un dato del array de objetos:
 >[!NOTE]
 >
 >Instalación de Grafana en RBPi.
-> * <font color="#1c68e5">`sudo apt-get update`</font>
-> * <font color="#1c68e5">`sudo apt-get upgrade`</font>
-> * <font color="#1c68e5">`wget https://dl.grafana.com/oss/release/grafana-rpi_8.0.6_armhf.deb`</font>
-> * <font color="#1c68e5">`sudo dpkg -i grafana-rpi_8.0.6_armhf.deb`</font></br>
-> * Cambiar la versión al último paquete, para ello [Grafana](https://grafana.com/grafana/download?pg=get&plcmt=selfmanaged-box1-cta1)</br>
-> * Para iniciar al arrancar en RBPi: <font color="#1c68e5">`sudo systemctl enable grafana-server`</font>
+>
+> - `sudo apt-get update`
+> - `sudo apt-get upgrade`
+> - `wget https://dl.grafana.com/oss/release/grafana-rpi_8.0.6_armhf.deb`
+> - `sudo dpkg -i grafana-rpi_8.0.6_armhf.deb`</br>
+
+Para cambiar la versión al último paquete, para ello [Grafana](https://grafana.com/grafana/download?pg=get&plcmt=selfmanaged-box1-cta1)</br>
+
+Para iniciar al arrancar en RBPi: `sudo systemctl enable grafana-server`
 
 >[!TIP]
 >
 >Para acceder a _Grafana_ a través del navegador web: </br>
-> * <font color="##1ce558">`http://dirección-ip-de-tu-raspberry:3000`</font>
-> * Ingresar: usuario y contraseña para entrar a la plataforma
-> * Credenciales por defecto: <font color="##1ce558">_admin_</font> y <font color="##1ce558">_admin_</font>
+>
+> - `http://dirección-ip-de-tu-raspberry:3000`
+> - Ingresar: usuario y contraseña para entrar a la plataforma
+> - Credenciales por defecto: _admin_ y _admin_
 
 ### Conexión InfluxDB con Grafana
 
