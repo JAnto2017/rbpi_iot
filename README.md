@@ -47,6 +47,7 @@
   - [Grafana en RBPi](#grafana-en-rbpi)
     - [Conexión InfluxDB con Grafana](#conexión-influxdb-con-grafana)
     - [Crear un Dashboard (tablero) en Grafana](#crear-un-dashboard-tablero-en-grafana)
+  - [CURSO RBPi Node-RED CEP 2024-25](#curso-rbpi-node-red-cep-2024-25)
 
 ---
 
@@ -981,3 +982,9 @@ Para iniciar al arrancar en RBPi: `sudo systemctl enable grafana-server`
 ![alt text](image-90.png)
 
 ![alt text](image-91.png)
+
+---
+
+## CURSO RBPi Node-RED CEP 2024-25
+
+[Curso RBPi Node-RED CEP 2024-25](cursoCEP/cursoRBPiNodeRedCEP.md)
