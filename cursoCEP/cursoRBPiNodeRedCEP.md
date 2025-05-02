@@ -9,6 +9,10 @@
     - [Arrancando Raspbian en RBPi - Control remoto SSH](#arrancando-raspbian-en-rbpi---control-remoto-ssh)
       - [Comandos APT](#comandos-apt)
     - [Raspi-config y control VNC](#raspi-config-y-control-vnc)
+    - [DHCP en IP Estáticas](#dhcp-en-ip-estáticas)
+      - [Configurar IP estática en RBPi](#configurar-ip-estática-en-rbpi)
+    - [Cuestionario Módulo 1](#cuestionario-módulo-1)
+  - [Módulo 2: Introducción a Linux y RBPi OS](#módulo-2-introducción-a-linux-y-rbpi-os)
 
 ---
 
@@ -84,3 +88,133 @@
 - Para actualizar todos los paquetes: _`sudo apt-get dist-upgrade`_. Variantes: _`sudo apt dist-upgrade`_.
 
 ### Raspi-config y control VNC
+
+- Configuración inicial de la RBPi con el comando `sudo raspi-config`. Se abre un menú de configuración con varias opciones.
+- Las opciones son:
+  - _System Options_:
+    - Wireless LAN
+    - Audio
+    - Password
+    - Hostname
+    - Boot / Auto Login
+    - Network at Boot
+    - Splash Screen
+    - Power LED
+  - Display Options
+    - Underscan
+    - Screen Blanking
+    - VNC Resolution
+      - 640x480
+      - 720x480
+      - 800x480
+      - 1024x768
+      - 1280x1024
+  - Interface Options
+    - Legacy Camera
+    - SSH
+    - VNC &larr; habilitar
+    - I2C
+    - Serial Port
+    - 1-Wire
+    - Remote GPIO
+  - Performance Options
+  - Localisations Options
+  - Advanced Options
+  - Update
+  - About raspi-config
+
+Conexión desde VNC Viewer en Windows; permite la conexión al escritorio de la RBPi. Desde el VNC Viewer para acceder a la RBPi se debe introducir la IP de la RBPi y el puerto 5900, además de la contraseña y el nombre seleccionado en la configuración de la RBPi.
+
+Se puede modificar el _Display Options_ para cambiar la resolución de la pantalla.
+
+### DHCP en IP Estáticas
+
+Una IP dinámica es asignada por un servicio DHCP de forma aleatoria dentro de un rango previamente prestablecido, mientras que una IP estática se asigna de forma fija dentro de un rango de direcciones predefinidas.
+
+El router puede asignar las IP de forma fija o dinámicas, para congiurarlo:
+
+- DHCP &larr; habilitar.
+- Pool IP address: se estable IP mínima y máxima.
+- En la RBPi se configura una IP estática fuera del rango de la IP asignada por el router.
+
+#### Configurar IP estática en RBPi
+
+- Abrir el archivo _`sudo vim/etc/dhcpcd.conf~`_.
+  - `static ip_address=192.168.1.41/24`.
+  - `static routers=192.168.1.1`.
+  - `static domain_name_servers=8.8.8.8 8.8.4.4`.
+- Reiniciar la RBPi `reboot`.
+
+### Cuestionario Módulo 1
+
+- ¿Qué componente es necesario para almacenar el sistema operativo en una Raspberry Pi?
+
+  - [ ] Memoria RAM
+  - [ ] Disco duro externo
+  - [X] Tarjeta microSD
+  - [ ] Tarjeta SD
+
+- Para trabajar con raspberry pi, conectarle una pantalla un teclado y un rato
+
+  - [ ] Verdadero
+  - [X] Falso
+
+- ¿Cuál de los siguientes sistemas operativos es comúnmente utilizado en Raspberry Pi?
+
+  - [ ] Android
+  - [X] Raspbian (Raspberry Pi OS)
+  - [ ] Windows XP
+  - [ ] macOS
+
+- ¿Qué es el GPIO en una Raspberry Pi?
+Pregunta 4Respuesta
+  - [ ] Una conexión de red inalámbrica
+  - [X] Un conjunto de pines para controlar dispositivos electrónicos
+  - [ ] Una aplicación para programar en Python
+  - [ ] Una conexión de red inalámbrica
+
+- ¿Para qué se utiliza SSH en una Raspberry Pi?
+Pregunta 5Respuesta
+  - [ ] Una conexión de red inalámbrica
+  - [ ] Un sistema operativo
+  - [X] Para controlar la Raspberry Pi de forma remota por terminal
+  - [ ] Para encender y apagar la pantalla
+
+- ¿Qué permite hacer la herramienta VNC en Raspberry Pi?
+Pregunta 6Respuesta
+  - [ ] Programar robots en Python
+  - [X] Acceder al escritorio de la Raspberry Pi desde otro dispositivo
+  - [ ] Medir la temperatura del procesador
+  - [ ] Controlar el volumen del sistema
+
+- ¿Qué es una dirección IP?
+Pregunta 7Respuesta
+  - [X] Un número que identifica un dispositivo en una red
+  - [ ] Un tipo de cable de video
+  - [ ] Un programa para navegar por internet
+  - [ ] El código de seguridad de la Raspberry Pi
+
+- ¿Para qué sirve la herramienta raspi-config en Raspberry Pi?
+Pregunta 8Respuesta
+  - [X] Para configurar opciones básicas del sistema, como red o idioma
+  - [ ] Para editar imágenes
+  - [ ] Para descargar música
+  - [ ] Para instalar videojuegos
+
+- ¿Cuál es la principal diferencia entre una IP dinámica y una IP estática?
+Pregunta 9Respuesta
+  - [ ] La IP dinámica es más rápida que la estática
+  - [ ] No hay ninguna diferencia, son exactamente lo mismo
+  - [ ] La IP estática cambia automáticamente cada vez que se reinicia el dispositivo
+  - [X] La IP dinámica cambia con el tiempo, mientras que la estática permanece fija
+
+- ¿Qué tipo de alimentación eléctrica utiliza una Raspberry Pi (modelo moderno)?
+Pregunta 10Respuesta
+  - [ ] Cable HDMI
+  - [ ] Cable de red Ethernet
+  - [ ] Baterías AA
+  - [X] Fuente de alimentación USB-C o micro-USB (según modelo)
+
+---
+
+## Módulo 2: Introducción a Linux y RBPi OS
