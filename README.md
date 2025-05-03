@@ -14,6 +14,10 @@
 
 [Proyecto Node-RED](ProyNodeRed/proynodered.md)
 
+## Node-RED en la Industria 4.0
+
+[Node-RED en la Industria 4.0](CursoNodeRedIndustria40/cursoNodeRedIndustria40.md)
+
 ---
 
 ![createcommons](createcommons2.png)
