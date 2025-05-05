@@ -13,6 +13,11 @@
       - [Configurar IP estática en RBPi](#configurar-ip-estática-en-rbpi)
     - [Cuestionario Módulo 1](#cuestionario-módulo-1)
   - [Módulo 2: Introducción a Linux y RBPi OS](#módulo-2-introducción-a-linux-y-rbpi-os)
+    - [Introdución: Componentes clave de Linux](#introdución-componentes-clave-de-linux)
+    - [Diferencias entre Interfaz Gráfica y Terminal](#diferencias-entre-interfaz-gráfica-y-terminal)
+      - [Ventajas de usar la Terminal](#ventajas-de-usar-la-terminal)
+    - [Comandos esenciales de Linux](#comandos-esenciales-de-linux)
+    - [Directorios y Archivos](#directorios-y-archivos)
 
 ---
 
@@ -218,3 +223,60 @@ Pregunta 10Respuesta
 ---
 
 ## Módulo 2: Introducción a Linux y RBPi OS
+
+Linux es un OS de código abierto. El código fuente está disponible y se puede modificar.
+
+Linux es más compatible con una amplia variedad de hardware, debido a la amplia comunidad de desarrolladores que crean los controladores.
+
+Linux dispone de gestores de paquetes como `apt` (Advanced Packaging Tool), `dpkg`, `dnf` y `yum` para instalar y actualizar software.
+
+La curva de aprendizaje de Linux es mucho más lenta que la de Windows.
+
+Distribuciones Linux: Ubuntu, Debian, Raspbian (basado en Debian).
+
+Una ventaja de Raspbian es que permite el uso de los pines GPIO de la RBPi para controlar dispositivos electrónicos. Lo que hace que sea fácil trabajar con proyectos de hardware.
+
+### Introdución: Componentes clave de Linux
+
+| **KERNEL** |
+| ---------- |
+| Es el núcleo del OS Linux. Comunica el hardware con el software. Controla los recursos básicos: procesamiento, memoria, E/S |
+
+| **SHELL** |
+| --------- |
+| Es una interfaz de línea de comandos que proporciona una forma de interactuar con el OS. Permite ejecutar comandos y programas, realizar tareas de administración del sistema, automatizar tareas mediante scripts |
+
+### Diferencias entre Interfaz Gráfica y Terminal
+
+| **Interfaz Gráfica** |
+| ------------------ |
+| Es una interfaz de usuario (GUI) que permite interactuar con el sistema mediante un navegador web, un editor de texto o cualquier otra herramienta que requiera una interfaz gráfica |
+
+| **Terminal** |
+| ----------- |
+| Es una interfaz de línea de comandos, permite interactuar con el sistema mediante una consola de comandos (CLI Command Line Interface) permitiendo mayor control y flexibilidad, realizando tareas con comandos y scripts |
+
+#### Ventajas de usar la Terminal
+
+- Mayor control sobre el sistema.
+- Automatizar las tareas mediante scripts.
+- Menor consumo de recursos.
+- Acceso remoto mediante SSH.
+- Posibilidad de gestionar múltiples máquinas de manera eficiente.
+
+### Comandos esenciales de Linux
+
+- `sudo apt update`
+- `sudo apt upgrade`
+- `ls /home` &rarr; listar el contenido de la carpeta home.
+- `sudo visudo` &rarr; editar el archivo sudoers.
+- `sudo apt install htop` &rarr; instalar el programa htop.
+- `htop` &rarr; abrir el programa htop. Muestra estatísticas del sistema.
+- `sudo adduser user_admin` &rarr; crear un nuevo usuario.
+- `sudo usermod -aG sudo user_admin` &rarr; agregar el nuevo usuario al grupo sudo.
+- `sudo usermod -G "" user_invitado` &rarr; quitar el grupo sudo al nuevo usuario.
+- `su - user_admin` &rarr; entrar como el nuevo usuario.
+- `sudo ls` &rarr; listar el contenido del sistema.
+- `exit` &rarr; salir del modo root.
+
+### Directorios y Archivos
