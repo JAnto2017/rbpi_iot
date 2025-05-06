@@ -18,6 +18,22 @@
       - [Ventajas de usar la Terminal](#ventajas-de-usar-la-terminal)
     - [Comandos esenciales de Linux](#comandos-esenciales-de-linux)
     - [Directorios y Archivos](#directorios-y-archivos)
+      - [Scripts](#scripts)
+      - [Permisos de los archivos](#permisos-de-los-archivos)
+    - [Comandos de Redes](#comandos-de-redes)
+    - [Rutas y Directorios](#rutas-y-directorios)
+      - [Comando LS](#comando-ls)
+      - [Comando CD](#comando-cd)
+      - [Comando PWD](#comando-pwd)
+      - [Comando TREE](#comando-tree)
+    - [Directorios Importantes](#directorios-importantes)
+    - [Gestión de Archivos y Carpetas](#gestión-de-archivos-y-carpetas)
+      - [Comando MKDIR](#comando-mkdir)
+      - [Comando RMDIR](#comando-rmdir)
+      - [Comando TOUCH y STAT](#comando-touch-y-stat)
+      - [Comando CP y MV](#comando-cp-y-mv)
+      - [Comando RM](#comando-rm)
+    - [Ampliando Comandos para RBPi](#ampliando-comandos-para-rbpi)
 
 ---
 
@@ -280,3 +296,198 @@ Una ventaja de Raspbian es que permite el uso de los pines GPIO de la RBPi para 
 - `exit` &rarr; salir del modo root.
 
 ### Directorios y Archivos
+
+#### Scripts
+
+- Crear un script: `vim holamundo.sh`.
+- Dar permisos de ejecución: `chmod +x holamundo.sh`.
+- Ejecutar el script: `./holamundo.sh`.
+- Ejecutar el script como root: `sudo ./holamundo.sh`.
+- Eliminar el script: `rm holamundo.sh`.
+
+Contenido del _scripts_ para el _hola mundo.sh_:
+
+```bash
+#!/bin/bash
+
+echo "hola mundo"
+```
+
+#### Permisos de los archivos
+
+Tras ejecutar el comando `ls -l` se obtiene una tabla de salida en la que se muestran los permisos de los archivos y los directorios.
+
+Los archivos que empiezan por la letra `d` son directorios. Y los que empiezan por el símbolo `-` son archivos.
+
+Los siguientes tres grupos de letras, separados por guiones, indican los permisos de: _lectura_, _escritura_ y _ejecución_. Para el: _propietario_, _grupo_ y _otros_.
+
+Las letras de los grupos de permisos pueden ser: `r` (leer), `w` (escribir) y `x` (ejecutar).
+
+Para cambiar los permisos de un archivo, se pueden usar los siguientes comandos:
+
+- `chmod 777 holamundo.sh` &rarr; dar permisos de lectura, escritura y ejecución a todos los usuarios.
+- `chmod 755 holamundo.sh` &rarr; dar permisos de lectura y ejecución a todos los usuarios, pero no de escritura.
+- `chmod 644 holamundo.sh` &rarr; dar permisos de lectura a todos los usuarios, pero no de escritura ni de ejecución.
+- `chmod 555 holamundo.sh` &rarr; dar permisos de lectura y ejecución a todos los usuarios, pero no de escritura.
+- `chmod 444 holamundo.sh` &rarr; dar permisos de lectura a todos los usuarios, pero no de escritura ni de ejecución.
+- `chmod 333 holamundo.sh` &rarr; dar permisos de lectura y ejecución a todos los usuarios, pero no de escritura.
+- `chmod 222 holamundo.sh` &rarr; dar permisos de lectura y ejecución a todos los usuarios, pero no de escritura.
+- `chmod 111 holamundo.sh` &rarr; dar permisos de lectura y ejecución a todos los usuarios, pero no de escritura.
+- `chmod 000 holamundo.sh` &rarr; dar permisos de lectura y ejecución a todos los usuarios, pero no de escritura.
+- `chmod +x holamundo.sh` &rarr; dar permisos de lectura y ejecución a todos los usuarios, pero no de escritura.
+- `chmod -x holamundo.sh` &rarr; quitar permisos de lectura y ejecución a todos los usuarios, pero no de escritura.
+- `chmod u +x holamundo.sh` &rarr; dar permisos de lectura, escritura y ejecución al propietario, el resto solo de lectura.
+- `chmod g +x holamundo.sh` &rarr; dar permisos de lectura, escritura y ejecución al grupo, el resto solo de lectura.
+- `chmod o +x holamundo.sh` &rarr; dar permisos de lectura, escritura y ejecución a otros, el resto solo de lectura.
+- `chmod a +x holamundo.sh` &rarr; dar permisos de lectura, escritura y ejecución a todos los usuarios, el resto solo de lectura.
+- `chmod a -x holamundo.sh` &rarr; quitar permisos de lectura, escritura y ejecución a todos los usuarios, el resto solo de lectura.
+
+### Comandos de Redes
+
+El comando `ifconfig` muestra la configuración de las interfaces de red. Los parámetros útiles que devuelve son: _IP_, _MAC_, Loopback_, Broadcast_ entre otros.
+
+El comando `ping` realiza un ping a un host o a una IP. Sirve para probar la conectividad en la red.
+
+El comando `netstat` muestra el estado de las conexiones de red. Permite saber que puertos se están usando en el sistema. Con el modificador `-tuln` se muestran todas las conexiones activas.
+
+- `ip a` &rarr; mostrar la configuración de las interfaces de red.
+- `ifconfig` &rarr; mostrar la configuración de las interfaces de red.
+- `ifconfig eth0` &rarr; mostrar la configuración de la interface de red eth0.
+- `ifconfig eth0 up` &rarr; activar la interface de red eth0.
+- `ifconfig eth0 down` &rarr; desactivar la interface de red eth0.
+- `ifconfig eth0 89.207.132.170` &rarr; configurar la interface de red eth0 con la dirección IP 89.207.132.170.
+- `ifconfig eth0 netmask 244.178.44.111` &rarr; configurar la interface de red eth0 con la m&aacute;scara de red 244.178.44.111.
+- `ifconfig eth0 broadcast 237.84.2.178` &rarr; configurar la interface de red eth0 con la direcci&oacute;n de broadcast 237.84.2.178.
+- `ping google.com` &rarr; realizar un ping a google.com.
+- `traceroute google.com` &rarr; realizar un trazado de rutas a google.com.
+- `netstat` &rarr; mostrar el estado de las interfaces de red.
+- `netstat -i` &rarr; mostrar el estado de las interfaces de red.
+- `netstat -a` &rarr; mostrar el estado de todas las interfaces de red.
+- `netstat -l` &rarr; mostrar el estado de los sockets de red.
+- `netstat -p` &rarr; mostrar el estado de los procesos de red.
+- `netstat -s` &rarr; mostrar el estado de los servicios de red.
+- `netstat -t` &rarr; mostrar el estado de los flujos de red.
+- `netstat -u` &rarr; mostrar el estado de los usuarios de red.
+- `sudo apt install nmap` &rarr; instalar el programa nmap.
+- `sudo apt install net-tools` &rarr; instalar el programa net-tools.
+
+### Rutas y Directorios
+
+#### Comando LS
+
+- `ls` &rarr; listar el contenido del directorio actual.
+- `ls -a` &rarr; listar el contenido del directorio actual, incluyendo los archivos ocultos.
+- `ls -l` &rarr; listar el contenido del directorio actual, incluyendo los permisos de los archivos y los directorios.
+- `ls -la` &rarr; listar el contenido del directorio actual, incluyendo los permisos de los archivos y los directorios, incluyendo los archivos ocultos.
+- `ls -R` &rarr; listar el contenido del directorio actual y sus subdirectorios.
+- `ls -Rl` &rarr; listar el contenido del directorio actual y sus subdirectorios, incluyendo los permisos de los archivos y los directorios.
+- `ls -Rla` &rarr; listar el contenido del directorio actual y sus subdirectorios, incluyendo los permisos de los archivos y los directorios, incluyendo los archivos ocultos.
+- `ls -lh` &rarr; listar el contenido del directorio actual, incluyendo los tamaños en kilobytes, megabytes y gigabytes, y los permisos de;os de los archivos.
+
+#### Comando CD
+
+- `cd` &rarr; cambiar de directorio.
+- `cd /` &rarr; cambiar de directorio a la raiz del sistema.
+- `cd ~` &rarr; cambiar de directorio al directorio de usuario.
+- `cd ..` &rarr; cambiar de directorio al directorio padre.
+- `cd -` &rarr; cambiar de directorio al directorio anterior.
+- `cd /var` &rarr; cambiar de directorio a la carpeta /var.
+- `cd /var/log` &rarr; cambiar de directorio a la carpeta /var/log.
+- `cd /var/log/` &rarr; cambiar de directorio a la carpeta /var/log/.
+- `cd /var/log/` &rarr; cambiar de directorio a la carpeta /var/log/.
+
+#### Comando PWD
+
+- `pwd` &rarr; mostrar el directorio actual.
+
+#### Comando TREE
+
+- `sudo apt install tree` &rarr; instalar el programa tree.
+- `sudo snap install tree` &rarr; instalar el programa tree con snap.
+- `tree` &rarr; mostrar el directorio actual en forma de árbol.
+- `tree -a` &rarr; mostrar el directorio actual en forma de árbol, incluyendo los archivos ocultos.
+- `tree -l` &rarr; mostrar el directorio actual en forma de árbol, incluyendo los permisos de los archivos y los directorios.
+- `tree -la` &rarr; mostrar el directorio actual en forma de árbol, incluyendo los permisos de los archivos y los directorios, incluyendo los archivos ocultos.
+- `tree -R` &rarr; mostrar el directorio actual y sus subdirectorios en forma de árbol.
+- `tree -Rl` &rarr; mostrar el directorio actual y sus subdirectorios en forma de árbol, incluyendo los permisos de los archivos y los directorios.
+- `tree -Rla` &rarr; mostrar el directorio actual y sus subdirectorios en forma de árbol, incluyendo los permisos de los archivos y los directorios, incluyendo los archivos ocultos.
+- `tree -lh` &rarr; mostrar el directorio actual en forma de árbol, incluyendo los tamaños en kilobytes, megabytes y gigabytes, y los permisos de;os de los archivos.
+- `tree -L1` &rarr; mostrar el directorio actual en forma de árbol, sin mostrar los subdirectorios.
+- `tree -L2` &rarr; mostrar el directorio actual en forma de árbol, sin mostrar los subdirectorios de los subdirectorios.
+- `tree -L3` &rarr; mostrar el directorio actual en forma de árbol, sin mostrar los subdirectorios de los subdirectorios de los subdirectorios.
+
+### Directorios Importantes
+
+- `/` &rarr; la raiz del sistema.
+- `home` &rarr; el directorio de los usuarios creados en el sistema.
+- `/var` &rarr; la carpeta de configuraciones del sistema. Tiene: `/backups`, `cache`, `lib`, `local`, `opt`, `mail`, `run`, `swap`, `sys`, `tmp`.
+- `/etc` &rarr; la carpeta de configuraciones del sistema.
+  - `/etc/fstab` &rarr; la tabla de montaje del sistema.
+  - `/etc/hosts` &rarr; la tabla de hosts del sistema. Asigna direcciones IP a nombres de dominio.
+  - `/etc/hostname` &rarr; el nombre del sistema.
+- `/tmp` &rarr; la carpeta temporal del sistema.
+- `/bin` &rarr; la carpeta de programas del sistema. Comandos para los usuarios.
+- `/sbin` &rarr; la carpeta de programas del sistema. Comandos para los administradores.
+- `/dev` &rarr; la carpeta de dispositivos del sistema.
+- `/media` &rarr; la carpeta de dispositivos externos.
+- `/mnt` &rarr; la carpeta de dispositivos externos.
+
+### Gestión de Archivos y Carpetas
+
+#### Comando MKDIR
+
+- `mkdir` &rarr; crear una carpeta.
+- `mkdir mi_carpeta` &rarr; crear una carpeta llamada mi_carpeta.
+- `mkdir mi_carpeta/` &rarr; crear una carpeta llamada mi_carpeta.
+- `mkdir mi_carpeta/mi_subcarpeta` &rarr; crear una carpeta llamada mi_carpeta/mi_subcarpeta.
+- `mkdir mi_carpeta/mi_subcarpeta/` &rarr; crear una carpeta llamada mi_carpeta/mi_subcarpeta/.
+- `mkdir mi_carpeta/mi_subcarpeta/mi_subsubcarpeta` &rarr; crear una carpeta llamada mi_carpeta/mi_subcarpeta/mi_subsubcarpeta.
+- `mkdir mi_carpeta/mi_subcarpeta/mi_subsubcarpeta/` &rarr; crear una carpeta llamada mi_carpeta/mi_subcarpeta/mi_subsubcarpeta/.
+- `mkdir mi_carpeta/mi_subcarpeta/mi_subsubcarpeta/mi_subsubsubcarpeta` &rarr; crear una carpeta llamada mi_carpeta/mi_subcarpeta/mi_subsubcarpeta/mi_subsubsubcarpeta.
+- `mkdir mi_carpeta/mi_subcarpeta/mi_subsubcarpeta/mi_subsubsubcarpeta/` &rarr; crear una carpeta llamada mi_carpeta/mi_subcarpeta/mi_subsubcarpeta/mi_subsubsubcarpeta/.
+- `mkdir -p mi_carpeta/mi_subcarpeta/mi_subsubcarpeta/mi_subsubsubcarpeta` &rarr; crear una carpeta llamada mi_carpeta/mi_subcarpeta/mi_subsubcarpeta/mi_subsubsubcarpeta.
+- `mkdir -p mi_carpeta/mi_subcarpeta/mi_subsubcarpeta/mi_subsubsubcarpeta/` &rarr; crear una carpeta llamada mi_carpeta/mi_subcarpeta/mi_subsubcarpeta/mi_subsubsubcarpeta/.
+- `mkdir carpeta_uno carpeta_dos` &rarr; crear dos carpetas llamadas carpeta_uno y carpeta_dos.
+- `mkdir -p carpeta_uno carpeta_dos` &rarr; crear dos carpetas llamadas carpeta_uno y carpeta_dos.
+
+#### Comando RMDIR
+
+- `rmdir` &rarr; eliminar una carpeta que esté vacía.
+- `rmdir mi_carpeta` &rarr; eliminar una carpeta llamada mi_carpeta.
+- `rmdir -p mi_carpeta/mi_subcarpeta/mi_subsubcarpeta/mi_subsubsubcarpeta` &rarr; eliminar una carpeta llamada mi_carpeta/mi_subcarpeta/mi_subsubcarpeta/mi_subsubsubcarpeta.
+
+#### Comando TOUCH y STAT
+
+- `touch` &rarr; crear un archivo o modificar marcas de tiempo.
+- `touch mi_archivo.txt` &rarr; crear un archivo llamado mi_archivo.txt.
+- `touch mi_archivo.txt mi_archivo2.txt` &rarr; crear dos archivos llamados mi_archivo.txt y mi_archivo2.txt.
+- `stat mi_archivo.txt` &rarr; mostrar información del archivo mi_archivo.txt.
+- `ls -lu` &rarr; mostrar información del archivo mi_archivo.txt.
+- `ls -lc` &rarr; mostrar información del archivo mi_archivo.txt.
+- `touch -t 202501011535 mi_archivo.txt` &rarr; crear un archivo llamado mi_archivo.txt con la fecha y hora especificada.
+- `touch -c archivo.txt` &rarr; crear un archivo llamado mi_archivo.txt con la fecha y hora actual.
+
+#### Comando CP y MV
+
+- `cp` &rarr; copiar un archivo o carpeta.
+- `cp mi_archivo.txt mi_carpeta` &rarr; copiar un archivo llamado mi_archivo.txt a la carpeta mi_carpeta.
+- `cp -r mi_carpeta mi_carpeta_copia` &rarr; copiar una carpeta llamada mi_carpeta a la carpeta mi_carpeta_copia.
+- `cp -i` &rarr; preguntar antes de copiar un archivo o carpeta.
+- `cp -n` &rarr; mostrar los archivos que se van a copiar.
+- `cp -u` &rarr; sobreescribir los archivos copiados.
+- `cp -v` &rarr; mostrar los archivos que se van a copiar.
+- `cp -p` &rarr; copiar los permisos de los archivos.
+- `mv` &rarr; mover un archivo o carpeta.
+- `mv mi_archivo.txt mi_carpeta` &rarr; mover un archivo llamado mi_archivo.txt a la carpeta mi_carpeta.
+- `mv -r mi_carpeta mi_carpeta_copia` &rarr; mover una carpeta llamada mi_carpeta a la carpeta mi_carpeta_copia.
+
+#### Comando RM
+
+- `rm` &rarr; eliminar un archivo o carpeta.
+- `rm mi_archivo.txt` &rarr; eliminar un archivo llamado mi_archivo.txt.
+- `rm -r mi_carpeta` &rarr; eliminar una carpeta llamada mi_carpeta.
+- `rm -rf mi_carpeta` &rarr; eliminar una carpeta llamada mi_carpeta y su contenido.
+- `rm -i` &rarr; preguntar antes de eliminar un archivo o carpeta.
+- `rm -v` &rarr; mostrar los archivos que se van a eliminar.
+
+### Ampliando Comandos para RBPi
