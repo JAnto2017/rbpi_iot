@@ -18,6 +18,22 @@
     - [Ejercicio con Export](#ejercicio-con-export)
     - [Ejercicio con Import](#ejercicio-con-import)
   - [Nodos Básicos de Node-RED](#nodos-básicos-de-node-red)
+    - [Nodos Comunes](#nodos-comunes)
+      - [Puertos de un Nodo](#puertos-de-un-nodo)
+      - [Etiqueta del Puerto](#etiqueta-del-puerto)
+      - [Nodos con Status](#nodos-con-status)
+      - [Cambios sin Deploy](#cambios-sin-deploy)
+      - [Errores de configuración](#errores-de-configuración)
+      - [Propiedades y Operaciones de los Nodos](#propiedades-y-operaciones-de-los-nodos)
+      - [Iconografía del nodo](#iconografía-del-nodo)
+      - [Nodo INJECT](#nodo-inject)
+      - [Nodo DEBUG](#nodo-debug)
+      - [Nodo COMPLETE](#nodo-complete)
+      - [Nodo CATCH](#nodo-catch)
+      - [Nodo STATUS](#nodo-status)
+      - [Nodo LINK IN y LINK OUT](#nodo-link-in-y-link-out)
+      - [Nodo COMMENT](#nodo-comment)
+    - [Ejercicio con nodos INJECT y DEBUG](#ejercicio-con-nodos-inject-y-debug)
 
 - - -
 
@@ -58,7 +74,7 @@ Como primer paso, se debe instalar Node.js y npm.
 
 En Windows una vez instalado _Node.js_ ejecutar el siguiente comando: `npm install -g node-red`. Al terminar de ejecutar el proceso se verá algo similar a: _nore-red@1.0.0_ added 332 packages from 1 contributor_.
 
-Una vez instalado, para iniciar el programa: lo podemos hacer desde la línea de comandos escribiendo: _`node-red`_. 
+Una vez instalado, para iniciar el programa: lo podemos hacer desde la línea de comandos escribiendo: _`node-red`_.
 
 En el arranque realiza un proceso de comprobaciones:
 
@@ -233,3 +249,221 @@ Se puede seleccionar un archivo para importar o copiar y pegar el contenido del 
 - - -
 
 ## Nodos Básicos de Node-RED
+
+### Nodos Comunes
+
+Para incluir un nodo, existen dos formas de agragarlo:
+
+- Seleccionar el nodo en la paleta de nodos y arrastrarlo al flujo.
+- Desde la ventana de acceso rápido.
+  - Oprimiendo la tecla Ctrl+Clic con el mouse.
+
+#### Puertos de un Nodo
+
+- Son los cuadros que aparecen en el borde del nodo.
+- Los nodos se unen uno con otro por medio de líneas llamadas _wire_ (cables) que salen de sus puertos.
+- Por convención:
+  - El puerto de entrada (lado izquierdo) se llama _In_.
+  - El puerto de salida (lado derecho) se llama _Out_.
+
+#### Etiqueta del Puerto
+
+El puerto muestra una etiqueta al pasar el mouse sobre el recuadro del puerto.
+
+Esta etiqueta se puede modificar en la sección de apariencia en el interior del nodo.
+
+#### Nodos con Status
+
+Algunos nodos muestran su estado con un icono en su parte inferior.
+
+![alt text](image-14.png "Icono de estado de un nodo de Node-RED")
+
+El icono muestra su estado en el entorno de ejecución.
+
+> [!NOTE]
+>
+> Entorno de ejecución es el proceso oculto que ejecuta los flujos.
+
+#### Cambios sin Deploy
+
+Cuando un nodo tiene un círculo azul en la zona superior significa que existe modificaciones que no se han actualizado al entorno de ejecución.
+
+![alt text](image-15.png "Icono de cambios sin Deployde un nodo de Node-RED")
+
+#### Errores de configuración
+
+Si el nodo muestra un triángulo naranja en su parte superior, significa que hay un error en su configuración.
+
+![alt text](image-16.png "Icono de error de configuración de un nodo de Node-RED")
+
+#### Propiedades y Operaciones de los Nodos
+
+Al dar doble clic sobre un nodo:
+
+- **Delete**. Borra el nodo actual.
+- **Cancel**. Cancela la edición de las propiedades del nodo.
+- **Done**. Guarda las propiedades del nodo.
+- **Enabled**. Habilita o deshabilita el nodo seleccionado.
+
+Dentro de las propiedades de los nodos una de las más importantes es:
+
+- **Description**. Descripción del nodo.
+
+En esta sección permite capturar la descripción de la funcionalidad del nodo. Tienen elementos que permiten dar formato enriquecido al texto.
+
+#### Iconografía del nodo
+
+La mayor parte de los nodos comparten opciones de personalización y configuración:
+
+- _Configuration_. Configuración de las propiedades y acciones del nodo.
+- _Description_. Descripción de la funcionalidad y objetivo del nodo.
+- _Apariencia_. Apariencia gráfica del nodo.
+
+![alt text](image-17.png "1-Configuración, 2-Descripción y 3-Apariencia de un nodo de Node-RED")
+
+#### Nodo INJECT
+
+![alt text](image-18.png "Nodo INJECT de Node-RED")
+
+- Permite enviar mensajes al entorno de ejecución.
+- Dispara la ejecución.
+- Puede ejecutar en automático o de forma manual.
+- El mensaje que envía puede tener las propiedades _payload_ y _topic_ establecidas.
+
+![alt text](image-19.png "Propiedades del nodo INJECT de Node-RED")
+
+- _Payload_. Es el cuerpo del mensaje y la propiedad principal.
+- _Topic_. Es el tema del mensaje y es complementaria al mensaje.
+- _Repeat_. Indica el número de veces que se repite el mensaje.
+- _Name_. Es el nombre del nodo.
+
+#### Nodo DEBUG
+
+![alt text](image-20.png "Nodo DEBUG de Node-RED")
+
+- Utilizado para depurar el entorno de ejecución.
+- Permite enviar mensajes al entorno de ejecución.
+
+![alt text](image-21.png "Propiedades del nodo DEBUG de Node-RED")
+
+- _Output_. Es el cuerpo del mensaje y la propiedad principal, es decir, lo que queremos ve.
+- _To_. Configuramos la salida o ventana donde queremos que nos muestre la información. Existen tres tipos de ventanas:
+  - _debug windows_.
+  - _system console_.
+  - _node status (32 characters)_.
+- _Name_. Es el nombre del nodo.
+
+#### Nodo COMPLETE
+
+![alt text](image-22.png "Nodo COMPLETE de Node-RED")
+
+- Ejecuta un nodo al terminar la ejecución de otro.
+
+![alt text](image-23.png "Propiedades del nodo COMPLETE de Node-RED")
+
+- _Select nodes_. Selección de nodos que dispararán su ejecución.
+- _Name_. Es el nombre del nodo.
+
+> [!NOTE]
+>
+> No todos los nodos permiten la ejecución de COMPLETE, esto depende de la codificación del nodo.
+
+#### Nodo CATCH
+
+![alt text](image-24.png "Nodo CATCH de Node-RED")
+
+- Permite capturar mensajes del entorno de ejecución.
+- Atrapa errores en los nodos de la misma pestaña.
+- Permite la ejecución de flujo de corrección del error.
+- Genera las siguientes propiedades:
+  - _Error.message_.
+  - _Error.source.id_.
+  - _Error.source.type_.
+  - _Error.source.name_.
+
+![alt text](image-25.png "Propiedades del nodo CATCH de Node-RED")
+
+- _Catch errors from_. Lista de nodos a monitorizar.
+- _Ignore errors_. Ignora errores atrapados en otro nodo.
+- _Name_. Es el nombre del nodo.
+
+#### Nodo STATUS
+
+![alt text](image-26.png "Nodo STATUS de Node-RED")
+
+- Atrapa el estado de ciertos nodos, normalmente los que aceptan comunicaciones.
+- Genera las siguientes propiedades:
+  - _Status.text_.
+  - _Status.source.id_.
+  - _Status.source.type_.
+  - _Status.source.name_.
+
+![alt text](image-27.png "Propiedades del nodo STATUS de Node-RED")
+
+- _Report status from_. Lista de nodos a monitorizar.
+- _Name_. Es el nombre del nodo.
+
+> [!NOTE]
+>
+> No todos los nodos permiten la ejecución de STATUS, esto depende de la codificación del nodo.
+
+![alt text](image-28.png "Estado de un nodo de Node-RED")
+
+#### Nodo LINK IN y LINK OUT
+
+![alt text](image-29.png "Nodos LINK IN y LINK OUT de Node-RED")
+![alt text](image-30.png "Conexión de nodos LINK IN y LINK OUT de Node-RED")
+
+- Establecen uniones virtuales entre flujos.
+- Dan claridad en el entorno gráfico.
+- Permiten unir flujos en diferentes pestañas.
+
+![alt text](image-31.png "Propiedades del nodo LINK IN y LINK OUT de Node-RED")
+
+- _Name_. Nombre del nodo.
+- _Flujo_. Flujo e identificador de la liga. Debe ser el mismo en Link IN y Link OUT.
+
+#### Nodo COMMENT
+
+![alt text](image-32.png "Nodo COMMENT de Node-RED")
+
+- Sirve para documentar la funcionalidad del flujo.
+- Se puede usar texto enriquecido o HTML.
+- El texto aparece del lado derecho en la zona de descripción.
+
+![alt text](image-33.png "Propiedades e información del nodo COMMENT de Node-RED")
+
+- _Name_. Nombre del nodo.
+- _Editor_. Editor de texto.
+
+### Ejercicio con nodos INJECT y DEBUG
+
+Ejemplo I:
+
+1. Nodo INJECT con _payload_ &rarr; `timestamp`. Envía un mensaje con la propiedad _payload_ con la fecha y hora actual.
+2. Nodo DEBUG con _Output_ &rarr; `payload` y _debug windows_. Recibe el mensaje enviado por el nodo INJECT. Fecha en formato numérico.
+
+Ejemplo II:
+
+1. Nodo INJECT con _payload_ &rarr; `cadena`. Envía un mensaje con la propiedad _payload_ de tipo string "cadena". _Repeat_ por _interval_.
+2. Nodo DEBUG con _Output_ &rarr; `` y _debug windows_. Recibe el mensaje enviado por el nodo INJECT. Cadena de textos.
+  
+Ejemplo III:
+
+1. Nodo INJECT con _payload_ &rarr; `{{"valor1}:"123","valor2":"456"}}}`. Envía un objeto JSON con la propiedad _payload_. _Repeat_ por _interval_ de 5 segundos.
+2. Nodo DEBUG con _Output_ &rarr; `payload` y _debug windows_. Recibe el mensaje enviado por el nodo INJECT. Objeto JSON.
+
+Ejemplo IV:
+
+1. Nodo INJECT con _payload_ &rarr; `[49,44,55]`. Envía un dato de tipo ARRAY con la propiedad _payload_. _Repeat_ por _interval_ de 5 segundos.
+2. Nodo DEBUG con _Output_ &rarr; `payload` y _debug windows_. Recibe el mensaje enviado por el nodo INJECT. Array.
+
+Ejemplo V:
+
+1. Nodo INJECT con _payload_ &rarr; `true`. Envía un dato de tipo BOOLEAN con la propiedad _payload_. _Repeat_ por _interval_ de 5 segundos.
+2. Nodo DEBUG con _Output_ &rarr; `payload` y _debug windows_. Recibe el mensaje enviado por el nodo INJECT. Booleano.
+
+Ejemplo VI:
+
+1. Nodo INJECT con _payload_ &rarr; `null`. Envía un dato de tipo NULL con la propiedad _payload_. _Repeat_ por _interval_ de 5 segundos.
+2. Nodo DEBUG con _Output_ &rarr; `payload` y _debug windows_. Recibe el mensaje enviado por el nodo INJECT. NULL.
