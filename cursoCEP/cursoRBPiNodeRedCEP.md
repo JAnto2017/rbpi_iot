@@ -34,6 +34,10 @@
       - [Comando CP y MV](#comando-cp-y-mv)
       - [Comando RM](#comando-rm)
     - [Ampliando Comandos para RBPi](#ampliando-comandos-para-rbpi)
+    - [Cuestionario Módulo 2](#cuestionario-módulo-2)
+  - [Node-RED en RBPi](#node-red-en-rbpi)
+    - [Antes de instalar Node-RED actualizar el sistema](#antes-de-instalar-node-red-actualizar-el-sistema)
+    - [Instalar Node-RED en RBPi](#instalar-node-red-en-rbpi)
 
 ---
 
@@ -491,3 +495,134 @@ El comando `netstat` muestra el estado de las conexiones de red. Permite saber q
 - `rm -v` &rarr; mostrar los archivos que se van a eliminar.
 
 ### Ampliando Comandos para RBPi
+
+- `uname -a` &rarr; mostrar información del sistema operativo.
+- `cat /proc/cpuinfo` &rarr; mostrar información de la CPU.
+- `free -h` &rarr; mostrar información de la memoria RAM.
+- `uptime` &rarr; mostrar información del tiempo de uso del sistema.
+- `df -h` &rarr; mostrar información del espacio en disco.
+- `vcgencmd measure_temp` &rarr; mostrar temperatura del procesador.
+- `vcgencmd measure_volts` &rarr; mostrar voltaje del procesador.
+- `vcgencmd measure_clock arm` &rarr; mostrar frecuencia del procesador.
+- `vcgencmd measure_clock core` &rarr; mostrar frecuencia del procesador.
+- `vcgencmd measure_clock gpu` &rarr; mostrar frecuencia del procesador.
+- `cat /etc/os-release` &rarr; mostrar información del sistema operativo.
+- `lsusb` &rarr; mostrar información de los dispositivos USB.
+- `lspci` &rarr; mostrar información de los dispositivos PCI.
+- `lshw` &rarr; mostrar información de los dispositivos hardware.
+- `lscpu` &rarr; mostrar información de la CPU.
+- `lsblk` &rarr; mostrar información de los dispositivos de bloque.
+- `dmesg` &rarr; mostrar mensajes de error del kernel.
+- `journalctl` &rarr; mostrar mensajes de error del kernel.
+
+### Cuestionario Módulo 2
+
+- ¿Qué hace el comando `cd` en Linux?
+  - [ ] Elimina una carpeta
+  - [ ] Crea un nuevo archivo
+  - [ ] Muestra el contenido del directorio
+  - [X] Cambia de directorio
+
+- ¿Qué comando te lleva al directorio principal del usuario (home)?
+  - [ ] cd root
+  - [X] cd
+  - [ ] cd home
+  - [ ] cd /
+
+- ¿Qué comando usarías para volver al directorio anterior en Linux?
+  - [X] cd ~
+  - [ ] cd ..
+  - [ ] cd /home
+  - [ ] cd
+
+- ¿Qué significa cd ..?
+  - [ ] Ir al directorio actual
+  - [ ] Ir al directorio raíz
+  - [X] Ir al directorio padre (un nivel arriba)
+  - [ ] Ir a una carpeta oculta
+
+- ¿Para qué sirve el comando sudo?
+  - [X] Para ejecutar comandos con privilegios de administrador
+  - [ ] Para cambiar de usuario
+  - [ ] Para cerrar la terminal
+  - [ ] Para crear carpetas
+
+- ¿Qué hace el comando _sudo apt update_?
+  - [ ] Instala actualizaciones del sistema
+  - [ ] Descarga nuevas versiones de programas
+  - [ ] Reinicia la Raspberry Pi
+  - [X] Verifica y actualiza la lista de paquetes disponibles
+
+- ¿Qué hace el comando _sudo apt upgrade_?
+  - [ ] Actualiza el kernel de Linux
+  - [X] Instala las versiones más recientes de los paquetes ya instalados
+  - [ ] Muestra la versión actual del sistema
+  - [ ] Elimina programas antiguos
+
+- ¿Qué comando muestra la lista de archivos y carpetas en un directorio?**
+Pregunta 8Respuesta
+  - [X] ls
+  - [ ] dir
+  - [ ] pwd
+  - [ ] show
+
+- ¿Qué comando te dice en qué carpeta estás ubicado actualmente?
+  - [X] pwd
+  - [ ] locate
+  - [ ] cd
+  - [ ] whereami
+
+- ¿Qué comando sirve para crear un nuevo directorio (carpeta)?
+  - [X] mkdir
+  - [ ] touch
+  - [ ] cd
+  - [ ] Muestra la versión actual del sistema
+  
+  ---
+
+## Node-RED en RBPi
+
+### Antes de instalar Node-RED actualizar el sistema
+
+```bash
+  update - Retrieve new lists of packages
+  upgrade - Perform an upgrade
+  install - Install new packages (pkg is libc6 not libc6.deb)
+  reinstall - Reinstall packages (pkg is libc6 not libc6.deb)
+  remove - Remove packages
+  purge - Remove packages and config files
+  autoremove - Remove automatically all unused packages
+  dist-upgrade - Distribution upgrade, see apt-get(8)
+  dselect-upgrade - Follow dselect selections
+  build-dep - Configure build-dependencies for source packages
+  satisfy - Satisfy dependency strings
+  clean - Erase downloaded archive files
+  autoclean - Erase old downloaded archive files
+  check - Verify that there are no broken dependencies
+  source - Download source archives
+  download - Download the binary package into the current directory
+  changelog - Download and display the changelog for the given package
+  sudo apt-get install --fix-missing - fijar dependencias rotas
+```
+
+### Instalar Node-RED en RBPi
+
+Una vez instalado, para iniciar el programa: lo podemos hacer desde la línea de comandos escribiendo: _`node-red`_. Luego en el navegador escribir en el url la IP asignada seguido del puerto 1880 que asigna por defecto: `http://192.168.0.110:1880`. Accedemos asi al _Dashboard_ panel principal.
+
+- `node-red` &rarr; iniciar el programa.
+- `node-red-start` &rarr; iniciar el servicio.
+- `node-red-stop` &rarr; parar el servicio.
+- `node-red-restart` &rarr; reiniciar el servicio.
+- `node-red-status` &rarr; mostrar el estado del servicio.
+- `node-red-reinstall` &rarr; reinstalar el servicio.
+- `node-red-uninstall` &rarr; desinstalar el servicio.
+
+Para comprobar si el servicio Node-RED se ejecuta en el inicio de la RBPi:
+
+- `sudo systemctl status node-red.service` &rarr; mostrar el estado del servicio.
+- `sudo systemctl start node-red.service` &rarr; iniciar el servicio.
+- `sudo systemctl stop node-red.service` &rarr; parar el servicio.
+- `sudo systemctl restart node-red.service` &rarr; reiniciar el servicio.
+- `sudo systemctl enable node-red.service` &rarr; ejecutar el servicio en el inicio de la RBPi.
+- `sudo systemctl disable node-red.service` &rarr; deshabilitar el servicio.
+- `sudo systemctl status node-red.service` &rarr; mostrar el estado del servicio.
