@@ -34,6 +34,15 @@
       - [Nodo LINK IN y LINK OUT](#nodo-link-in-y-link-out)
       - [Nodo COMMENT](#nodo-comment)
     - [Ejercicio con nodos INJECT y DEBUG](#ejercicio-con-nodos-inject-y-debug)
+    - [Nodos FUNCTIONS](#nodos-functions)
+      - [Nodo SWITCH](#nodo-switch)
+      - [Nodo CHANGE](#nodo-change)
+      - [Nodo RANGE](#nodo-range)
+      - [Nodo TEMPLATE](#nodo-template)
+      - [Nodo DELAY](#nodo-delay)
+      - [Nodo TRIGGER](#nodo-trigger)
+      - [Nodo EXEC](#nodo-exec)
+  - [Ejercicios con Nodos FUNCTION y COMMONS](#ejercicios-con-nodos-function-y-commons)
 
 - - -
 
@@ -467,3 +476,130 @@ Ejemplo VI:
 
 1. Nodo INJECT con _payload_ &rarr; `null`. Envía un dato de tipo NULL con la propiedad _payload_. _Repeat_ por _interval_ de 5 segundos.
 2. Nodo DEBUG con _Output_ &rarr; `payload` y _debug windows_. Recibe el mensaje enviado por el nodo INJECT. NULL.
+
+### Nodos FUNCTIONS
+
+![alt text](image-34.png "Nodo FUNCTION de Node-RED")
+
+- Permite la ejecución de código JavaScript.
+- Los mensajes llegan como un objeto llamado **msg**.
+
+![alt text](image-35.png "Propiedades del nodo FUNCTION de Node-RED")
+
+- _Name_. Nombre del nodo.
+- _Function_. Cuerpo de la función, es el código que realiza alguna acción. Código JavaScript.
+- Ejemplo de _Function_: `return msg;`.
+- _Output_. Es el cuerpo del mensaje y la propiedad principal, es decir, lo que queremos ve. Pueden regresar más de un valor.
+
+#### Nodo SWITCH
+
+![alt text](image-36.png "Nodo SWITCH de Node-RED")
+
+- Rutea mensajes basándose en sus propiedades o en posiciones.
+- Genera distintos puertos y dependiendo de si la condición es válida o no, se va por uno o por el otro.
+- Este nodo permite la ejecución de diferentes flujos dependiendo del mensaje.
+
+![alt text](image-37.png "Propiedades del nodo SWITCH de Node-RED")
+
+- _Name_. Nombre del nodo.
+- _Property_. Propiedad base a evaluar para la comparación y posterior conmutación.
+- _Add_. Agrega otra regla de comparación.
+- _Checking all rules_. Validación de todas las reglas o cuando se cumple la primera regla salir por ese puerto en particular.
+
+#### Nodo CHANGE
+
+![alt text](image-39.png "Nodo CHANGE de Node-RED")
+
+- Cambia los valores de las propiedades, contexto de flujos o globales.
+
+![alt text](image-38.png "Propiedades del nodo CHANGE de Node-RED")
+
+- _Name_. Nombre del nodo.
+- _Rules_. Reglas en las que se va a realizar el cambio. Permite cuatro operaciones básicas:
+  - _Set_. Establece el valor de la propiedad.
+  - _Change_. Busca y reemplaza partes de la propiedad.
+  - _Delete_. Borra la propiedad.
+  - _Move_. Mueve el valor de una propiedad a otra propiedad.
+- _Add_. Agrega otra regla.
+
+#### Nodo RANGE
+
+![alt text](image-40.png "Nodo RANGE de Node-RED")
+
+- Convierte un valor numérico en otro rango.
+
+![alt text](image-41.png "Propiedades del nodo RANGE de Node-RED")
+
+- _Property_. Propiedad a convertir. Ejemplo: `msg.payload`.
+- _Action_. Acción a realizar.
+- _Mapeo_. Valor de entrada y salida que se quiere aplicar.
+- _Name_. Nombre del nodo.
+
+#### Nodo TEMPLATE
+
+![alt text](image-42.png "Nodo TEMPLATE de Node-RED")
+
+- Muestra una propiedad basándose en la plantilla establecida.
+
+![alt text](image-43.png "Propiedades del nodo TEMPLATE de Node-RED")
+
+- _Name_. Nombre del nodo.
+- _Property_. Propiedad a ser mapeada.
+- _Template_. Plantilla que se va a utilizar_.
+- _Format_. Formato que se requiere aplicar.
+- _Output_. Es el cuerpo del mensaje y la propiedad principal, es decir, lo que queremos ve.
+
+Ejemplo del uso del nodo TEMPLATE:
+
+- Entradas:
+  - msg : contiene la información para llenar la plantilla.
+  - template
+- Salidas:
+  - msg
+
+- Plantilla: `Hola {{payload.name}}. Hoy es {{date}}`.
+- Recibe: `{date : 'Lunes', payload : {name : 'Alex'}}`.
+- Resultado: `Hola Alex. Hoy es Lunes.`
+
+#### Nodo DELAY
+
+![alt text](image-44.png "Nodo DELAY de Node-RED")
+
+- Retrasa el tiempo en que pasa cada mensaje.
+
+![alt text](image-45.png "Propiedades del nodo DELAY de Node-RED")
+
+- _Action_. Retraso en tiempo o detener el flujo a intervalor.
+- _For_. Periodo de tiempo de tiempo de espera.
+- _Name_. Nombre del nodo.
+
+#### Nodo TRIGGER
+
+![alt text](image-46.png "Nodo TRIGGER de Node-RED")
+
+- Dispara un mensaje.
+
+![alt text](image-47.png "Propiedades del nodo TRIGGER de Node-RED")
+
+- _Send_. Enviar el mensaje.
+- _Then_. Configurar la acción a realizar posterior al envío del mensaje.
+- _Then send_. Segundo mensaje a ser enviado.
+- _Reset the trigger if_. Forma en la que se reinicia el trigger.
+- _Handling_. Manejo del trigger de manera síncrona.
+
+#### Nodo EXEC
+
+![alt text](image-48.png "Nodo EXEC de Node-RED")
+
+- Ejecuta un proceso de sistema operativo.
+- Permite intercambiar información con otro programa del sistema.
+
+ ![alt text](image-49.png "Propiedades del nodo EXEC de Node-RED")
+
+- _Command_. Mensaje para ser enviado.
+- _Append_. Adjunta parámetros de inicio.
+- _Output_. Configuración para el tipo de salida que se requiere.
+- _Timeout_. Tiempo de espera en segundos.
+- _Name_. Nombre del nodo.
+
+## Ejercicios con Nodos FUNCTION y COMMONS
