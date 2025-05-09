@@ -603,3 +603,43 @@ Ejemplo del uso del nodo TEMPLATE:
 - _Name_. Nombre del nodo.
 
 ## Ejercicios con Nodos FUNCTION y COMMONS
+
+![alt text](image-50.png "Ejercicios con Nodos FUNCTION y COMMONS de Node-RED")
+
+1. Nodo _Inject_ pasa mensaje a nodo _Function_ y éste a nodo _Debug_.
+2. Nodo _Catch_ pasa mensaje a nodo _Function_ y éste a nodo _Debug_.
+3. Nodo _Status_ pasa mensaje a nodo _Function_ y éste a nodo _Debug_.
+4. Nodo _Complete_ se conecta a nodo _Debug_.
+
+Código del nodo _Function_ de la conexión número 1:
+
+```javascript
+node.log("Mensaje a Consola");
+node.warn("Advertencia");
+node.error("Error", msg);
+msg.payload = "Continúa la ejecución";
+node.status({fill:"red",shape:"ring",text:"disconnected"});
+return msg;
+```
+
+Código de la _Function_ de la conexión número 2:
+
+```javascript
+msg.payload = "Terminó el flujo";
+node.send(msg);
+msg.payload = "Se atrapó el error";
+return msg;
+```
+
+Código de la _Function_ de la conexión número 3:
+
+```javascript
+msg.payload = "Estátus Activado";
+return msg;
+```
+
+![alt text](image-51.png "El nodo _Catch_ recibe errore del nodo Function 1")
+
+![alt text](image-52.png "Nodo _Status_ monitorea el nodo Function 1")
+
+![alt text](image-53.png "Nodo _Complete_ ejecuta el nodo Function 2")

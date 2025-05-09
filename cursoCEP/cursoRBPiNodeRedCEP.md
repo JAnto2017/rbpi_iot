@@ -38,6 +38,12 @@
   - [Node-RED en RBPi](#node-red-en-rbpi)
     - [Antes de instalar Node-RED actualizar el sistema](#antes-de-instalar-node-red-actualizar-el-sistema)
     - [Instalar Node-RED en RBPi](#instalar-node-red-en-rbpi)
+    - [Instalar Node-RED en Windows](#instalar-node-red-en-windows)
+    - [Instalar Node-RED en Linux](#instalar-node-red-en-linux)
+    - [Entorno Node-RED](#entorno-node-red)
+    - [Introducción a Node-RED](#introducción-a-node-red)
+      - [Ejemplo Mi Primer Programa](#ejemplo-mi-primer-programa)
+    - [Nodos Inject y Debug](#nodos-inject-y-debug)
 
 ---
 
@@ -626,3 +632,87 @@ Para comprobar si el servicio Node-RED se ejecuta en el inicio de la RBPi:
 - `sudo systemctl enable node-red.service` &rarr; ejecutar el servicio en el inicio de la RBPi.
 - `sudo systemctl disable node-red.service` &rarr; deshabilitar el servicio.
 - `sudo systemctl status node-red.service` &rarr; mostrar el estado del servicio.
+
+### Instalar Node-RED en Windows
+
+[Node-RED en Windows](https://nodered.org/docs/getting-started/windows)
+
+1. Instalar [Node.js](https://nodejs.org/en/)
+2. Para instalar Node-RED ejecutar el comando `npm install -g --unsafe-perm node-red` en la consola de comandos.
+3. Para ejecutar Node-RED ejecutar el comando `node-red` en la consola de comandos. En RBPi ejecutar el comando `node-red-start` en la consola de comandos para iniciar el proceso.
+
+### Instalar Node-RED en Linux
+
+![alt text](image.png "Instalar Node-RED en Linux")
+
+- [RBPi-Ubuntu](https://nodered.org/docs/getting-started/raspberrypi)
+- [Fedora](https://github.com/node-red/linux-installers)
+
+### Entorno Node-RED
+
+- _Menú Superior_.
+- _Aparato de los Nodos_ (lateral izquierda).
+- _Espacio de trabajo_ (zona central).
+- Iconos de:
+  - _Información_.
+  - _Depuración_.
+  - _Ayuda_.
+  - _Configuración_.
+  - _Información de contexto_.
+  - _Dashboard_.
+
+![alt text](image-1.png "Iconos de Node-RED")
+
+### Introducción a Node-RED
+
+Los flujos (_Flow_) de Node-RED son un conjunto de nodos que se conectan entre ellos para formar un diagrama de flujo. Cada flujo es independiente de los demás.
+
+![alt text](image-2.png "Primer _Flow_ flujos de Node-RED")
+
+Habilitar o deshabilitar un _Flow_ se realiza haciendo doble clic sobre el nombre del _Flow_. Y en la ventana emergente se puede activar o desactivar el _Flow_.:
+
+![alt text](image-3.png "Activar o desactivar un _Flow_ de Node-RED")
+
+Los flujos, se indican en derecha siempre que se selecciona el icono de información.
+
+![alt text](image-4.png "Flujos de Node-RED")
+
+#### Ejemplo Mi Primer Programa
+
+Se realiza la siguiente configuración: _Inject_ &rarr; _Debug_.
+
+- _Inject_. Se configura para enviar un texto (_String_)
+- _Debug_. Se configura para recibir el texto (_String_)
+
+![alt text](image-5.png "Inject configurado para enviar texto")
+
+![alt text](image-6.png "Debug configurado para recibir texto")
+
+![alt text](image-7.png "Probando Mi Primer Programa")
+
+### Nodos Inject y Debug
+
+![alt text](image-8.png "Inject y Debug")
+
+La propiedad _payload_ del nodo _Inject_ se configura para enviar un texto (_String_) aunque admite muchas otros tipos de datos.
+
+![alt text](image-9.png "Propiedad _payload_ del nodo _Inject_")
+
+- _Timestamp_ &rarr; _msg.payload_. Marca de tiempo en ms. Desde 1970-01-01T00:00:00.000Z.
+- _msg.topic_ &rarr; Topico del mensaje.
+- _Inject_ &rarr; Se puede configurar para que se ejecute automáticamente.
+
+![alt text](image-10.png "Propiedades msg.topic y ejecución automática a los 2 segundos")
+
+Para repetir el mensaje se puede configurar la propiedad _Repeat_, la cual dispone de las siguientes opciones:
+
+- _Never_ &rarr; No se repite el mensaje.
+- _Interval_ &rarr; Se repite el mensaje en un intervalo de tiempo.
+- _Interval Times_ &rarr; Se repite el mensaje entre un intervalo de tiempos.
+- _In time specific_ &rarr; Se repite el mensaje en un intervalo de tiempo especifico.
+
+![alt text](image-11.png "Propiedad _Repeat_")
+
+En el nodo _Debug_ se configura para recibir el mensaje completo en formato JSON.:
+
+![alt text](image-12.png "Debug configurado para recibir el mensaje completo en formato JSON")
