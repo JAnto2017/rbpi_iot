@@ -43,6 +43,7 @@
       - [Nodo TRIGGER](#nodo-trigger)
       - [Nodo EXEC](#nodo-exec)
   - [Ejercicios con Nodos FUNCTION y COMMONS](#ejercicios-con-nodos-function-y-commons)
+  - [Ejercicio Switch](#ejercicio-switch)
 
 - - -
 
@@ -643,3 +644,30 @@ return msg;
 ![alt text](image-52.png "Nodo _Status_ monitorea el nodo Function 1")
 
 ![alt text](image-53.png "Nodo _Complete_ ejecuta el nodo Function 2")
+
+## Ejercicio Switch
+
+En este ejercicio se utiliza el nodo _Switch_. Para ello se incluyen cinco nodos _Inject_ y en cada uno:
+
+- `Payload = 1` de tipo _string_.
+- `Payload = 2` de tipo _string_.
+- `Payload = 3` de tipo _string_.
+- `Payload = hola mundo` de tipo _string_.
+- `Payload = Esto es una prueba` de tipo _string_.
+
+![alt text](image-54.png "Esquema de conexión")
+
+Dentro del nodo _Switch_ que nos sirve para filtrar las entradas, tenemos la siguiente configuración:
+
+![alt text](image-55.png "Configuración del nodo Switch")
+
+```json
+Property: msg.payload
+== 1 (String)
+!= 2 (String)
+is between 3 and 5 (Number)
+contains hola (String)
+matches regex ((\w+)\s(\w+)\s(\w+)) (String)
+
+checking all rules
+```
