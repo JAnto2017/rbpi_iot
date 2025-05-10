@@ -44,6 +44,11 @@
     - [Introducción a Node-RED](#introducción-a-node-red)
       - [Ejemplo Mi Primer Programa](#ejemplo-mi-primer-programa)
     - [Nodos Inject y Debug](#nodos-inject-y-debug)
+    - [Mensajes](#mensajes)
+      - [Práctica crear Objeto en Nodo INJECT](#práctica-crear-objeto-en-nodo-inject)
+    - [Nodo CHANGE](#nodo-change)
+    - [Contexto](#contexto)
+      - [Ejemplo Contadores en Flow y el Global](#ejemplo-contadores-en-flow-y-el-global)
 
 ---
 
@@ -716,3 +721,132 @@ Para repetir el mensaje se puede configurar la propiedad _Repeat_, la cual dispo
 En el nodo _Debug_ se configura para recibir el mensaje completo en formato JSON.:
 
 ![alt text](image-12.png "Debug configurado para recibir el mensaje completo en formato JSON")
+
+### Mensajes
+
+Un mensaje es un objeto JSON con las siguientes propiedades:
+
+- _topic_ &rarr; Topico del mensaje.
+- _payload_ &rarr; Contenido del mensaje.
+- _time_ &rarr; Marca de tiempo en ms. Desde 1970-01-01T00:00:00.000Z.
+- _msgid_ &rarr; Identificador del mensaje.
+- _flow_ &rarr; Identificador del flujo.
+- _type_ &rarr; Tipo del mensaje.
+
+Los mensajes de Node-RED son objetos JSON, que se estructuran mediante el par _clave_:_valor_ dentro de llaves. Por ejemplo:
+
+```json
+{
+  "topic": "valor_topic",
+  "payload": "valor_payload",
+  "msgid": "valor_msgid"
+}
+```
+
+#### Práctica crear Objeto en Nodo INJECT
+
+Para crear los objetos JSON de un nodo _Inject_ se realiza lo siguiente:
+
+1. Clic en los tres puntos del nodo _Inject_.
+2. Se abre el editor de JSON.
+3. Se crea el objeto JSON en formato _clave_:_valor_ entre llaves.
+4. Se guarda el objeto JSON.
+5. Se cierra el editor de JSON.
+
+![alt text](image-15.png "Seleccionar en el nodo _Inject_ el tipo de dato JSON")
+
+![alt text](image-13.png "Clic en los tres puntos del nodo _Inject_ para abrir editor de JSON")
+
+![alt text](image-14.png "Contenido del editor de JSON")
+
+Código JSON bien estructurado sin corchetes:
+
+```json
+{
+    "Planta-1": {
+        "Nombre": "Cocina",
+        "Estadp": "Encendido",
+        "Temperatura": "21"
+    },
+    "Planta-2": {
+        "Nombre": "Dormitorio",
+        "Estadp": "Encendido",
+        "Temperatura": "24"
+    },
+    "VIVIENDA-0": {
+        "Nombre": "Garaje",
+        "Estadp": "Encendido",
+        "Temperatura": "19",
+        "Ocupado": "TRUE"
+    }
+}
+```
+
+Código JSON bien estructurado con corchetes:
+
+```json
+{
+    "VIVIENDA": [
+        {
+            "Nombre": "Cocina",
+            "Estadp": "Encendido",
+            "Temperatura": "21"
+        },
+        {
+            "Nombre": "Dormitorio",
+            "Estadp": "Encendido",
+            "Temperatura": "24"
+        },
+        {
+            "Nombre": "Garaje",
+            "Estadp": "Encendido",
+            "Temperatura": "19",
+            "Ocupado": "TRUE"
+        }
+    ]
+}
+```
+
+### Nodo CHANGE
+
+El nodo _CHANGE_ se utiliza para cambiar el tipo de dato de un mensaje. Para ello utiliza las reglas _rules_ y las opciones:
+
+- _Set_. Establece el valor de la propiedad.
+- _Change_. Cambia partes de la propiedad.
+- _Delete_. Borra la propiedad.
+- _Move_. Mueve el valor de una propiedad a otra propiedad.
+
+![alt text](image-16.png "Opcioens del nodo _CHANGE_")
+
+### Contexto
+
+Las variables pueden ser utilizadas en los flujos de Node-RED. Para ello se utiliza el nodo _Context_. O pueden ser utilizadas de forma global en toda la plataforma Node-RED.
+
+![alt text](image-17.png "Contexto de Node-RED")
+
+Ejemplo de un nodo _Change_ con dos salidas para cambiar el valor de una propiedad:
+
+![alt text](image-18.png "Flow local y global")
+![alt text](image-19.png "Información de contexto muestra variables globales y locales")
+
+#### Ejemplo Contadores en Flow y el Global
+
+Para definir dos variables: contador1 (Local al Flow) y contador2 (Global).
+
+El _Inject_ se inicializa de forma automática al iniciar el _Flow_.
+
+![alt text](image-20.png "Inject y Change para definir las variables")
+![alt text](image-21.png "Definición de las variables en nodo Change")
+
+Esquema de _Inject_ y _Change_ en Flow:
+
+![alt text](image-22.png "Esquema de _Inject_ y _Change_ en Flow")
+![alt text](image-23.png "Configuración nodo Inject contador1++")
+![alt text](image-24.png "Configuración nodo Change contador1++")
+![alt text](image-25.png "Configuración nodo Inject contador2++")
+![alt text](image-26.png "Configuración nodo Change contador2++")
+
+Los resultados tras la ejecución del ejemplo:
+
+![alt text](image-27.png "En el propio Flow para variabels locales")
+![alt text](image-28.png "En el propio Flow para variables globales")
