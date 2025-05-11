@@ -44,6 +44,11 @@
       - [Nodo EXEC](#nodo-exec)
   - [Ejercicios con Nodos FUNCTION y COMMONS](#ejercicios-con-nodos-function-y-commons)
   - [Ejercicio Switch](#ejercicio-switch)
+  - [Ejercicio Change](#ejercicio-change)
+  - [Ejercicio Delay y Máquina de Estados](#ejercicio-delay-y-máquina-de-estados)
+  - [Nodo Template](#nodo-template-1)
+  - [Nodo RBE](#nodo-rbe)
+  - [Ejercicio Split](#ejercicio-split)
 
 - - -
 
@@ -671,3 +676,132 @@ matches regex ((\w+)\s(\w+)\s(\w+)) (String)
 
 checking all rules
 ```
+
+## Ejercicio Change
+
+Para realizar este ejercicio se utilizarán varios nodos de tipo _Change_. Cuya función es cambiar el contenido de las propiedades del mensaje.
+
+![alt text](image-56.png "Esquema de conexión")
+
+Las opciones que presenta el nodo _Change_ son:
+
+- _Set_. Establece el valor de la propiedad.
+- _Change_. Busca y reemplaza el valor.
+- _Delete_. Borra la propiedad.
+- _Move_. Mueve el valor de una propiedad a otra propiedad.
+
+![alt text](image-57.png "Configuración del nodo Change")
+
+Se puede aplicar sobre el mensaje de entrada `msg`, sobre una variable en el contexto de flujo presente `flow` o sobre una variable global `global`.
+
+Se puede cambiar a todos los valores que aparecen en la lista desplegable:
+
+![alt text](image-58.png "Lista desplegable de valores disponibles")
+
+En el nodo _Debug_ marcar a opción `complete msg object` para que puede mostrar todo el contenido del mensaje.
+
+Configuración de los nodos _Change_:
+
+![alt text](image-59.png "Configuración del segundo nodo Change")
+![alt text](image-60.png "Configuración del tercer nodo Change")
+![alt text](image-61.png "Configuración del cuarto nodo Change")
+
+## Ejercicio Delay y Máquina de Estados
+
+Una máquina de estados es un sistema que realiza la ejecución por pasos.
+
+![alt text](image-62.png "Esquema de conexión")
+
+1. Nodo _Inject_.
+2. Nodo _Change_.
+3. Nodo _Function_ (parámetros iniciales). Nodo _Link IN_.
+4. Nodo _Function_.
+5. Ndodo _Delay_.
+6. Nodo _Switch_. Conecta con los siguientes nodos:
+   1. Nodo _Change_ nº1. &rarr; Nodo _Link OUT_.
+   2. Nodo _Change_ nº2. &rarr; Nodo _Link OUT_.
+   3. Nodo _Change_ nº3. &rarr; Nodo _Link OUT_.
+   4. Nodo _Change_ nº4. &rarr; Nodo _Link OUT_.
+   5. Nodo _Change_ nº5. &rarr; Nodo _Link OUT_.
+   6. Nodo _Function_ &rarr; Nodo _Debug_.
+
+El funcionamiento, es que cada segundo va disparando un mensaje incremental.
+
+En el primer _Change_ se valida la variable `set: flow.ProcesoCiclico to false`.
+
+En el nodo _Function_ se establecen los parámetros de inicio:
+
+```javascript
+msg.payload = 0;  //SET del primer paso
+msg.delay = 1000; //Tiempo de espera en milisegundos
+msg.resetProceso = false; //Define si el proceso entra en un ciclo infinito
+return msg;
+```
+
+El otro nodo _Function_ está vacío. Únicamente se dispone de la línea de código `return msg;`.
+
+El nodo _Delay_ se configura para que espere 2 segundos, configuración: `delay each message`.
+
+El nodo _Switch_ se configura para que se disparen los nodos _Change_:
+
+- Property = `msg.payload`.
+- `== 0 (Number)`. &rarr; regla 1
+- `== 1 (Number)`. &rarr; regla 2
+- `== 2 (Number)`. &rarr; regla 3
+- `== 3 (Number)`. &rarr; regla 4
+- `== 4 (Number)`. &rarr; regla 5
+- `== 5 (Number)`. &rarr; regla 6
+
+Configuración del primer nodo _Change_:
+
+- Set: `msg.payload`.
+- to: `$number(msg.payload) + 1` (J: expresión).
+
+Configuración del nodo _Function_:
+
+```javascript
+var varProcesoCiclico = flow.get('ProcesoCiclico');
+
+if (varProcesoCiclico === true) {
+    msg.payload = 0;
+    return [msg,null];
+} else {
+    msg.payload = "Terminado el proceso";
+    return [null,msg];
+}
+```
+
+## Nodo Template
+
+El nodo _Template_ es una plantilla.
+
+![alt text](image-63.png "Esquema de conexión")
+
+- Nodo _Inject_. Propiedad `Payload = (string) Prueba`.
+- Nodo _Template_. Template: `Mensaje recibido: {{payload}}`.
+
+![alt text](image-64.png "Tipos de sintaxis en nodo Template")
+
+## Nodo RBE
+
+El nodo _RBE_ (Rule Based Engine) es un motor de reglas. Está en el grupo de nodos de funciones. Aparece con el nombre de _Filter_ (filtrar)
+
+![alt text](image-66.png "Nodo RBE (filtrar)")
+![alt text](image-65.png "Ejemplo de uso del nodo RBE")
+
+- Nodo _Inject_. Propiedad `Payload = (string) Mensaje 1`. Repetir `intervalo` 1 segundo.
+- Nodo _Inject_. Propiedad `Payload = (string) Mensaje 2`. Repetir `none`.
+- Nodo _RBE_. Propiedad: `msg.payload`.
+
+El objetivo del nodo _RBE_ es limitar el número de mensajes entrantes que sean iguales. Solo deja pasar uno de los dos mensajes. Es útil cuando se tienen dos sensores y uno de ellos está arrojando información de manera constante.
+
+## Ejercicio Split
+
+El nodo de secuencia _Split_ (dividir).
+
+![alt text](image-67.png "Nodo Split (dividir) conectado para ejemplo")
+
+- Nodo _Inject_. Propiedad `Payload = (string) Curso IoT4`.
+- Nodo _Split_. Propiedad: `Dividir usando: \n` es el valor por defecto. Si lo cambiamos por un espacio en blanco: `Split using: Espacios en blanco`. La frase de entrada la dividimos en palabras.
+
+![alt text](image-68.png "Propiedades del nodo Split")
