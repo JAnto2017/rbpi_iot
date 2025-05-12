@@ -49,6 +49,8 @@
     - [Nodo CHANGE](#nodo-change)
     - [Contexto](#contexto)
       - [Ejemplo Contadores en Flow y el Global](#ejemplo-contadores-en-flow-y-el-global)
+  - [Nodo Function](#nodo-function)
+    - [Ejemplo Incrementar-Decrementar con nodo FUNCTION](#ejemplo-incrementar-decrementar-con-nodo-function)
 
 ---
 
@@ -850,3 +852,99 @@ Los resultados tras la ejecución del ejemplo:
 
 ![alt text](image-27.png "En el propio Flow para variabels locales")
 ![alt text](image-28.png "En el propio Flow para variables globales")
+
+## Nodo Function
+
+![alt text](image-29.png "Nodo Function")
+![alt text](image-30.png "Zona para código JS al inicio del nodo Function")
+![alt text](image-31.png "Zona para código JS al final del nodo Function")
+
+Ejemplo de código JS en nodo _Function_ en la etiqueta _En mensaje_:
+
+```javascript
+var mensaje_funcion = {
+  payload: msg.payload,
+  topic: msg.topic
+};
+mensaje_funcion.payload = mensaje_funcion.payload.toUpperCase();
+return mensaje_funcion;
+```
+
+En el nodo _Function_ podemos configurar que envíe dos salidas.
+
+![alt text](image-32.png "Configuración de 2 salidas en el nodo Function")
+![alt text](image-33.png "Configuración de 2 salidas en el nodo Function")
+
+Ejemplo de código JS en nodo _Function_ para dos salidas:
+
+```javascript
+var mensaje_funcion1 = {
+  payload: msg.payload
+};
+var mensaje_funcion2 = {
+  payload: msg.topic
+}
+return [mensaje_funcion1, mensaje_funcion2];
+```
+
+### Ejemplo Incrementar-Decrementar con nodo FUNCTION
+
+Para configurar el nodo _Function_ se hará uso de las opciones _On Start_, _On Message_ y _On Stop_.
+
+Código del _On Start_:
+
+```javascript
+flow.set('contador1', 0); //declaración de variable local al flujo
+global.set('contador2', 0); //declaración de variable global
+```
+
+Código del _On Message_:
+
+```javascript
+return msg;
+```
+
+![alt text](image-35.png "Variables Flow y Global")
+
+La configuración del nodo _Inject_:
+
+![alt text](image-34.png "Configuración del nodo Inject")
+
+Activar la opción `Inyectar una vez después de 0.1 segundos`.
+
+Añadimos cuatro nodos _Inject_, y configuramos sus _topic_ de la siguiente manera:
+
+- `contador1+`.
+- `contador1-`.
+- `contador2+`.
+- `contador2-`.
+
+Las salidas de los nodos _Inject_ se conectan al nodo _Function_.
+
+El código JS del nodo _Function_ para la opción de _On Message_ será lo siguiente:
+
+```javascript
+if (msg.topic == 'contador1+') {
+  flow.set('contador1', flow.get('contador1') + 1);
+  msg.payload = flow.get('contador1');
+  msg.topic = 'contador1';
+} else if (msg.topic == 'contador1-') {
+  flow.set('contador1', flow.get('contador1') - 1);
+  msg.payload = flow.get('contador1');
+  msg.topic = 'contador1';
+} else if (msg.topic == 'contador2+') {
+  global.set('contador2', global.get('contador2') + 1);
+  msg.payload = global.get('contador2');
+  msg.topic = 'contador2';
+} else if (msg.topic == 'contador2-') {
+  global.set('contador2', global.get('contador2') - 1);
+  msg.payload = global.get('contador2');
+  msg.topic = 'contador2';
+} else {
+  msg.topic = 'Error';
+  msg.payload = 'Error';
+}
+return msg;
+```
+
+La opción _On Start_ se deja en blanco sin codificación.
