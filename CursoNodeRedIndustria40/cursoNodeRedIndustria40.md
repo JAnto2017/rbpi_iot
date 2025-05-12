@@ -42,13 +42,16 @@
       - [Nodo DELAY](#nodo-delay)
       - [Nodo TRIGGER](#nodo-trigger)
       - [Nodo EXEC](#nodo-exec)
-  - [Ejercicios con Nodos FUNCTION y COMMONS](#ejercicios-con-nodos-function-y-commons)
-  - [Ejercicio Switch](#ejercicio-switch)
-  - [Ejercicio Change](#ejercicio-change)
-  - [Ejercicio Delay y Máquina de Estados](#ejercicio-delay-y-máquina-de-estados)
-  - [Nodo Template](#nodo-template-1)
-  - [Nodo RBE](#nodo-rbe)
-  - [Ejercicio Split](#ejercicio-split)
+    - [Ejercicios con Nodos FUNCTION y COMMONS](#ejercicios-con-nodos-function-y-commons)
+    - [Ejercicio Switch](#ejercicio-switch)
+    - [Ejercicio Change](#ejercicio-change)
+    - [Ejercicio Delay y Máquina de Estados](#ejercicio-delay-y-máquina-de-estados)
+    - [Nodo Template](#nodo-template-1)
+    - [Nodo RBE](#nodo-rbe)
+    - [Ejercicio Split](#ejercicio-split)
+  - [Sección 3 - Comunicaciones](#sección-3---comunicaciones)
+    - [Nodo HTTP IN](#nodo-http-in)
+    - [Nodo HTTP RESPONSE](#nodo-http-response)
 
 - - -
 
@@ -608,7 +611,7 @@ Ejemplo del uso del nodo TEMPLATE:
 - _Timeout_. Tiempo de espera en segundos.
 - _Name_. Nombre del nodo.
 
-## Ejercicios con Nodos FUNCTION y COMMONS
+### Ejercicios con Nodos FUNCTION y COMMONS
 
 ![alt text](image-50.png "Ejercicios con Nodos FUNCTION y COMMONS de Node-RED")
 
@@ -650,7 +653,7 @@ return msg;
 
 ![alt text](image-53.png "Nodo _Complete_ ejecuta el nodo Function 2")
 
-## Ejercicio Switch
+### Ejercicio Switch
 
 En este ejercicio se utiliza el nodo _Switch_. Para ello se incluyen cinco nodos _Inject_ y en cada uno:
 
@@ -677,7 +680,7 @@ matches regex ((\w+)\s(\w+)\s(\w+)) (String)
 checking all rules
 ```
 
-## Ejercicio Change
+### Ejercicio Change
 
 Para realizar este ejercicio se utilizarán varios nodos de tipo _Change_. Cuya función es cambiar el contenido de las propiedades del mensaje.
 
@@ -706,7 +709,7 @@ Configuración de los nodos _Change_:
 ![alt text](image-60.png "Configuración del tercer nodo Change")
 ![alt text](image-61.png "Configuración del cuarto nodo Change")
 
-## Ejercicio Delay y Máquina de Estados
+### Ejercicio Delay y Máquina de Estados
 
 Una máquina de estados es un sistema que realiza la ejecución por pasos.
 
@@ -771,7 +774,7 @@ if (varProcesoCiclico === true) {
 }
 ```
 
-## Nodo Template
+### Nodo Template
 
 El nodo _Template_ es una plantilla.
 
@@ -782,7 +785,7 @@ El nodo _Template_ es una plantilla.
 
 ![alt text](image-64.png "Tipos de sintaxis en nodo Template")
 
-## Nodo RBE
+### Nodo RBE
 
 El nodo _RBE_ (Rule Based Engine) es un motor de reglas. Está en el grupo de nodos de funciones. Aparece con el nombre de _Filter_ (filtrar)
 
@@ -795,7 +798,7 @@ El nodo _RBE_ (Rule Based Engine) es un motor de reglas. Está en el grupo de no
 
 El objetivo del nodo _RBE_ es limitar el número de mensajes entrantes que sean iguales. Solo deja pasar uno de los dos mensajes. Es útil cuando se tienen dos sensores y uno de ellos está arrojando información de manera constante.
 
-## Ejercicio Split
+### Ejercicio Split
 
 El nodo de secuencia _Split_ (dividir).
 
@@ -805,3 +808,38 @@ El nodo de secuencia _Split_ (dividir).
 - Nodo _Split_. Propiedad: `Dividir usando: \n` es el valor por defecto. Si lo cambiamos por un espacio en blanco: `Split using: Espacios en blanco`. La frase de entrada la dividimos en palabras.
 
 ![alt text](image-68.png "Propiedades del nodo Split")
+
+- - -
+
+## Sección 3 - Comunicaciones
+
+### Nodo HTTP IN
+
+Desde un navegador web se pueden enviar mensajes al nodo _HTTP IN_. El nodo _HTTP IN_ es un nodo de entrada, está en la sección de red (network).
+
+![alt text](image-69.png "Esquema de conexión")
+
+- Nodo _HTTP IN_. Propiedades: _GET_, _URL_ y _Name_.
+  - Método: `GET`.
+  - URL: `http://localhost:1880/http-in`.
+  - Nombre: `http-in`.
+- Nodo _Function_. Añadir el código: `msg.payload = "Mensaje recibido"; return msg;`.
+- Nodo _Debug_.
+- En un navegador web, añadimos la url: `http://localhost:1880/http-in`.
+
+### Nodo HTTP RESPONSE
+
+Con este nodo _HTTP RESPONSE_ se pueden responder mensajes al nodo _HTTP IN_. El nodo _HTTP RESPONSE_ es un nodo de salida, está en la sección de red (network). Permite enviar mensajes a la página web.
+
+![alt text](image-70.png "Esquema de conexión")
+![alt text](image-71.png "Resultado de la conexión")
+
+Para que devuelva código HTML, modificaresmos el nodo _Function_:
+
+```javascript
+msg.payload = "<h1>Mensaje recibido</h1>";
+return msg;
+```
+
+![alt text](image-72.png "Configuración del nodo Function")
+![alt text](image-73.png "Resultado de la conexión")
