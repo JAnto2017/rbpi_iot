@@ -52,6 +52,9 @@
   - [Sección 3 - Comunicaciones](#sección-3---comunicaciones)
     - [Nodo HTTP IN](#nodo-http-in)
     - [Nodo HTTP RESPONSE](#nodo-http-response)
+  - [Dashboard](#dashboard)
+    - [Instalar los nodos del Dashboard](#instalar-los-nodos-del-dashboard)
+    - [Entrar al Dashboard](#entrar-al-dashboard)
 
 - - -
 
@@ -843,3 +846,37 @@ return msg;
 
 ![alt text](image-72.png "Configuración del nodo Function")
 ![alt text](image-73.png "Resultado de la conexión")
+
+- - -
+
+## Dashboard
+
+El _dashboard_ es una herramienta que permite ver los nodos, flujos, enlaces y mensajes de Node-RED. El conjunto de nodos crean una pantalla enriquecida que permite la visualización de los flujos de datos, tipo panel de control.
+
+Los elementos que se pueden ver en el dashboard son:
+
+![alt text](image-74.png "Elementos del dashboard de Node-RED")
+
+### Instalar los nodos del Dashboard
+
+Para acceder a los nodos que están instalados y/o añadir otros _dashboards_ se abre la ventana de _Ajustes_:
+
+![alt text](image-75.png "Dashboard de configuración de Node-RED")
+![alt text](image-76.png "Dashboard de configuración de Node-RED")
+
+En el campo buscar escribir: _node-red-dashboard_.
+
+![alt text](image-77.png "Dashboard de configuración de Node-RED")
+
+### Entrar al Dashboard
+
+El _dashboard_ es visible desde la página web:
+
+- `http://localhost:1880/ui`.
+- `http://192.168.1.41:1898/ui/`.
+
+El comportamiento es responsive (adaptativo); significa, que se puede ver en cualquier dispositivo que pueda acceder a la página web.
+
+> [!NOTE]
+>
+> UI viene de User Interface.
