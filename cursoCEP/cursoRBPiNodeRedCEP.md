@@ -49,8 +49,12 @@
     - [Nodo CHANGE](#nodo-change)
     - [Contexto](#contexto)
       - [Ejemplo Contadores en Flow y el Global](#ejemplo-contadores-en-flow-y-el-global)
-  - [Nodo Function](#nodo-function)
+  - [Nodo FUNCTION](#nodo-function)
     - [Ejemplo Incrementar-Decrementar con nodo FUNCTION](#ejemplo-incrementar-decrementar-con-nodo-function)
+  - [Nodo COMPLETE](#nodo-complete)
+  - [Nodo CATCH](#nodo-catch)
+  - [Nodo STATUS](#nodo-status)
+  - [Nodo LINK](#nodo-link)
 
 ---
 
@@ -853,7 +857,7 @@ Los resultados tras la ejecución del ejemplo:
 ![alt text](image-27.png "En el propio Flow para variabels locales")
 ![alt text](image-28.png "En el propio Flow para variables globales")
 
-## Nodo Function
+## Nodo FUNCTION
 
 ![alt text](image-29.png "Nodo Function")
 ![alt text](image-30.png "Zona para código JS al inicio del nodo Function")
@@ -948,3 +952,40 @@ return msg;
 ```
 
 La opción _On Start_ se deja en blanco sin codificación.
+
+## Nodo COMPLETE
+
+El nodo _Complete_ permite: activar un flujo cuando otro nodo completa su manejo de un mensaje.
+
+Si un nodo informa cuando ha terminado de manejar un mensaje, este nodo se puede utilizar para desencadenar un segundo flujo.
+
+Se puede utilizar junto con un nodo sin puerto de salida, como el nodo de envío de correo electrónico, para continuar el flujo.
+
+Este nodo debe configurarse para manejar el evento para los nodos seleccionados en el flujo. No proporciona un modo de "manejar todo" que se aplica automáticamente a todos los nodos del flujo.
+
+El nodo _Complete_ detecta todos los otros nodos que están en el Flow.
+
+![alt text](image-36.png "Nodo Complete")
+![alt text](image-37.png "Ejemplo de uso del nodo Complete")
+
+## Nodo CATCH
+
+El nodo _Catch_ se utiliza para capturar un error por un nodo que esté en la misma pestaña. Es decir, se ejecuta el nodo _Catch_ cuando se produce un error en un nodo de la misma pestaña. En el nodo _Catch_ se puede configurar para recibir el error completo en formato JSON.
+
+- `error.message` &rarr; Mensaje de error.
+- `error.source.idd` &rarr; Identificador del nodo que arrojó el error.
+- `error.source.name` &rarr; Nombre del nodo que arrojó el error.
+- `error.source.type` &rarr; Tipo del nodo que arrojó el error.
+
+## Nodo STATUS
+
+El nodo _Status_ informa mensajes de estado de otros nodos en la misma pestaña (FLow). Las salidas son:
+
+- `status.text` &rarr; Mensaje de estado.
+- `status.source.type` &rarr; Tipo del nodo que informó el estado.
+- `status.source.id` &rarr; Identificador del nodo que informó el estado.
+- `status.source.name` &rarr; Nombre del nodo que informó el estado.
+
+![alt text](image-38.png "Configuración del nodo Status")
+
+## Nodo LINK
