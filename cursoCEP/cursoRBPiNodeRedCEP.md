@@ -55,6 +55,12 @@
   - [Nodo CATCH](#nodo-catch)
   - [Nodo STATUS](#nodo-status)
   - [Nodo LINK](#nodo-link)
+  - [Nodo COMMENT](#nodo-comment)
+  - [Nodo Switch](#nodo-switch)
+  - [Nodo RANGE](#nodo-range)
+    - [Ejemplo de uso nodo RANGE](#ejemplo-de-uso-nodo-range)
+  - [Nodo TEMPLATE](#nodo-template)
+    - [Ejemplo de uso del nodo TEMPLATE](#ejemplo-de-uso-del-nodo-template)
 
 ---
 
@@ -989,3 +995,107 @@ El nodo _Status_ informa mensajes de estado de otros nodos en la misma pestaña 
 ![alt text](image-38.png "Configuración del nodo Status")
 
 ## Nodo LINK
+
+![alt text](image-39.png "Nodos LINK")
+
+- Nodo _Link In_ &rarr; Crea cables virtuales entre flujos. El nodo se puede conectar a cualquier nodo enlace salida que exista en cualquier pestaña. Una vez conectados se comportan como si estuvieran conectados directamente.
+- Nodo _Link Out_ &rarr; Crea cables virtuales entre flujos.
+- Nodo _Link Call_ &rarr; Llama a un flujo que comienza con un enlace entrada y transmite la respuesta. Este nodo se puede conectar a un nodo enlace entrada que exista en cualquier pestaña. El flujo conectado a ese nodo debe finalizar con un nodo enlace salida configurado en modo retorno.
+
+## Nodo COMMENT
+
+Un nodo que puedes utilizar para agregar comentarios a tus flujos.
+
+El panel de edición aceptará la sintaxis de Markdown. El texto se representará en el panel lateral de información.
+
+## Nodo Switch
+
+Enruta mensajes según los valores de sus propiedades o la posición de la secuencia.
+
+Cuando llega un mensaje, el nodo evaluará cada una de las reglas definidas y reenviará el mensaje a las salidas correspondientes de cualquier regla coincidente.
+
+Opcionalmente, se puede configurar el nodo para que deje de evaluar reglas una vez que encuentre una que coincida.
+
+Las reglas se pueden evaluar en función de una propiedad de mensajes individual, una propiedad de flujo o contexto global, una variable de entorno o el resultado de una expresión JSON.
+
+Hay cuatro tipos de reglas:
+
+1. **Valor**: se evalúan con respecto a la propiedad configurada.
+2. **Secuencia**: se pueden utilizar en secuencias de mensajes, como las generadas por el nodo _Dividir_.
+3. Se puede proporicionar una **expresión** JSON, que se evaluará en relación con todo el mensaje y coincidirá si la expresión devuelve un valor verdadero.
+4. Se pueden utilizar una regla **de lo contrario** para hacer coincidir si ninguna de las otras reglas coinciden.
+
+## Nodo RANGE
+
+Este nodo escalará linealmente el valor recibido. De forma predeterminada, el resultado no está restringido al rango definido en el nodo.
+
+Asigna un valor numérico a un rango diferente.
+
+- _Entradas_: `payload` &rarr; la debe ser un número. Cualquier otra cosa intentará analizarse como un número y rechazarse si falla.
+- _Salidas_: `payload` &rarr; el valor asignado al nuevo rango.
+
+> [!NOTE]
+> Escalar y limitar el rango objetivo significa que el resultador nunca estará fuera del rango objetivo.
+
+### Ejemplo de uso nodo RANGE
+
+Este ejemplo muestra como escalar una temperatura en un rango de 0 a 100. Con un ventilador de 10 niveles.
+
+![alt text](image-40.png "Diagrama del ejemplo con nodo RANGE")
+
+![alt text](image-41.png "Configuración del nodo RANGE")
+
+Código del nodo _Function_ para el método _On Message_:
+
+```javascript
+msg.topic = "Nivel de ventilación";
+flow.set("temperatura", flow.get("temperatura") + 10);
+msg.payload = flow.get("temperatura");
+return msg;
+```
+
+Código del nodo _Function_ para el método _On Start_:
+
+```javascript
+flow.set("temperatura", 0);
+```
+
+![alt text](image-42.png "Configuración del nodo Injection")
+
+![alt text](image-43.png "Resultados del ejemplo con nodo RANGE")
+
+## Nodo TEMPLATE
+
+Establece una propiedad basada en la plantilla proporcionada.
+
+| Entradas | Salidas |
+| -------- | ------- |
+| `msg` un objeto de mensaje que contiene información | `msg` un mensaje con una propiedad establecida al completar la plantilla configurada con propiedades del mensaje entrante |
+| `template` una plantilla que se completará desde `msg.payload` | |
+
+De forma predeterminada, esto utiliza el formato `mustache`, pero se puede desactivar si es necesario.
+
+![alt text](image-44.png "Lista de opciones del nodo TEMPLATE")
+
+### Ejemplo de uso del nodo TEMPLATE
+
+![alt text](image-45.png "Diagrama del ejemplo con nodo TEMPLATE")
+
+![alt text](image-46.png "Configuración del nodo INJECT")
+
+Código del nodo _Function_ para el método _On Start_:
+
+```javascript
+//definición de tres variables
+flow.set("edad", 35);
+flow.set("Nacionalidad", "Española");
+flow.set("Residencia", "Madrid");
+```
+
+Configuración del nodo _Template_:
+
+```txt
+El formulario corresponde a {{payload}}, tiene una edad de {{flow.edad}} años, su nacionalidad es {{flow.Nacionalidad}} y vive en {{flow.Residencia}}.
+```
+
+![alt text](image-47.png "Resultados del ejemplo con nodo TEMPLATE")
