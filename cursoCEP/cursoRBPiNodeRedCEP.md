@@ -61,6 +61,12 @@
     - [Ejemplo de uso nodo RANGE](#ejemplo-de-uso-nodo-range)
   - [Nodo TEMPLATE](#nodo-template)
     - [Ejemplo de uso del nodo TEMPLATE](#ejemplo-de-uso-del-nodo-template)
+  - [Nodo DELAY](#nodo-delay)
+    - [Ejemplo de uso del nodo DELAY](#ejemplo-de-uso-del-nodo-delay)
+    - [Ejemplo II de uso del nodo DELAY](#ejemplo-ii-de-uso-del-nodo-delay)
+  - [Nodo TRIGGER](#nodo-trigger)
+  - [Nodo EXEC](#nodo-exec)
+  - [Nodo FILTE](#nodo-filte)
 
 ---
 
@@ -1099,3 +1105,99 @@ El formulario corresponde a {{payload}}, tiene una edad de {{flow.edad}} años, 
 ```
 
 ![alt text](image-47.png "Resultados del ejemplo con nodo TEMPLATE")
+
+## Nodo DELAY
+
+El nodo _DELAY_ retrasará el envío de un mensaje durante un intervalo de tiempo o limita la velocidad a la que pueden pasar.
+
+![alt text](image-48.png "Opciones del nodo DELAY")
+
+- `delay` &rarr; establece el retraso en milisegundos que se aplicará al mensaje.
+- `rate` &rarr; establece el valor de la tasa en milisegundos entre mensajes.
+- `reset` &rarr; si el mensaje recibido tiene esta propiedad establecida en cualquier valor, todos los mensajes pendientes retenidos por el nodo se borrarán sin enviarse.
+- `flush` &rarr; si el mensaje recibido tiene esta propiedad establecida en cualquier valor numérico, esa cantidad de mensajes se publicarán inmediatamente.
+- `toFront` &rarr; cuando está en modo de límite de velocidad, si el mensaje recibido tiene esta propiedad establecida en booleano verdadero, entonces el mensaje se envía al frente de la cola y se publicará a continuación. Se puede utilizar en combinación con msg.flush=1 para reenviar inmediatamente.
+
+### Ejemplo de uso del nodo DELAY
+
+- Nodo _Inject_: `msg.delay = (texto) 1000`.
+- Nodo _Delay_: `retrasa cada mensaje`, `Utilizar el retraso en msg.delay` `1000 milisegundos`. `Nombre = temporizador`.
+- Nodo _Function_:
+
+```javascript
+//On Message
+msg.topic = "Nivel de ventilación";
+flow.set("temperatura", flow.get("temperatura") + 10);
+msg.payload = flow.get("temperatura");
+flow.set("temporizador", flow.get("temporizador") + 1000);
+msg.delay = flow.get("temporizador");
+return msg;
+```
+
+```javascript
+//On Start
+flow.set("temperatura", 0);
+flow.set("temporizador", 1000);
+```
+
+- Nodo _Status_: asociar al nodo _Delay_ (temporizador).
+- ![alt text](image-49.png "Configuración del nodo STATUS")
+- Nodo _Range_: `Mapear el rango de entrada de 0 a 10` `al rango objetivo de 0 a 10`.
+
+![alt text](image-50.png "Diagrama del ejercicio y resultados obtenidos")
+
+### Ejemplo II de uso del nodo DELAY
+
+El ejemplo tiene por objetivo dejar pasar un mensaje cada tres segundos.
+
+![alt text](image-51.png "Diagrama del ejemplo con nodo DELAY")
+
+Código del nodo _Function_ para el método _On Message_:
+
+```javascript
+if (msg.payload == "incrementar") {
+  flow.set("temporizador", flow.get("temporizador") + 1000);
+  msg.rate = flow.get("temporizador");
+}
+return msg;
+```
+
+Código del nodo _Function_ para el método _On Start_:
+
+```javascript
+flow.set("temporizador", 1000);
+```
+
+## Nodo TRIGGER
+
+Cuando se activa, puede enviar un mensaje y luego, opcionalmente, un segundo mensaje, a menos que se extienda o se restablezca.
+
+Comportamiento similar al _Delay_. Al recibir un mensaje se puede establecer el retraso en milisegundos que se aplicará al reenvío delmensaje.
+
+- `delay` &rarr; establece el retraso en milisegundos que se aplicará al mensaje.
+- `reset` &rarr; si el mensaje recibido tiene esta propiedad establecida en cualquier valor, todos los mensajes pendientes retenidos por el nodo se borrarán sin enviarse.
+
+![alt text](image-52.png "Ventana del nodo TRIGGER")
+
+## Nodo EXEC
+
+Ejecuta un comando del sistema y devuelve su salida. El nodo se puede configurar para esperar hasta que se complete el comando o para enviar su salida a medida que el comando lo genera.
+
+El comando que se ejecuta puede configurarse en el nodo o proporcionarse mediante el mensaje recibido.
+
+| Entradas | Descripción |
+| --- | --- |
+| _payload_ | si está configurado para hacerlo, se agregará al comando ejecutado |
+| _kill_ | el tipo de señal de interrupción para enviar al proceso de ejecución existente |
+| _pid_ | el ID de proceso del proceso de ejecución existente que se va a eliminar|
+
+| Salidas | Descripción |
+| --- | --- |
+| _payload_ | la salida estándar del comando |
+| _rc_ | solo en modo ejecución, una copia del objeto de código de retorno |
+
+![alt text](image-53.png "Ejemplo con el nodo EXEC para ejecutar date (fecha y hora)")
+![alt text](image-54.png "Ejemplo con el nodo EXEC para ejecutar mkdir")
+![alt text](image-55.png "Ejemplo con el nodo EXEC para ejecutar rmdir")
+
+## Nodo FILTER
