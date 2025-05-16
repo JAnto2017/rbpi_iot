@@ -66,7 +66,8 @@
     - [Ejemplo II de uso del nodo DELAY](#ejemplo-ii-de-uso-del-nodo-delay)
   - [Nodo TRIGGER](#nodo-trigger)
   - [Nodo EXEC](#nodo-exec)
-  - [Nodo FILTE](#nodo-filte)
+  - [Nodo FILTER](#nodo-filter)
+  - [Nodo RANDOM](#nodo-random)
 
 ---
 
@@ -1201,3 +1202,35 @@ El comando que se ejecuta puede configurarse en el nodo o proporcionarse mediant
 ![alt text](image-55.png "Ejemplo con el nodo EXEC para ejecutar rmdir")
 
 ## Nodo FILTER
+
+Evalúa cada uno de los mensajes recibidos y reenvía aquellos que cumplan una condición determinada.
+
+Nodo Informe por Excepción (RBE): solo transmite datos si la carga ha cambiado. También puede bloquear o ignorar si el valor cambia en una cantidad específica (modo de banda muerta y de banda estrecha)
+
+| Entradas | Descripción |
+| --- | --- |
+| _payload_ | El modo RBE aceptará números, cadenas y objetos simples. |
+| _topic_ | Si se especifica, funcionará por tema. |
+| _reset_ | Borra el valor almacenado para el `msg.topic` especificado. |
+
+| Salidas | Descripción |
+| --- | --- |
+| _carga_ | Si se activa, la salida será la misma que la entrada. |
+
+![alt text](image-56.png "Opciones del nodo FILTER")
+![alt text](image-57.png "Propiedades del nodo FILTER")
+
+## Nodo RANDOM
+
+Genera un valor aleatorio entre un rango de valores. Por defecto desde 1 hasta 10.
+
+| Entradas | Descripción |
+| --- | --- |
+| _from_ | el valor inicial del rango |
+| _to_ | el valor final del rango |
+
+![alt text](image-58.png "Menú del nodo RANDOM")
+
+Puede generar número aleatorios enteros o decimales:
+
+![alt text](image-59.png "Elección de números enteros o decimales")
