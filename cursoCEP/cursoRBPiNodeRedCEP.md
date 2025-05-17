@@ -79,6 +79,7 @@
   - [Crear un DASHBOARD](#crear-un-dashboard)
   - [Archivo SETTING](#archivo-setting)
   - [Grupos](#grupos)
+  - [SUBFLOWS](#subflows)
 
 ---
 
@@ -1444,3 +1445,26 @@ Ahora este grupo de nodos, se comporta como uno únino bloque, al que se le pued
 
 ![alt text](image-85.png "Parámetros de un Grupo")
 ![alt text](image-86.png "Ejemplo de dos grupos creados")
+
+## SUBFLOWS
+
+Los _subflujos_ son grupos de nodos que se pueden utilizar en otros _flows_.
+
+Para crear un subflujo, se realiza a partir del siguiente ejemplo:
+
+![alt text](image-87.png "Diagrama del ejemplo para crear subflujos")
+
+Código del nodo _Function_ en el método _On Message_:
+
+```javascript
+let timestamp = new Date().toLocalString();
+msg.payload = `[${timestamp}] ${msg.payload}`;
+return msg;
+```
+
+En el nodo _Inject_: `msg.payload = 'mensaje de prueba'`.
+En el nodo _Debug_: `msg.payload` clic en _debug windows_.
+
+Seleccionamos dos nodos: _Function_ y _Debug_. En el menú seleccionamos _Subflow_ y _Selección del subflujo_.
+
+![alt text](image-88.png "Subflujo creado")
