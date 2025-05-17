@@ -77,6 +77,7 @@
   - [DASHBOARD](#dashboard)
   - [Importar y Exportar Flujos](#importar-y-exportar-flujos)
   - [Crear un DASHBOARD](#crear-un-dashboard)
+  - [Archivo SETTING](#archivo-setting)
 
 ---
 
@@ -1395,3 +1396,39 @@ Las configuraciones de los nodos:
 ![alt text](image-80.png "Configuración de un nodo _Gauge_ para temperatura")
 ![alt text](image-83.png "Visualización de un nodo _Gauge_ para temperatura")
 ![alt text](image-82.png "Nodo _Gauge_ para temperatura")
+
+## Archivo SETTING
+
+Configuraciones globales de Node-Red. Para ello, posicionarse en la carpeta _/home/anto/_ y listar los archivos ocultos con el comando `ls -a`. Encontraremos el directorio `.node-red` y accedemos a él.
+
+- `flow_cred.json` &rarr; contiene las credenciales cifradas de los usuarios.
+- `flows.json` &rarr; contiene las configuraciones de los flujos.
+- Directoio `Lib` &rarr; contiene las librerías de Node-Red.
+- Directorio `node_modules` &rarr; contiene las librerías de Node-Red instaados con el paquete `npm`.
+- `package.json` &rarr; dependencias y configuraciones de proyecto.
+- `package-lock.json` &rarr; almacena las versiones de los paquetes cuando se instala el proyecto.
+- `settings.js` &rarr; contiene las configuraciones globales de Node-Red.
+  - `uiPort: process.env.PORT || 1880` &rarr; puerto de la web.
+  - `httpAdminRoot: '/admin'` &rarr; ruta de la web.
+
+Instalar la aplicación _bcrypt_ con el comando `sudo npm install bcrypt`.
+
+Archivo con la aplicación Javascript para crear un HASH a partir de una contraseña:
+
+```javascript
+const bcrypt = require('bcrypt');
+
+async function generarHash() {
+    const saltos = 10;
+    const clave = 'Curso_Node-red';
+    try {
+      const hash = await bcrypt.hash(clave, saltos);
+      console.log('Hash generado = ', hash);
+    } catch (error) {
+      console.error('Error al generar el hash:', error);
+    }
+}
+generarHash();
+```
+
+Para generar el HASH, ejecutar el archivo `generarHash.js` con el comando `node generarHash.js`
