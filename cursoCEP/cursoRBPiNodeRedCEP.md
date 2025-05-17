@@ -1266,3 +1266,26 @@ _If `msg.reset` is received (with any value) all the counters and intermediate v
 ![alt text](image-61.png "Diagrama del ejemplo con nodo SMOOTH")
 
 ## Nodo SPLIT
+
+Divide un mensaje en una secuencia de varios mensajes.
+
+| Entradas | Descripción |
+| --- | --- |
+| _payload_ | Está determinado por el tipo de `msg.payload` |
+|  | - **texto/búfer** se divide utilizando el caracter de nueva línea `\n` |
+|  | - **matriz** se divide en elementos de matriz individual o matriz de longitud fija |
+| | - **objeto** se divide para cada par clave-valor del objeto |
+
+Las salidas `parts` contiene información sobre cómo se divide el mensaje original. Si se pasa al nodo _Unir_, la secuencia se puede volver a ensamblar en un solo mensaje.
+
+| Salidas | Descripción |
+| --- | --- |
+| _id_ | identificador |
+| _index_ | posición dentro del grupo |
+| _count_| número total de mensajes en el grupo |
+| _type_ | tipo de mensaje |
+| _ch_ | los datos utilizados para dividir el mensaje |
+| _key_ | para un objeto, la clave de la propiedad |
+| _len_ | longitud de cada mensaje |
+
+![alt text](image-62.png "Menú del nodo SPLIT")
