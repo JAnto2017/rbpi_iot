@@ -78,6 +78,7 @@
   - [Importar y Exportar Flujos](#importar-y-exportar-flujos)
   - [Crear un DASHBOARD](#crear-un-dashboard)
   - [Archivo SETTING](#archivo-setting)
+  - [Grupos](#grupos)
 
 ---
 
@@ -1431,4 +1432,15 @@ async function generarHash() {
 generarHash();
 ```
 
-Para generar el HASH, ejecutar el archivo `generarHash.js` con el comando `node generarHash.js`
+Para generar el HASH, ejecutar el archivo `generarHash.js` con el comando `node generarHash.js`.
+
+## Grupos
+
+Para crea un grupo de nodos, se seleccionan los nodos y se hace clic en la opción de _Menú>Grupos>Agrupar Selección_.
+
+![alt text](image-84.png "Menú>Grupos>Agrupar Selección")
+
+Ahora este grupo de nodos, se comporta como uno únino bloque, al que se le puede asignar un nombre, color de fondo, bordes, etc.
+
+![alt text](image-85.png "Parámetros de un Grupo")
+![alt text](image-86.png "Ejemplo de dos grupos creados")
