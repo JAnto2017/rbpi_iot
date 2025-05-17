@@ -74,6 +74,7 @@
   - [Nodo JOIN](#nodo-join)
   - [Nodo SORT](#nodo-sort)
   - [Nodo BATCH](#nodo-batch)
+  - [DASHBOARD](#dashboard)
 
 ---
 
@@ -1332,3 +1333,12 @@ Crea secuencias de mensajes basadas en varias reglas. Hay tres modos disponibles
 ![alt text](image-67.png "Menú del nodo BATCH - Número de mensajes")
 ![alt text](image-68.png "Menú del nodo BATCH - Intervalo de tiempo")
 ![alt text](image-69.png "Menú del nodo BATCH - Concatenar secuencias")
+
+## DASHBOARD
+
+Es la ventana gráfico. Para añadir nuevos elementos de la paleta de _Dashboard_, hacer clic en _Menú:
+
+![alt text](image-70.png "Administrar Paleta")
+![alt text](image-71.png "Componentes a instalar para el Dashboard")
+![alt text](image-72.png "Librería a instalar para el Dashboard")
+![alt text](image-73.png "Nodos disponibles una vez instalados")
