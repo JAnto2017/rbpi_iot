@@ -72,6 +72,7 @@
     - [Ejemplo de uso del nodo SMOOTH](#ejemplo-de-uso-del-nodo-smooth)
   - [Nodo SPLIT](#nodo-split)
   - [Nodo JOIN](#nodo-join)
+  - [Nodo SORT](#nodo-sort)
 
 ---
 
@@ -1302,3 +1303,19 @@ Este nodo funciona en modo inverso al nodo _Split_.Une secuencias de mensajes, e
 ![alt text](image-63.png "Menú del nodo JOIN - Automático")
 ![alt text](image-64.png "Menú del nodo JOIN - Manual")
 ![alt text](image-65.png "Menú del nodo JOIN - Reducir secuencia")
+
+## Nodo SORT
+
+Una función que ordena las propiedades del mensaje o una secuencia de mensajes.
+
+Cuando se configura para ordenar la propiedad del mensaje, el nodo ordena los datos de la matriz a los que apunta la propiedad del mensaje especificado.
+
+Cuando se configura para odenar una secuencia de mensajes, reordenará los mensajes.
+
+El orden de clasificación puede ser: ascendente o descendente.
+
+Para números, el orden numérico se puede especificar mediante una casilla de verificación.
+
+La clave de ordenación puede ser un valor de elemento o una expresión JSON para ordenar el valor de una propiedad, o una propiedad del mensaje o una expresión.
+
+![alt text](image-66.png "Menú del nodo SORT")
