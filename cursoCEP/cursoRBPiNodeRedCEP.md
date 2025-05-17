@@ -71,6 +71,7 @@
   - [Nodo SMOOTH](#nodo-smooth)
     - [Ejemplo de uso del nodo SMOOTH](#ejemplo-de-uso-del-nodo-smooth)
   - [Nodo SPLIT](#nodo-split)
+  - [Nodo JOIN](#nodo-join)
 
 ---
 
@@ -1289,3 +1290,15 @@ Las salidas `parts` contiene información sobre cómo se divide el mensaje origi
 | _len_ | longitud de cada mensaje |
 
 ![alt text](image-62.png "Menú del nodo SPLIT")
+
+## Nodo JOIN
+
+Este nodo funciona en modo inverso al nodo _Split_.Une secuencias de mensajes, en una solo mensaje. Hay tres modos disponibles:
+
+- **Automático** &rarr; cuando se empareja con el nodo _Dividir_, unirá automáticamente los mensajes para revertir la división que se realizó.
+- **Manual** &rarr; une secuencias de mensajes de diversas formas.
+- **Reducir secuencia** &rarr; aplica una expresión a todos los mensajes de una secuencia para reducirla a un solo mensaje.
+
+![alt text](image-63.png "Menú del nodo JOIN - Automático")
+![alt text](image-64.png "Menú del nodo JOIN - Manual")
+![alt text](image-65.png "Menú del nodo JOIN - Reducir secuencia")
