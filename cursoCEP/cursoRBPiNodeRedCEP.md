@@ -76,6 +76,7 @@
   - [Nodo BATCH](#nodo-batch)
   - [DASHBOARD](#dashboard)
   - [Importar y Exportar Flujos](#importar-y-exportar-flujos)
+  - [Crear un DASHBOARD](#crear-un-dashboard)
 
 ---
 
@@ -1351,3 +1352,46 @@ Hacer clic en el menú (de las tres barras en horizonta) en la parte derecha y z
 ![alt text](image-74.png "Importar y Exportar Flujos")
 ![alt text](image-75.png "Menú para exportar flujos")
 ![alt text](image-76.png "Menú para importar flujos")
+
+## Crear un DASHBOARD
+
+Código en Python para leer temperatura en archivo `leer_tempratura.py`:
+
+```python
+from w1thermsensor import W1ThermSensor
+import time
+import paho.mqtt.client as mqtt
+
+client = mqtt.Client()
+client.connect("localhost", 1883, 60)
+
+while True:
+    for sensor in W1ThermSensor.get_available_sensors():
+        temp = sensor.get_temperature()
+        client.publish("temperatura", temp)
+    time.sleep(1) 
+
+# crea instancia del sensor
+# sensor = W1ThermSensor()
+
+# leer la temperatura
+# temp = sensor.get_temperature()
+
+# mostrar la temperatura en grados celsius
+# print(temp)
+```
+
+Desde Node-Red añadiremos los nodos _Inject_, _Exec_ y _Debug_.
+
+Las configuraciones de los nodos:
+
+- **Inject** &rarr; envía un mensaje cada 10 segundos (intervalos). Inicia pasado 0.1 segundos.
+- **Exec** &rarr; ejecuta el código Python: `python3 /home/anto/Documentos/cursoCEP/leer_temperatura.py`. Se debe incluir la ruta absoluta. En caso de que no funcione, usar el comando `vcgencmd measure_temp`.
+- **Debug** &rarr; muestra el contenido del mensaje. Imprime el `msg.payload`.
+
+![alt text](image-77.png "Diagrama de nodos para crear un DASHBOARD")
+![alt text](image-79.png "Nodo Exec para temperatura")
+![alt text](image-78.png "Pestañas de la web")
+![alt text](image-80.png "Configuración de un nodo _Gauge_ para temperatura")
+![alt text](image-83.png "Visualización de un nodo _Gauge_ para temperatura")
+![alt text](image-82.png "Nodo _Gauge_ para temperatura")
