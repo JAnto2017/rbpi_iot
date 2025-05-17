@@ -75,6 +75,7 @@
   - [Nodo SORT](#nodo-sort)
   - [Nodo BATCH](#nodo-batch)
   - [DASHBOARD](#dashboard)
+  - [Importar y Exportar Flujos](#importar-y-exportar-flujos)
 
 ---
 
@@ -1342,3 +1343,11 @@ Es la ventana gráfico. Para añadir nuevos elementos de la paleta de _Dashboard
 ![alt text](image-71.png "Componentes a instalar para el Dashboard")
 ![alt text](image-72.png "Librería a instalar para el Dashboard")
 ![alt text](image-73.png "Nodos disponibles una vez instalados")
+
+## Importar y Exportar Flujos
+
+Hacer clic en el menú (de las tres barras en horizonta) en la parte derecha y zona superior. En el menú desplegable disponemos de las opciones de _Importar_ y _Exportar_.
+
+![alt text](image-74.png "Importar y Exportar Flujos")
+![alt text](image-75.png "Menú para exportar flujos")
+![alt text](image-76.png "Menú para importar flujos")
