@@ -68,6 +68,9 @@
   - [Nodo EXEC](#nodo-exec)
   - [Nodo FILTER](#nodo-filter)
   - [Nodo RANDOM](#nodo-random)
+  - [Nodo SMOOTH](#nodo-smooth)
+    - [Ejemplo de uso del nodo SMOOTH](#ejemplo-de-uso-del-nodo-smooth)
+  - [Nodo SPLIT](#nodo-split)
 
 ---
 
@@ -1234,3 +1237,32 @@ Genera un valor aleatorio entre un rango de valores. Por defecto desde 1 hasta 1
 Puede generar número aleatorios enteros o decimales:
 
 ![alt text](image-59.png "Elección de números enteros o decimales")
+
+## Nodo SMOOTH
+
+_A simple node to provide various functions across several previous values, including: max, min, mean, high and low pass filters._
+
+_Messages arriving with different `msg.topic` can be treated as separate streams if so configured._
+
+_Max, Min and Mead work over a specified number of previous values._
+
+_The High and Low pass filters use a smoothing factor._
+
+_If `msg.reset` is received (with any value) all the counters and intermediate values are reset to an initial state._
+
+![alt text](image-60.png "Valores de entrada y salida del nodo SMOOTH")
+
+### Ejemplo de uso del nodo SMOOTH
+
+- Nodo _Inject_
+- Nodo _Random_: introduce un número aleatorio entre 1 y 10.
+  - Nodo _Template_: `El valor actual es {{payload}}`.
+  - Nodo _Debug_: todos los mensajes.
+- Nodo _Smooth_: `Return the maximum value seen`, `over the most recent 5 values`, Treat: `Different msg.topic as individual stean`.
+- Nodo _Template_: `El valor mayor de los últimos 5 es {{payload}}`.
+- Nodo _Delay_: 2 segundos.
+- Nodo _Debug_: indica valores > 5 en el nodo anterior.
+
+![alt text](image-61.png "Diagrama del ejemplo con nodo SMOOTH")
+
+## Nodo SPLIT
