@@ -73,6 +73,7 @@
   - [Nodo SPLIT](#nodo-split)
   - [Nodo JOIN](#nodo-join)
   - [Nodo SORT](#nodo-sort)
+  - [Nodo BATCH](#nodo-batch)
 
 ---
 
@@ -1319,3 +1320,15 @@ Para números, el orden numérico se puede especificar mediante una casilla de v
 La clave de ordenación puede ser un valor de elemento o una expresión JSON para ordenar el valor de una propiedad, o una propiedad del mensaje o una expresión.
 
 ![alt text](image-66.png "Menú del nodo SORT")
+
+## Nodo BATCH
+
+Crea secuencias de mensajes basadas en varias reglas. Hay tres modos disponibles:
+
+- **Número de mensajes** &rarr; agrupa mensajes en secuencias de una longitud determinada. La opción superposición especifica cuántos mensajes al final de una secuencia deben repetirse al comienzo de la siguiente secuencia.
+- **Intervalo de tiempo** &rarr; agrupa mensajes en secuencias de un intervalo de tiempo determinado.
+- **Concatenar secuencias** &rarr; crea una secuencia de mensajes concatenando secuencias entrantes. Cada mensaje debe tener una propiedad `msg.topic` y una propiedad `msg.parts` que identifica la secuencia.
+
+![alt text](image-67.png "Menú del nodo BATCH - Número de mensajes")
+![alt text](image-68.png "Menú del nodo BATCH - Intervalo de tiempo")
+![alt text](image-69.png "Menú del nodo BATCH - Concatenar secuencias")
