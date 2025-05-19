@@ -80,6 +80,7 @@
   - [Archivo SETTING](#archivo-setting)
   - [Grupos](#grupos)
   - [SUBFLOWS](#subflows)
+  - [Cuestionario Módulo 3](#cuestionario-módulo-3)
 
 ---
 
@@ -1468,3 +1469,61 @@ En el nodo _Debug_: `msg.payload` clic en _debug windows_.
 Seleccionamos dos nodos: _Function_ y _Debug_. En el menú seleccionamos _Subflow_ y _Selección del subflujo_.
 
 ![alt text](image-88.png "Subflujo creado")
+
+---
+
+## Cuestionario Módulo 3
+
+1. ¿Qué es Node-RED?
+   1. [ ] Una red de servidores en la nube
+   2. [ ] Un lenguaje de programación
+   3. [X] Un editor visual de flujos para programación por bloques
+   4. [ ] Un sistema operativo para servidores
+2. ¿Para qué se utilizan las variables `flow` en Node-RED?
+   1. [ ] Para almacenar datos temporales que solo están disponibles dentro de un nodo
+   2. [ ] Para crear efectos visuales entre nodos
+   3. [X] Para almacenar datos accesibles por todos los nodos dentro del mismo flujo
+   4. [ ] Para guardar información que se comparte entre todos los flujos
+3. ¿Qué es un nodo en Node-RED?
+   1. [X] Un bloque funcional que realiza una tarea específica dentro de un flujo
+   2. [ ] Una conexión a internet
+   3. [ ] Un archivo de configuración
+   4. [ ] Un mensaje de error del sistema
+4. ¿Qué es un flujo (flow) en Node-RED?
+   1. [ ] Un conjunto de instrucciones en texto plano
+   2. [X] Un conjunto de nodos conectados que realizan una tarea paso a paso
+   3. [ ] Una base de datos
+   4. [] Una red de nodos físicos
+5. ¿Para qué sirve el nodo "inject" en Node-RED?
+   1. [X] Para enviar manualmente o de manera temporizada un mensaje al flujo
+   2. [ ] Para mostrar mensajes en pantalla
+   3. [ ] Para detener la ejecución del flujo
+   4. [ ] Para guardar datos en la nube
+6. ¿Qué función cumple el nodo "debug" en Node-RED?
+   1. [ ] Elimina errores del sistema
+   2. [X] Muestra el contenido de los mensajes en el panel lateral
+   3. [ ] Limpia el flujo de nodos inactivos
+   4. [ ] Conecta a una base de datos
+7. ¿Para qué se utiliza el nodo "change" en Node-RED?
+   1. [X] Para modificar el contenido de un mensaje (como su payload o propiedades)
+   2. [ ] Para cambiar el idioma de la interfaz
+   3. [ ] Para convertir nodos en código
+   4. [ ] Para cambiar de flujo
+8. ¿Qué es un "mensaje" en Node-RED?
+   1. [ ] Un log de errores
+   2. [ ] Un nodo especial de configuración
+   3. [X] Un objeto que transporta datos entre nodos
+   4. [ ] Una alerta del sistema
+9. ¿Qué propiedad de un mensaje se usa comúnmente para transmitir los datos principales?
+   1. [ ] msg.input
+   2. [X] msg.payload
+   3. [ ] msg.value
+   4. [ ] msg.content
+10. ¿Qué lenguaje se utiliza en el nodo "function" para escribir código personalizado?
+    1. [ ] C++
+    2. [ ] Python
+    3. [ ] Lua
+    4. [X] JavaScript
+
+---
+
