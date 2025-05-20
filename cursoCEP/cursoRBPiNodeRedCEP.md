@@ -35,7 +35,7 @@
       - [Comando RM](#comando-rm)
     - [Ampliando Comandos para RBPi](#ampliando-comandos-para-rbpi)
     - [Cuestionario Módulo 2](#cuestionario-módulo-2)
-  - [Node-RED en RBPi](#node-red-en-rbpi)
+  - [Módulo 3 - Node-RED en RBPi](#módulo-3---node-red-en-rbpi)
     - [Antes de instalar Node-RED actualizar el sistema](#antes-de-instalar-node-red-actualizar-el-sistema)
     - [Instalar Node-RED en RBPi](#instalar-node-red-en-rbpi)
     - [Instalar Node-RED en Windows](#instalar-node-red-en-windows)
@@ -81,6 +81,12 @@
   - [Grupos](#grupos)
   - [SUBFLOWS](#subflows)
   - [Cuestionario Módulo 3](#cuestionario-módulo-3)
+  - [Módulo 4 - IoT Teoría y Práctica](#módulo-4---iot-teoría-y-práctica)
+    - [Introducción a IoT](#introducción-a-iot)
+      - [Tipos de Redes](#tipos-de-redes)
+      - [Infraestructura de Servidores propios](#infraestructura-de-servidores-propios)
+      - [Sistemas de Monitorización con Node-RED](#sistemas-de-monitorización-con-node-red)
+      - [Mosquito](#mosquito)
 
 ---
 
@@ -621,9 +627,9 @@ Pregunta 8Respuesta
   - [ ] cd
   - [ ] Muestra la versión actual del sistema
   
-  ---
+---
 
-## Node-RED en RBPi
+## Módulo 3 - Node-RED en RBPi
 
 ### Antes de instalar Node-RED actualizar el sistema
 
@@ -1527,3 +1533,61 @@ Seleccionamos dos nodos: _Function_ y _Debug_. En el menú seleccionamos _Subflo
 
 ---
 
+## Módulo 4 - IoT Teoría y Práctica
+
+### Introducción a IoT
+
+Conectividad de dispositivos en todo tipo de entornos. Monitorización y el control remoto son las principales funcionalidades que nos ofrece el IoT. En la industria se conoce com IoT como Internet of Things o IoT 4.0.
+
+#### Tipos de Redes
+
+![alt text](image-89.png "Tipos de Redes")
+
+- Las redes WIFI HALOW son de medio alcance. BW variable en función de la distancia.
+- Las redes WIFI son de bajo alcance. BW alto. Consumo de energía alto.
+- LAs redes ZIGBEE son de bajo alcance. Zona doméstica. Poco ancho de banda. Consumo de energía bajo. Usa red en estrella con concentrador.
+- Las redes LORAWAN son de medio alcance. Para uso en el exterior.
+- Las redes NBIOT son de alto alcance.
+- Las redes 5G son de alto alcance.
+
+#### Infraestructura de Servidores propios
+
+| Ventajas | Desventajas |
+| -------- | ----------- |
+| Control total | Coste inicial alto |
+| Menor dependencia externa | Gestión y mantenimiento |
+| Asegurar el cumplimiento de las normativas | Escalabilidad limitada |
+| Menor tiempo de respuesta | Poca flexibilidad y escalabilidad |
+
+#### Sistemas de Monitorización con Node-RED
+
+![alt text](image-90.png "Sistemas de Monitorización con Node-RED")
+
+Se instalará un **BROKER** con el protocolo **MQTT** en la Raspberry Pi junto con el Node-RED.
+
+En **MQTT** (_Message Queuing Telemetry Transport_), el **BROKER** es el servidor central que gestiona la comunicación entre los clientes, que pueden ser dispositivos o aplicaciones. El **BROKER** recibe los mensajes de los emisores (_publishers_) y los distribuye a los receptores (_subscribers_) que se han suscrito a los temas relevantes.
+
+- El **broker** actúa como un intermediario que facilita el intercambio de mensajes entre diferentes clientes en la red **MQTT**.
+- El **broker** mantiena una lista de los clientes que están suscritos a diferentes temas **_topics_**.
+- Cuando un cliente publica un mensaje, el **broker** analiza el tema del mensaje y lo enruta a los clientes que están suscritos a ese tema.
+- El **broker** es un componente fundamental para la escalabilidad de las aplicaciones **MQTT**, ya que permite que un gran número de dispositivos se comuniquen entre sí sin necesidad de conexiones directa.
+- El **broker** también puede proporcionar funciones de seguridad, como autenticación y autorización, para garantizar que los mensajes solo se envían a los clientes autorizados.
+
+> [!TIP]
+> Imaginar el broker como una central telefónica, donde los clientes son los usuarios que quieren comunicarse. El broker recibe las llamadas de un usuario y las conecta con otro usuario, sin que los usuarios tengan que conocer las direcciones de los demás.
+
+El **broker** es un componente esencial del protocolo MQTT que permite que las aplicaciones MQTT se comuniquen de manera eficiente y escalable. Los clientes MQTT se conectan al broker para publicar y suscribirse a temas, y el broker distribuye los mensajes entre los clientes que se suscriben a los temas relevantes.
+
+#### Mosquito
+
+Mosquitto es un broker MQTT de código abierto que se utiliza para facilitar la comunicación entre dispositivos mediante el protocolo MQTT. Es una implementación compacta y ligera del protocolo MQTT, permitiendo a los dispositivos enviar y recibir mensajes de manera eficiente, especialmente en entornos con recursos limitados.
+
+- _MQTT (Message Queuing Telemetry Transport)_: Es un protocolo de comunicación ligero diseñado para la transmisión de mensajes en dispositivos IoT, especialmente aquellos con recursos limitados como memoria o ancho de banda.
+- _Broker MQTT:_ En MQTT, el broker actúa como un intermediario, facilitando la comunicación entre los dispositivos publicadores y suscriptores. Recibe los mensajes de los publicadores y los envía a los suscriptores interesados.
+- _Mosquitto:_ Es un broker MQTT de código abierto, desarrollado por Eclipse Foundation. Su implementación ligera lo hace ideal para entornos IoT y otras aplicaciones donde se requiere una gestión eficiente de los recursos.
+- _Funcionalidad:_ Mosquitto permite a los dispositivos comunicarse a través de MQTT, utilizando el modelo de publicación/suscripción. Los dispositivos pueden publicar mensajes a un tema específico, y otros dispositivos pueden suscribirse a ese tema para recibir los mensajes relevantes.
+- _Uso:_ Se utiliza ampliamente en IoT, donde se necesita una comunicación eficiente entre dispositivos con recursos limitados, como sensores, controladores y dispositivos de automatización.
+- _Características_: Mosquitto es fácil de instalar y configurar, lo que lo convierte en una opción popular para la implementación de sistemas MQTT.
+
+> [!NOTE]
+> Mosquitto es un software esencial en el ecosistema MQTT, permitiendo que los dispositivos se comuniquen de manera eficiente y confiable.

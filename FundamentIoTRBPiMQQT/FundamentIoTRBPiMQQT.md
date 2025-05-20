@@ -21,7 +21,13 @@
     - [Servidor con Python](#servidor-con-python)
     - [Cliente con Python](#cliente-con-python)
     - [Cliente y Servidor en distintos Equipos](#cliente-y-servidor-en-distintos-equipos)
-  - [Sección 4. Explicación del IoT](#sección-4-explicación-del-iot)
+  - [Sección 4. Internet of Things](#sección-4-internet-of-things)
+    - [Definición del término IoT](#definición-del-término-iot)
+      - [Crear un dispositivo IoT](#crear-un-dispositivo-iot)
+      - [Añadir Inteligencia Computacional](#añadir-inteligencia-computacional)
+      - [Añadir conexión de red](#añadir-conexión-de-red)
+    - [Dispositivos IoT vs Ordenadores en Red](#dispositivos-iot-vs-ordenadores-en-red)
+    - [Tecnologías de IoT](#tecnologías-de-iot)
   - [Sección 5. Explicación del protocolo MQTT](#sección-5-explicación-del-protocolo-mqtt)
   - [Sección 6. IoT con Python y MQTT](#sección-6-iot-con-python-y-mqtt)
 
@@ -51,6 +57,8 @@ Fundamentos IoT con RBPi.
 - Circuitos en protoboard.
 - Cómo funciona un ADC (C.I. MCP3008 de 10 bits).
 - Sensores.
+
+---
 
 ## Sección 2. Funcionamiento de Internet
 
@@ -116,6 +124,8 @@ Un protocolo es un conjunto de reglas que permiten la comunicación entre dos di
 - MQTT (Message Queue Telemetry Transport). Canal 1883.
 - HTTP (HyperText Transfer Protocol). Canal 80.
 - HTTPS (HyperText Transfer Protocol Secure). Canal 443.
+
+---
 
 ## Sección 3. Modelo Cliente-Servidor
 
@@ -344,8 +354,69 @@ while True:
 
 Tras iniciar el servidor, si desde el cliente se envía el mensaje "ON" se encenderá el LED. Si se envía el mensaje "OFF" se apagará el LED. En el caso de que se envíe otra cosa, el LED no se encenderá ni se apagará.
 
-## Sección 4. Explicación del IoT
+---
+
+## Sección 4. Internet of Things
+
+### Definición del término IoT
+
+Internet of Things (IoT) es una red de dispositivos conectados a Internet y que se comunican entre si.
+
+- Internet: red interconectada de dispositivos para compartir información.
+- Cosa: dispositivo capaz de realizar alguna cosa.
+
+#### Crear un dispositivo IoT
+
+Para convertir cualquier cosa en un dispositivo IoT, debemos tener en cuenta:
+
+- Conectividad.
+- Sensores.
+- Actuadores.
+- Procesamiento de datos.
+- Almacenamiento de datos.
+- Comunicación con otros dispositivos IoT.
+- Seguridad.
+- Escalabilidad.
+
+#### Añadir Inteligencia Computacional
+
+- Se hace con el fin de mejorar el funcionamiento de los dispositivos IoT.
+- Se realiza con microcontroladores.
+
+#### Añadir conexión de red
+
+- Se amplian las posibilidades de comunicación de los dispositivos IoT.
+- La manera más común es mediante la red WiFi.
+- No se encuentra limitada a la red WiFi.
+- Se puede crear una red propia.
+- Las posibilidades son ilimitadas.
+
+### Dispositivos IoT vs Ordenadores en Red
+
+Un dispositivo IoT se diseña completamente diferente a una computadora convencional.
+
+- Dispositivos IoT no tienen un sistema operativo.
+- Dispositivos IoT no tienen un teclado y un ratón.
+- Dispositivos IoT no tienen un monitor.
+- Los dispositivos IoT son de propósito especial.
+- El hasrware y el software son muy eficientes para una sola tarea.
+
+Un PC tiene la función de realizar operaciones computacionales de cualquier tipo, es capaz de ejecutar cualquier tipo de programa.
+
+- Las computadoras son de propósito general.
+- Pueden realizar cualquier tarea.
+- El hardware y el software son de propósito general.
+
+### Tecnologías de IoT
+
+Se implementan arquitecturas para IoT tipo: _AWS_, _Google Cloud_, _Microsoft Azure_, _IBM Bluemix_ y _IBM Watson IoT_.
+
+El protocolo de comunicación de IoT se denomina _MQTT_ (Message Queuing Telemetry Transport).
+
+---
 
 ## Sección 5. Explicación del protocolo MQTT
+
+---
 
 ## Sección 6. IoT con Python y MQTT
