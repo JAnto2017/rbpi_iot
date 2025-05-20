@@ -87,6 +87,11 @@
       - [Infraestructura de Servidores propios](#infraestructura-de-servidores-propios)
       - [Sistemas de Monitorización con Node-RED](#sistemas-de-monitorización-con-node-red)
       - [Mosquito](#mosquito)
+    - [Introducción a MQTT](#introducción-a-mqtt)
+      - [Publicador - Suscriptor](#publicador---suscriptor)
+    - [Broker MQTT](#broker-mqtt)
+    - [Nodos MQTT](#nodos-mqtt)
+    - [Nodos HTTP](#nodos-http)
 
 ---
 
@@ -1591,3 +1596,67 @@ Mosquitto es un broker MQTT de código abierto que se utiliza para facilitar la 
 
 > [!NOTE]
 > Mosquitto es un software esencial en el ecosistema MQTT, permitiendo que los dispositivos se comuniquen de manera eficiente y confiable.
+
+### Introducción a MQTT
+
+El protocolo MQTT fue inventado en 1999 por Andy Standford-Clark (IBM) y Arlen Nipper (Arcom, ahora Cirrus Link). Necesitaban un protocolo para una pérdida mínima de batería y un ancho de banda mínimo para conectarse con oleoductos vía satélite. Los dos inventores especificaron varios requisitos para el futuro protocolo:
+
+- Implementación sencilla.
+- Entrega de datos de calidad de servicio.
+- Ligero y eficiente en ancho de banda.
+
+#### Publicador - Suscriptor
+
+![alt text](image-91.png "Publicador - Suscriptor")
+
+No hay conexión directa entre quien consulta la información y quien la publica. Se dispone de un servidor (_broker_) en medio que se encarga de distribuir la información entre los clientes.
+
+```mermaid
+flowchart LR
+   SENSOR -- pub/dor --> BROKER -- sub/tor --> CLIENTE
+```
+
+Existe la posibilidad de que un cliente se suscriba a un tema y que puede publicar en el mismo. Actúa como cliente y publicador al mismo tiempo.
+
+### Broker MQTT
+
+En la RBPi se instala el broker MQTT **Mosquitto**. Para ello:
+
+- Actualizar el sistema: _`sudo apt-get update`_ y _`sudo apt-get upgrade`_.
+- Instalar Mosquitto: _`sudo apt-get install mosquitto`_.
+- Instalar mosquitto-clients: _`sudo apt-get install mosquitto-clients`_.
+- Activar el servicio Mosquitto: _`sudo systemctl start mosquitto`_.
+- Desactivar el servicio Mosquitto: _`sudo systemctl stop mosquitto`_.
+- Habilitar el servicio Mosquitto: _`sudo systemctl enable mosquitto`_.
+- Deshabilitar el servicio Mosquitto: _`sudo systemctl disable mosquitto`_.
+- Para suscribirse a un tema: _`mosquitto_sub -t topic`_.
+- Para publicar en un tema: _`mosquitto_pub -t topic -m message`_.
+
+![alt text](image-92.png "Ejemplo de uso de Mosquitto envía mensaje")
+
+### Nodos MQTT
+
+La configuración de unos de los archivos de _Mosquitto_: `sudo vim /etc/mosquitto/mosquitto.conf`. Añadir las siguientes lineas:
+
+```bash
+listener 1883 0.0.0.0
+allow_anonymous true
+#password_file /etc/mosquitto/passwd
+```
+
+Una vez guardado el archivo, se debe reiniciar el servicio Mosquitto: `sudo systemctl restart mosquitto.service`.
+
+Desde el sistema operativo Window la ejecución de _Mosquitto_ se realiza con los siguientes comandos:
+
+- `.\mosquitto_sub -h localhost -v -t test -u MQTT -P MQTT`. Como subscriptor.
+- `.\mosquitto_pub -h localhost -t test -m "hola mundo"`. Como publicador.
+
+En Node-RED el nodo _MQQTT IN_ es el que está subscribiendo y el nodo _MQTT OUT_ es el que publica.
+
+Configuración del nodo _MQTT IN_: en Server se indica la IP donde está instalado _Mosquitto_, que coincide con la IP de la RBPi. Se debe añadir el puerto 1883.
+
+![alt text](image-93.png "Configuración del nodo MQTT IN")
+![alt text](image-94.png "Configuración del nodo MQTT IN")
+![alt text](image-95.png "Configuración del nodo MQTT OUT")
+
+### Nodos HTTP
