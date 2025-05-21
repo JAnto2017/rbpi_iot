@@ -84,6 +84,7 @@
   - [Módulo 4 - IoT Teoría y Práctica](#módulo-4---iot-teoría-y-práctica)
     - [Introducción a IoT](#introducción-a-iot)
       - [Tipos de Redes](#tipos-de-redes)
+        - [Comparativa entre LoRaWAN y NB-IoT](#comparativa-entre-lorawan-y-nb-iot)
       - [Infraestructura de Servidores propios](#infraestructura-de-servidores-propios)
       - [Sistemas de Monitorización con Node-RED](#sistemas-de-monitorización-con-node-red)
       - [Mosquito](#mosquito)
@@ -92,6 +93,9 @@
     - [Broker MQTT](#broker-mqtt)
     - [Nodos MQTT](#nodos-mqtt)
     - [Nodos HTTP](#nodos-http)
+      - [Ejemplo de uso del nodo HTTP IN](#ejemplo-de-uso-del-nodo-http-in)
+    - [Cuestionario IoT Teoría y Práctica](#cuestionario-iot-teoría-y-práctica)
+  - [Módulo 5 - Prácticas Avanzadas](#módulo-5---prácticas-avanzadas)
 
 ---
 
@@ -1555,6 +1559,22 @@ Conectividad de dispositivos en todo tipo de entornos. Monitorización y el cont
 - Las redes NBIOT son de alto alcance.
 - Las redes 5G son de alto alcance.
 
+##### Comparativa entre LoRaWAN y NB-IoT
+
+LoRaWAN y NB-IoT son dos tecnologías LPWAN (Low Power Wide Area Network) que se utilizan para conectar dispositivos IoT, pero tienen diferencias clave en su funcionamiento, alcance y aplicaciones. LoRaWAN utiliza una tecnología de modulación de espectro ensanchado patentada en bandas sin licencia, lo que permite un alcance de comunicación más largo y bajo consumo de energía, ideal para dispositivos en áreas remotas.
+
+NB-IoT por otro lado, se basa en la infraestructura de redes celulares LTE, lo que le proporciona mejor cobertura en áreas urbanas y mayor rendimiento de datos, aunque con un consumo de nergía mayor.
+
+En resumen, la principal diferencia radica en:
+
+- Tecnología de rado: LoRaWAN usa tecnología LoRa no celular, mientras que NB-IoT utiliza la tecnología LTE de la red celular.
+- Alcance y cobertura: LoRaWAN ofrece un alcance considerablemente mayor y es más adecuado para aplicaciones en zonas remotas o rurales, mientras que NB-IoT, al utilizar la infraestructura celular, proporciona una mejor cobertura en áreas urbanas.
+- Rendimiento de datos: LoRaWAN tiene una tasa de datos más baja lo que la hace ideal para aplicaciones que requieren transmisión de pequeños volúmenes de datos, mientras que NB-IoT puede manejar un mayor volumen de datos y ofrece mayor rendimiento.
+- Consumo de energía: LoRaWAN destaca por su bajo consumo de energía, lo que se traduce en una mayor duración de la batería de los dispositivos, mientras que NB-IoT, aunque optimizado para IoT, tiene un consumo de energía mayor que LoRaWAN.
+- Implementación: LoRaWAN permite la implementación de redes privadas, mientras que NB-IoT requiere la utilización de la infraestructura de las compañías de telecomunicaciones.
+- Latencia: NB-IoT ofrece una latencia menor, lo que lo hace ideal para aplicaciones que requieren transmisión de datos en tiempo real, mientras que LoRaWAN tiene una latencia mayor.
+- Coste: LoRaWAN suele ser más económica que NB-IoT, especialmente en la implementación de redes privadas.
+
 #### Infraestructura de Servidores propios
 
 | Ventajas | Desventajas |
@@ -1660,3 +1680,78 @@ Configuración del nodo _MQTT IN_: en Server se indica la IP donde está instala
 ![alt text](image-95.png "Configuración del nodo MQTT OUT")
 
 ### Nodos HTTP
+
+HTTP es un protocolo de transferencia de hipertexto. Es una forma de comunicación en la red. Los nodos _HTTP IN_ y _HTTP OUT_ son de la sección de red.
+
+- El protocolo HTTP es el de cliente servidor.
+- Se utilizan los métodos GET y POST.
+
+#### Ejemplo de uso del nodo HTTP IN
+
+![alt text](image-100.png "Esquesma de la red HTTP")
+![alt text](image-96.png "Configuración del nodo HTTP IN")
+![alt text](image-97.png "Configuración del nodo TEMPLATE")
+![alt text](image-98.png "Configuración del nodo HTTP RESPONSE")
+
+Para probar el uso de la red HTTP creada en Node-RED escribir en el navegador la siguiente URL: `http://localhost:1880/hola_mundo`
+
+![alt text](image-99.png "Resultado de la conexión")
+
+---
+
+### Cuestionario IoT Teoría y Práctica
+
+- ¿Qué es el Internet de las Cosas (IoT)?
+  - [ ] Un nuevo sistema operativo para teléfonos móviles
+  - [X] Una red de dispositivos conectados que intercambian datos entre sí
+  - [ ] Un tipo de red social
+  - [ ] Un navegador web inteligente
+- ¿Qué es el ancho de banda en el contexto de IoT?
+  - [X] La cantidad de datos que pueden transmitirse en una red por segundo
+  - [ ] El nivel de batería de un dispositivo
+  - [ ] La frecuencia del procesador
+  - [ ] El espacio físico entre sensores
+- ¿Cuál es una diferencia clave entre NB-IoT y LoRaWAN?
+  - [ ] LoRaWAN tiene mayor velocidad de transmisión que NB-IoT
+  - [ ] NB-IoT no requiere batería y LoRaWAN sí
+  - [ ] NB-IoT es más barato y abierto que LoRaWAN
+  - [X] NB-IoT utiliza redes celulares, mientras que LoRaWAN no
+- ¿Qué es MQTT?
+  - [ ] Un tipo de sensor
+  - [ ] Un sistema operativo para microcontroladores
+  - [ ] Un lenguaje de programación
+  - [X] Un protocolo de mensajería
+- En MQTT, ¿qué es un "broker"?
+  - [ ] Un componente de hardware de los sensores
+  - [ ] El sistema que almacena los mensajes
+  - [X] El servidor que gestiona la comunicación entre publicadores y suscriptores
+  - [ ] El dispositivo que toma decisiones en la red
+- En MQTT, ¿qué es un "topic"?
+  - [ ] Un archivo que contiene los datos del sensor
+  - [ ] Una dirección IP
+  - [X] El nombre o referencia bajo el que se publican y suscriben los dispositivos
+  - [ ] Una clave de acceso al sistema
+¿Para qué sirve el nodo "mqtt in" en Node-RED?
+  - [X] Para recibir mensajes desde un broker MQTT a través de un topic
+  - [ ] Para enviar mensajes por correo
+  - [ ] Para crear nuevos sensores virtuales
+  - [ ] Para publicar mensajes a un topic
+- ¿Puede una Raspberry Pi actuar como publicador en MQTT?
+  - [X] Sí, puede enviar datos a un broker MQTT como cualquier otro dispositivo IoT
+  - [ ] Solo si tiene instalado Windows
+  - [ ] No, solo puede ser receptora de datos
+  - [ ] Solo si se conecta vía LoRa
+- ¿Qué se entiende por "publicador" en el protocolo MQTT?
+  - [ ] El componente que configura la seguridad de la red
+  - [ ] El servidor que maneja las conexiones
+  - [ ] Un nodo central que verifica los datos
+  - [X] El dispositivo que envía mensajes a un topic
+- ¿Qué ventaja principal ofrece MQTT para aplicaciones IoT?
+  - [X] Bajo consumo de ancho de banda y eficiencia en redes inestables
+  - [ ] Alta velocidad de video en streaming
+  - [ ] Alta capacidad de almacenamiento local
+  - [ ] Gran capacidad gráfica
+
+---
+
+## Módulo 5 - Prácticas Avanzadas
