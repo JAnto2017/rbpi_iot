@@ -29,6 +29,16 @@
     - [Dispositivos IoT vs Ordenadores en Red](#dispositivos-iot-vs-ordenadores-en-red)
     - [Tecnologías de IoT](#tecnologías-de-iot)
   - [Sección 5. Explicación del protocolo MQTT](#sección-5-explicación-del-protocolo-mqtt)
+    - [Protocolo MQTT](#protocolo-mqtt)
+      - [Publicador/Publisher](#publicadorpublisher)
+      - [Suscriptor/Subscriber](#suscriptorsubscriber)
+      - [Broker](#broker)
+      - [Topic](#topic)
+      - [Hostname](#hostname)
+      - [Port](#port)
+      - [Quality of Service (QoS)](#quality-of-service-qos)
+    - [Broker MQTT en RBPi](#broker-mqtt-en-rbpi)
+    - [Broker MQTT en distintas RBPi](#broker-mqtt-en-distintas-rbpi)
   - [Sección 6. IoT con Python y MQTT](#sección-6-iot-con-python-y-mqtt)
 
 ---
@@ -416,6 +426,147 @@ El protocolo de comunicación de IoT se denomina _MQTT_ (Message Queuing Telemet
 ---
 
 ## Sección 5. Explicación del protocolo MQTT
+
+### Protocolo MQTT
+
+El protocolo MQTT (Message Queuing Telemetry Transport) es un protocolo de comunicación ligero, disenado para la transmisión de mensajes en dispositivos IoT, especialmente aquellos con recursos limitados como memoria o ancho de banda.
+
+- Es un protocolo basado en publicación y suscripción.
+- Es considerado un protocolo de comunicación M2M (Machine-to-Machine).
+
+Las colas de mensajes ofrecen un _buffer_ que almacena de forma temporal los mensajes enviados por el _publicador_ y que luego serán leidos por el _suscriptor_.
+
+```mermaid
+flowchart LR
+   PRODUCER -- msg --> QUEUE -- msg --> CONSUMER
+```
+
+La estructura del protocolo MQTT es la siguiente:
+
+```mermaid
+flowchart LR
+  PUBLICADOR:::foo -- topic --> BROKER:::bar -- topic --> SUSCRIPTOR:::foobar
+  classDef foo stroke:#f00
+  classDef bar stroke:#0f0
+  classDef foobar stroke:#00f
+```
+
+- **Publicador**: Es el dispositivo que envía los mensajes.
+- **Suscriptor**: Es el dispositivo que recibe los mensajes.
+- **Broker**: Es el intermediario que distribuye los mensajes entre los publicadores y los suscriptores.
+- **Cola de mensajes**: Es el buffer que almacena de forma temporal los mensajes enviados por el publicador y que luego serán leidos por el suscriptor.
+
+#### Publicador/Publisher
+
+- Se encarga de enviar la información (_payload_) al _broker MQTT_.
+- Puede existir más de un publicador de manera simultánea.
+- Existen muchas maneras de crear un publicador.
+- Ejemplos para nombrar topics &rarr; `Topic=Casa/Cocina`.
+
+#### Suscriptor/Subscriber
+
+- Se encarga de recibir la información que llega desde el _broker MQTT_.
+- Puede existir más de un suscriptor de manera simultánea.
+- Existen muchas maneras de crear un suscriptor.
+- La información no necesita ser validada antes de poder ser usada.
+
+#### Broker
+
+- Es el corazón de MQTT.
+- Es un servidor encargado de recibir la información del _publicador_ y entregarla a los _suscriptores_.
+- Es un intermediario entre los _publicadores_ y los _suscriptores_.
+- El _broker_ más popular es _Mosquitto_.
+
+#### Topic
+
+- Es el canal de comunicación por donde el _publicador_ envía los datos y el _suscriptor_ los recibe.
+- Es el nombre de la cola de mensajes. El nombre puede ser cualquiera.
+- Si estamos usando diferentes _topic_ se usa la diagonal `/` para diferenciarlos.
+
+![alt text](image.png "Diagrama de publicadores y suscriptores")
+
+#### Hostname
+
+- Es el equipo donde está instalado el _broker MQTT_.
+- Si _hostname_ = `localhost` se usa el puerto 1883. El _broker_, el _publicador_ y el _suscriptor_ se encuentran en la misma maquina.
+- Si _hostname_ = `127.0.0.1` se usa el puerto 1883. El _broker_, el _publicador_ y el _suscriptor_ se encuentran en la misma maquina.
+- El _hostname_ puede usar otras direcciones IP.
+
+#### Port
+
+- El protocolo MQTT por defecto usa el puerto **1883**. Se puede cambiar en la configuración.
+
+Para cambiar el puerto 1883 en MQTT, se debe modificar la configuración del broker MQTT. El puerto 1883 es el puerto predeterminado para la comunicación MQTT no segura. Para cambiarlo, localizar el archivo de configuración de broker `/etc/mosquitto/mosquitto.conf` y modifica la sección que define el puerto de escucha, generalmente 'port' o 'listener'. Después de modificar el archivo, se debe reiniciar el servicio Mosquitto.
+
+Cambiar el valor del puerto al valor 8883 para MQTT seguro (**MQTT/TLS**).
+
+#### Quality of Service (QoS)
+
+Calidad de los servicios:
+
+- **QoS 0**: Enviados sin garantía de entrega (_Fire and Forget_). Es el sistema más rápido
+- **QoS 1**: Enviados con garantía de entrega (_At least once_). Se envía hasta que es reconocido por el _suscriptor_.
+- **QoS 2**: Enviados con garantía de entrega y entrega inmediata (_Exactly once_). El _suscriptor_ y el _publicador_ estarán sincronizados para que una única copia es recibida.
+
+### Broker MQTT en RBPi
+
+Para instalar el _Broker MOSQUITTO_ a través de la terminal de la RBPi:
+
+- `sudo apt-get update`.
+- `sudo apt-get install mosquitto`.
+- `sudo apt-get install mosquitto-clients`.
+
+Para activar el servicio _Mosquitto_:
+
+- `sudo systemctl start mosquitto`.
+- `sudo systemctl status mosquitto`.
+- `sudo systemctl enable mosquitto`.
+- `sudo systemctl disable mosquitto`.
+- `sudo systemctl restart mosquitto`.
+- `sudo systemctl stop mosquitto`.
+- `sudo systemctl reload mosquitto`.
+- `sudo systemctl list-units --type=service --state=running | grep mosquitto`.
+- `sudo systemctl list-units --type=service | grep mosquitto`.
+- `sudo systemctl list-units --type=service | grep mosquitto | grep loaded`.
+- `sudo systemctl list-units --type=service | grep mosquitto | grep disabled`.
+- `sudo systemctl list-units --type=service | grep mosquitto | grep active`.
+- `sudo systemctl list-units --type=service | grep mosquitto | grep inactive`.
+- `sudo systemctl list-units --type=service | grep mosquitto | grep failed`.
+- `sudo systemctl list-units --type=service | grep mosquitto | grep error`.
+- `sudo systemctl list-units --type=service | grep mosquitto | grep unknown`.
+
+Para suscribirse en el servicio _Mosquitto_:
+
+- `mosquitto_sub -h localhost -v -t test -u MQTT -P MQTT`.
+- `mosquitto_sub -h localhost -v -t test -u MQTT -P MQTT -q 1`.
+- `mosquitto_sub -h localhost -v -t test -u MQTT -P MQTT -q 2`.
+- `mosquitto_sub -h localhost -v -t test -u MQTT -P MQTT -q 0`.
+- `mosquitto_sub -t casa/cocina`.
+
+Para publicar en el servicio _Mosquitto_:
+
+- `mosquitto_pub -h localhost -t test -m "hola mundo"`.
+- `mosquitto_pub -h localhost -t test -m "hola mundo" -u MQTT -P MQTT`.
+- `mosquitto_pub -h localhost -t test -m "hola mundo" -u MQTT -P MQTT -r`.
+- `mosquitto_pub -h localhost -t test -m "hola mundo" -u MQTT -P MQTT -r -q 1`.
+- `mosquitto_pub -h localhost -t test -m "hola mundo" -u MQTT -P MQTT -r -q 2`.
+- `mosquitto_pub -h localhost -t test -m "hola mundo" -u MQTT -P MQTT -r -q 0`.
+- `mosquitto_pub -h localhost -t test -m "hola mundo" -u MQTT -P MQTT -r -q 1 -d`.
+- `mosquitto_pub -t casa/cocina -m "hola mundo"`.
+
+### Broker MQTT en distintas RBPi
+
+En RBPi:
+
+- `mosquitto_sub -h IP-AQUI -t test/prueba`.
+
+En PC con otro OS:
+
+- `mosquitto_sub -h IP-AQUI -t test/prueba`.
+
+En PC con servidor MQTT:
+
+- `mosquitto_pub -t test/prueba -m "hola mundo"`.
 
 ---
 
