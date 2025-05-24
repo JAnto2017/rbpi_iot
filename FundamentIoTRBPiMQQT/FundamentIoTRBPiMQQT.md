@@ -40,6 +40,12 @@
     - [Broker MQTT en RBPi](#broker-mqtt-en-rbpi)
     - [Broker MQTT en distintas RBPi](#broker-mqtt-en-distintas-rbpi)
   - [Sección 6. IoT con Python y MQTT](#sección-6-iot-con-python-y-mqtt)
+    - [Creando un publicador con Python y MQTT](#creando-un-publicador-con-python-y-mqtt)
+      - [Crear un publicador](#crear-un-publicador)
+    - [Creando un suscriptor con Python y MQTT](#creando-un-suscriptor-con-python-y-mqtt)
+      - [Crear un suscriptor](#crear-un-suscriptor)
+    - [Creando un chat con Python](#creando-un-chat-con-python)
+    - [Control RBPi por línea de comandos](#control-rbpi-por-línea-de-comandos)
 
 ---
 
@@ -571,3 +577,364 @@ En PC con servidor MQTT:
 ---
 
 ## Sección 6. IoT con Python y MQTT
+
+### Creando un publicador con Python y MQTT
+
+En terminal de RBPi instalar: `pip3 install paho-mqtt` para Python 3. Si queremos en Python 2: `pip install paho-mqtt`.
+
+#### Crear un publicador
+
+```python
+import paho.mqtt.client as mqtt
+import time
+
+def on_publish(client, userdata, result):
+  print("Conexión exitosa")
+  print("Client: {}\nUserdata: {}\nResult: {}".format(client, userdata, result))
+
+if __name__ == "__main__":
+  # broker al que queremos conectarnos
+  broker = "localhost"
+  port = 1883
+  topic = "test/prueba"
+  contador = 0
+
+  # declarar la instancia del cliente MQTT
+  cliente = mqtt.Client()
+
+  # asociar callbacks
+  cliente.on_connect = on_publish
+
+  # conectar con el broker
+  cliente.connect(broker, port, keepalive=60)
+
+  while True:
+    # publicar un mensaje
+    cliente.publish(topic, "hola mundo {}".format(contador))
+    contador += 1
+    time.sleep(1)
+
+  # cerrar la conexión
+  cliente.disconnect()
+```
+
+### Creando un suscriptor con Python y MQTT
+
+En terminal de RBPi instalar: `pip3 install paho-mqtt` para Python 3. Si queremos en Python 2: `pip install paho-mqtt`.
+
+#### Crear un suscriptor
+
+```python
+import paho.mqtt.client as mqtt
+import time
+
+# Esta función es llamada cuando se establece una conexión con el broker MQTT
+def on_connect(client, userdata, flags, rc):
+  print("Conexión con el código {}".format(rc))
+  if rc == 0:
+    print("Conexión exitosa")
+  else:
+    print("Conexión fallida")
+
+# Esta función es llamada cuando se recibe un mensaje en el Topic
+def on_message(client, userdata, msg):
+  print("Mensaje recibido {}".format(msg.payload.decode("utf-8")))
+  print("\n")
+  print("Topic: {}".format(msg.topic))
+  print("QoS: {}".format(msg.qos))
+  print("Retain: {}".format(msg.retain))
+
+if __name__ == "__main__":
+  # broker al que queremos conectarnos
+  broker = "localhost"  # 192.168.x.x
+  port = 1883
+  topic = "test/prueba" # El tópico al que queremos suscribirnos
+
+  # declarar la instancia del cliente MQTT
+  cliente = mqtt.Client()
+
+  # asociar callbacks
+  cliente.on_connect = on_connect
+  cliente.on_message = on_message
+
+  # conectar con el broker
+  cliente.connect(broker, port, keepalive=60)
+
+  # suscribirse al Topic
+  cliente.subscribe(topic)  # QoS es 0, se puede cambiar a 1 o 2
+  """
+  1. Simple string y un int: subscribe(topic, qos=1)
+  2. Un diccionario: subscribe({topic: qos})
+  3. Una lista de tuplas con varios topics: subscribe([(topic, qos), (topic, qos)])
+  """
+  # esperar mensajes
+  cliente.loop_forever()
+
+  # cerrar la conexión
+  cliente.disconnect()
+```
+
+### Creando un chat con Python
+
+En esta práctica se combina un _publicador_ y un _suscriptor_ en un mismo script Python.
+
+```python
+# PROGRAMA PARA PERSONA A
+import paho.mqtt.client as mqtt
+import time
+
+FLAG = True
+
+# Esta función es llamada cuando se establece una conexión con el broker MQTT
+def on_connect(client, userdata, flags, rc):
+  print("Conexión con el código {}".format(rc))
+  if rc == 0:
+    print("Conexión exitosa")
+  else:
+    print("Conexión fallida")
+
+# Esta función es llamada cuando se recibe un mensaje en el Topic
+def on_message(client, userdata, msg):
+  global FLAG
+  global mensaje
+  respuesta = msg.payload.decode("utf-8")
+
+  print("RESPUESTA {}".format(respuesta))
+
+  if respuesta == "salir":
+    FLAG = False
+  else:
+    mensaje = input("Introducir mensaje: ")
+    mesaje = mensaje.lower()
+    client.publish(topic_publisher, mensaje)
+
+def on_subscribe(client, userdata, mid, granted_qos):
+  print("Suscrito con QoS {}".format(granted_qos))
+
+def on_unsubscribe(client, userdata, mid):
+  print("Desuscrito")
+
+def on_disconnect(client, userdata, rc):
+  if rc != 0:
+    print("Desconectado con el código {}".format(rc))
+
+if __name__ == "__main__":
+  # broker al que queremos conectarnos
+  broker = "localhost"  # 192.168.x.x
+  port = 1883
+  topic_publisher = "Chat/Cliente1" # El tópico al que queremos suscribirnos
+  topic_subscriber = "Chat/Cliente2" # El tópico al que queremos suscribirnos
+
+  # declarar la instancia del cliente MQTT
+  cliente = mqtt.Client()
+
+  # asociar callbacks
+  cliente.on_connect = on_connect
+  cliente.on_subscribe = on_subscribe
+  cliente.on_unsubscribe = on_unsubscribe
+  cliente.on_message = on_message
+  #cliente.on_disconnect = on_disconnect
+
+  # conectar con el broker
+  cliente.connect(broker, port, keepalive=60)
+  time.sleep(1)
+  cliente.loop_start()
+
+  # suscribirse al Topic
+  cliente.subscribe(topic_subscriber)  # QoS es 0, se puede cambiar a 1 o 2
+  time.sleep(1)
+
+  mensaje = input("Introduzca el Mensaje a enviar para salir escibe<salir>: ")
+  mensaje = mensaje.lower()
+
+  # publicar un mensaje
+  while FLAG:
+    if mensaje == "salir":
+      cliente.unsubscribe(topic_subscriber)
+      cliente.disconnect()
+      FLAG = False
+    else:
+      cliente.publish(topic_publisher, mensaje)
+      mensaje = input("Introduzca el Mensaje a enviar para salir escibe<salir>: ")
+      mensaje = mensaje.lower()
+
+  # cerrar la conexión
+  cliente.disconnect()
+  cliente.loop_stop()
+```
+
+El siguiente script es el de la persona B:
+
+```python
+# PROGRAMA PARA PERSONA B
+import paho.mqtt.client as mqtt
+import time
+
+FLAG = True
+
+# Esta función es llamada cuando se establece una conexión con el broker MQTT
+def on_connect(client, userdata, flags, rc):
+  print("Conexión con el código {}".format(rc))
+  if rc == 0:
+    print("Conexión exitosa")
+  else:
+    print("Conexión fallida")
+
+# Esta función es llamada cuando se recibe un mensaje en el Topic
+def on_message(client, userdata, msg):
+  global FLAG
+  global mensaje
+  respuesta = msg.payload.decode("utf-8")
+
+  print("RESPUESTA {}".format(respuesta))
+
+  if respuesta == "salir":
+    FLAG = False
+  else:
+    mensaje = input("Introducir mensaje: ")
+    mesaje = mensaje.lower()
+    client.publish(topic_publisher, mensaje)
+
+def on_subscribe(client, userdata, mid, granted_qos):
+  print("Suscrito con QoS {}".format(granted_qos))
+
+def on_unsubscribe(client, userdata, mid):
+  print("Desuscrito")
+
+def on_disconnect(client, userdata, rc):
+  if rc != 0:
+    print("Desconectado con el código {}".format(rc))
+
+if __name__ == "__main__":
+  # broker al que queremos conectarnos
+  broker = "localhost"  # 192.168.x.x
+  port = 1883
+  topic_publisher = "Chat/Cliente2" # El tópico al que queremos suscribirnos
+  topic_subscriber = "Chat/Cliente1" # El tópico al que queremos suscribirnos
+
+  # declarar la instancia del cliente MQTT
+  cliente = mqtt.Client()
+
+  # asociar callbacks
+  cliente.on_connect = on_connect
+  cliente.on_subscribe = on_subscribe
+  cliente.on_unsubscribe = on_unsubscribe
+  cliente.on_message = on_message
+  #cliente.on_disconnect = on_disconnect
+
+  # conectar con el broker
+  cliente.connect(broker, port, keepalive=60)
+  time.sleep(1)
+
+  mensaje = None
+
+  cliente.loop_start()
+
+  # suscribirse al Topic
+  cliente.subscribe(topic_subscriber)  # QoS es 0, se puede cambiar a 1 o 2
+  # time.sleep(1)
+
+  # mensaje = input("Introduzca el Mensaje a enviar para salir escibe<salir>: ")
+  # mensaje = mensaje.lower()
+  # publicar un mensaje
+  # cliente.publish(topic_publisher, mensaje)
+  
+  while True:
+    if (mensaje == "salir") or (FLAG == False):
+      break
+
+  # cerrar la conexión
+  cliente.disconnect()
+  cliente.loop_stop()
+```
+
+### Control RBPi por línea de comandos
+
+Para este ejemplo se conecta el sensor de temperatura LM35 a la RBPi a través de un conversor ADC MCP3008. Por otro lado conectaremos un diodo LED al GPIO-17.
+
+El código del lado del controlador (el usuario), sería el siguiente:
+
+```python
+import RPi.GPIO as GPIO
+import time
+import paho.mqtt.client as mqtt
+
+FLAG = True
+#---------------------------------------------------------------------------------
+def on_connect(client, userdata, flags, rc):
+  print("Conexión con el código {}".format(rc))
+#---------------------------------------------------------------------------------
+def on_message(client, userdata, msg):
+  global FLAG
+  global mensaje
+  respuesta = msg.payload.decode("utf-8")
+  print("[TOPIC]: ", msg.topic)
+  print("[RESPUESTA]: ", respuesta)
+
+  if respuesta == "salir":
+    FLAG = False
+  else:
+    mensaje = input("Introducir mensaje: ")
+    mesaje = mensaje.lower()
+    if mensaje == "on":
+      topic = topics_publicar[0]
+    elif mensaje == "off":
+      topic = topics_publicar[0]
+    elif mensaje == "temperatura":
+      topic = topics_publicar[1]
+    elif mensaje == "salir":
+      topic = topics_publicar[1]
+    client.publish(topic, mensaje)
+#---------------------------------------------------------------------------------
+def on_subscribe(client, userdata, mid, granted_qos):
+  print("Suscrito con QoS {}".format(granted_qos))
+#---------------------------------------------------------------------------------
+def on_unsubscribe(client, userdata, rc):
+  if rc != 0:
+    print("Desconectado con el código {}".format(rc))
+#---------------------------------------------------------------------------------
+if __name__ == "__main__":
+  # broker al que queremos conectarnos
+  broker = "localhost"  # 192.168.x.x
+  port = 1883
+  topics_publicar = ["Peticion/Luz", "Peticion/Temperatura"] # El tópico al que queremos suscribirnos
+  topic_subscribir = [("Recamara/Luz",0), ("Recamara/Temperatura",0)] # El tópico al que queremos suscribirnos
+
+  # declarar la instancia del cliente MQTT
+  cliente = mqtt.Client()
+
+  # asociar callbacks
+  cliente.on_subscribe = on_subscribe
+  cliente.on_unsubscribe = on_unsubscribe
+  cliente.on_connect = on_connect
+  cliente.on_message = on_message
+
+  # conectar con el broker
+  cliente.connect(broker, port, keepalive=60)
+  time.sleep(0.1)
+
+  cliente.loop_start()
+  cliente.subscribe(topic_subscribir)  # QoS es 0, se puede cambiar a 1 o 2
+
+  mensaje = input("Introduzca el Mensaje a enviar: ")
+  mensaje = mensaje.lower()
+
+  if mensaje == "on":
+    topic = topics_publicar[0]
+  elif mensaje == "off":
+    topic = topics_publicar[0]
+  elif mensaje == "temperatura":
+    topic = topics_publicar[1]
+  elif mensaje == "salir":
+    topic = topics_publicar[1]
+  
+  cliente.publish(topic, mensaje)
+
+  while True:
+    if (mensaje == "salir") or (FLAG == False):
+      break
+
+  # cerrar la conexión
+  cliente.disconnect()
+  cliente.loop_stop()
+```
