@@ -96,6 +96,10 @@
       - [Ejemplo de uso del nodo HTTP IN](#ejemplo-de-uso-del-nodo-http-in)
     - [Cuestionario IoT Teoría y Práctica](#cuestionario-iot-teoría-y-práctica)
   - [Módulo 5 - Prácticas Avanzadas](#módulo-5---prácticas-avanzadas)
+    - [¿Qué es Docker?](#qué-es-docker)
+    - [Instalar Docker](#instalar-docker)
+    - [Uso Básico de Docker](#uso-básico-de-docker)
+      - [Práctica Crear una Imagen Docker](#práctica-crear-una-imagen-docker)
 
 ---
 
@@ -1755,3 +1759,98 @@ Para probar el uso de la red HTTP creada en Node-RED escribir en el navegador la
 ---
 
 ## Módulo 5 - Prácticas Avanzadas
+
+### ¿Qué es Docker?
+
+**Docker** es un software de costrucción de contenedores que permite crear, ejecutar y administrar aplicaciones de software en un entorno de contenedores.
+
+¿Por qué usar **Docker**?
+
+- **Facilidad de despliegue**: Docker permite crear y ejecutar aplicaciones de software en un entorno de contenedores, lo que facilita el despliegue y la actualización de aplicaciones.
+- **Portabilidad**: Los contenedores pueden ser ejecutados en diferentes entornos, lo que facilita la portabilidad de las aplicaciones.
+- **Eficacia**: Los contenedores pueden ser ejecutados en diferentes entornos, lo que facilita la portabilidad de las aplicaciones.
+- **Seguridad**: Los contenedores pueden ser ejecutados en diferentes entornos, lo que facilita la portabilidad de las aplicaciones.
+- **Escalabilidad**: Los contenedores pueden ser ejecutados en diferentes entornos, lo que facilita la portabilidad de las aplicaciones.
+- **Eficiencia**: Los contenedores pueden ser ejecutados en diferentes entornos, lo que facilita la portabilidad de las aplicaciones.
+- **Flexibilidad**: Los contenedores pueden ser ejecutados en diferentes entornos, lo que facilita la portabilidad de las aplicaciones.
+
+### Instalar Docker
+
+Para instalar Docker, sigue estos pasos:
+
+1. Actualizar el sistema operativo. En la RBPi, puedes usar `sudo apt-get update` y `sudo apt-get upgrade` para actualizar el sistema operativo.
+2. Instalar Docker. En la RBPi, puedes usar `curl -sSL https://get.docker.com | sh`.
+3. Añadir permisos del usuario. En la RBPi, puedes usar `sudo usermod -aG docker $USER`. Donde `$USER` es el nombre del usuario actual.
+4. Para probar Docker, puedes usar `sudo docker run hello-world`.
+5. Iniciar Docker. En la RBPi, puedes usar `sudo systemctl start docker`.
+6. Verificar el estado de Docker. En la RBPi, puedes usar `sudo systemctl status docker`.
+7. Habilitar Docker. En la RBPi, puedes usar `sudo systemctl enable docker`.
+8. Deshabilitar Docker. En la RBPi, puedes usar `sudo systemctl disable docker`.
+9. Reiniciar Docker. En la RBPi, puedes usar `sudo systemctl restart docker`.
+10. Detener Docker. En la RBPi, puedes usar `sudo systemctl stop docker`.
+11. Recargar Docker. En la RBPi, puedes usar `sudo systemctl reload docker`.
+12. Listar unidades de servicio. En la RBPi, puedes usar `sudo systemctl list-units --type=service --state=running | grep docker`.
+
+### Uso Básico de Docker
+
+- Para comprobar la versión de Docker en la RBPi: `docker --version`.
+- Para ejecutar un contenedor ya instalado: `sudo docker run hello-world`.
+- Existe un repositorio para obtener contenedores preinstalados: [https://hub.docker.com/](https://hub.docker.com/).
+- Para descargar una imagen de NGINX desde el repositorio: `sudo docker pull nginx`.
+- Para descargar una versión en concreto de NGINX desde el repositorio: `sudo docker pull nginx:1.21.6-alpine`.
+- Para mostrar el listado de imágenes disponibles en el repositorio: `sudo docker images`.
+- Para ejecutar una imagen dentro de un contenedor: `sudo docker run -d -p 8080:80 nginx`.
+- Para visualizar los contenedores en ejecución: `sudo docker ps`.
+- Para para un contenedor: `sudo docker stop <CONTAINER_ID>`. Donde `<CONTAINER_ID>` es el ID del contenedor.
+
+#### Práctica Crear una Imagen Docker
+
+1. Crear una carpeta llamada `docker`.
+2. Crear un archivo llamado `Dockerfile` dentro de la carpeta `docker`.
+3. Crear un archivo llamado `app.py` dentro de la carpeta `docker`.
+4. Crear un archivo llamado `requirements.txt` dentro de la carpeta `docker`.
+
+El código del archivo `Dockerfile` es el siguiente:
+
+```dockerfile
+# Dockerfile
+# Usa Python como imagen base
+FROM python:3.9-slim-buster
+# Definir el directorio de trabajo en /app (contenedor)
+WORKDIR /app
+# Documentos a copiar
+COPY . /app
+# Instalar las dependencias
+RUN pip install --no-cache-dir -r requirements.txt
+# Definir comandos para ejecutar aplicación
+CMD [ "python", "app.py"]
+```
+
+El código del archivo `app.py` es el siguiente:
+
+```python
+from flask import Flask
+app = Flask(__name__)
+
+@app.route("/")
+def hello_world():
+    return "<p>HOLA MUNDO DESDE DOCKER!</p>"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+```
+
+El código del archivo `requirements.txt` es el siguiente:
+
+```txt
+flask==2.2.3
+```
+
+- Accedemos a la carpeta `docker` y ejecutamos el comando de construcción.
+- Para construir la imagen: `sudo docker build -t miimagen .`.
+- Para ejecutar la imagen: `sudo docker run -d -p 5000:5000 miimagen`.
+- Para visualizar los contenedores en ejecución: `sudo docker ps`.
+- Para ver la imagen creada en el navegador web: `http://localhost:5000`.
+- Para parar un contenedor: `sudo docker stop <CONTAINER_ID>`. Donde `<CONTAINER_ID>` es el ID del contenedor.
+- Para borrar un contenedor: `sudo docker rm <CONTAINER_ID>`. Donde `<CONTAINER_ID>` es el ID del contenedor.
+- Para eliminar toda la información que no utilizamos: `sudo docker system prune -a`.
