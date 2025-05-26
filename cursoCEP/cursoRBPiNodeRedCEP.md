@@ -100,6 +100,9 @@
     - [Instalar Docker](#instalar-docker)
     - [Uso Básico de Docker](#uso-básico-de-docker)
       - [Práctica Crear una Imagen Docker](#práctica-crear-una-imagen-docker)
+    - [Uso de Docker Compose](#uso-de-docker-compose)
+    - [FUXA](#fuxa)
+    - [Primeros pasos con FUXA](#primeros-pasos-con-fuxa)
 
 ---
 
@@ -1854,3 +1857,58 @@ flask==2.2.3
 - Para parar un contenedor: `sudo docker stop <CONTAINER_ID>`. Donde `<CONTAINER_ID>` es el ID del contenedor.
 - Para borrar un contenedor: `sudo docker rm <CONTAINER_ID>`. Donde `<CONTAINER_ID>` es el ID del contenedor.
 - Para eliminar toda la información que no utilizamos: `sudo docker system prune -a`.
+
+### Uso de Docker Compose
+
+Los servicios de Docker Compose son una herramienta que permite definir y ejecutar multiples contenedores de manera eficiente.
+
+Para instalar Docker Compose, sigue estos pasos:
+
+1. Actualizar el sistema operativo. En la RBPi, puedes usar `sudo apt-get update` y `sudo apt-get upgrade` para actualizar el sistema operativo.
+2. Instalar Docker Compose. En la RBPi, puedes usar `sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose`.
+3. Alternativa para la instalación de Docker Compose, es usando: `sudo apt install docker-compose`.
+4. Dar permisos de ejecución a Docker Compose. En la RBPi, puedes usar `sudo chmod +x /usr/local/bin/docker-compose`.
+5. Verificar la versión de Docker Compose. En la RBPi, puedes usar `docker-compose --version`.
+
+Para usar Docker Compose, sigue estos pasos:
+
+1. Crear un archivo llamado `docker-compose.yml` en la carpeta `docker`.
+
+```yaml
+version: '3'              # versión específica del archivo de docker compose
+services:                 # Definir servicios de la aplicación
+  web:                    # nombre del servicio (puede ser cualquier nombre)
+    image: nginx          # imagen base de nginx
+    ports:
+      - "8080:80"         # puertos 8080 local y 80 el contenedor
+    networks:
+      - app-webnet        # red interna para interconectar contenedores
+    redis:                # base de datos que no se guarda en el contenedor
+      image: redis:alpine # imagen base de redis
+      ports:
+        - "6379:6379"     # puertos 6379 local y 6379 el contenedor
+      networks:
+        - app-webnet      # red interna para interconectar contenedores
+networks:
+  app-webnet:             # red interna para interconectar contenedores
+    driver: bridge
+```
+
+1. Accedemos a la carpeta `docker` y ejecutamos el comando de construcción.
+2. Para ejecutar la imagen: `sudo docker-compose up`.
+3. Con la opción `-d` se ejecutará en segundo plano: `sudo docker-compose up -d`.
+4. Para ver la imagen creada en el navegador web: `http://localhost:8080`.
+5. Para ver los contenedores en ejecución: `sudo docker ps`.
+6. Para detener un contenedor: `docker-compose down`.
+
+### FUXA
+
+¿Qué es FUXA?, es una herramienta que permite gestionar y monitorear los servicios de IoT de manera eficiente. Permite crear interfaz gráfica de usuarios HMI-SCADA Dashboard. Tiene conexión con S7, MODBUS y MQTT.
+
+FUXA es un software de visualización de procesos (SCADA/HMI/Dashboard) basado en web. Con FUXA, puede crear visualizaciones de procesos modernas con diseños personalizados para sus máquinas y visualización de datos en tiempo real.
+
+- [FUXA GITHUB](https://github.com/frangoteam/FUXA)
+- [EMPEZANDO CON FUXA](https://wiki.seeedstudio.com/es/reTerminal-DM_intro_FUXA/)
+- [FRANGOTEAM](https://frangoteam.org/)
+
+### Primeros pasos con FUXA
