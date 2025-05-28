@@ -103,6 +103,13 @@
     - [Uso de Docker Compose](#uso-de-docker-compose)
     - [FUXA](#fuxa)
     - [Primeros pasos con FUXA](#primeros-pasos-con-fuxa)
+    - [INFLUXDB](#influxdb)
+      - [Instalación y uso de INFLUXDB con Python](#instalación-y-uso-de-influxdb-con-python)
+      - [Visualizar datos](#visualizar-datos)
+    - [CUESTIONARIO MÓDULO 5](#cuestionario-módulo-5)
+  - [Módulo 6: Introducción y Prácticas con IA](#módulo-6-introducción-y-prácticas-con-ia)
+    - [Instroducción a la IA con ChatGPT](#instroducción-a-la-ia-con-chatgpt)
+    - [Conectando RBPi con OpenAI](#conectando-rbpi-con-openai)
 
 ---
 
@@ -1912,3 +1919,143 @@ FUXA es un software de visualización de procesos (SCADA/HMI/Dashboard) basado e
 - [FRANGOTEAM](https://frangoteam.org/)
 
 ### Primeros pasos con FUXA
+
+Para instalar FUXA SCADA desde repositorio GitHub utilizando Docker, sigue estos pasos, tal como se especifican en el propio repositorio:
+
+- `docker pull frangoteam/fuxa:latest`. Para descargar la imagen.
+- `docker run -d -p 1881:1881 frangoteam/fuxa:latest`. Para ejecutar el contenedor.
+- `docker ps`. Para ver los contenedores en ejecución.
+- En el navegador web, acceder a `http://localhost:1881/`. En la zona inferior de la pantalla, se encuentra la interfaz gráfica de usuario con los botones: _HOME_, _LAB_ y _EDITOR_.
+- Hacemos clic en _EDITOR_. Se abre un editor de FUXA.
+- Para conectar FUXA con _INFLUXDB, hacemos clic en _SETTINGS > DAQ STORAGE_ y seleccionamos _INFLUXDB_ (tipo de base de datos).
+- Para configurar cómo recibir la información, hacer clic en _SETTINGS > CONNECTIONS__. Luego hacer clic en _NEW_ y configurar venta emergente con datos de la conexión.
+- ![alt text](image-101.png "Ventana de conexión de CONNECTIONS")
+- Para ver las opciones de visualización, hacer clic en _SETTINGS > VISUALIZATION_. En este tipo de ventanas se pueden añadir los componentes integrantes del SCADA.
+- Para ver como queda la vista una vez configurada, hacer clic en _HOME_.
+
+### INFLUXDB
+
+**INFLUXDB** es una base de datos se series temporales, diseñada para manejar datos que tienen una marca de tiempo (datos de series temporales) es muy rápida y optimizada para recopilar datos de sensores. Esto la hace diferente a MySQL o MongoDB.
+
+- [WEB INFLUXDB](https://www.influxdata.com/)
+
+#### Instalación y uso de INFLUXDB con Python
+
+Para instalar INFLUXDB, sigue estos pasos:
+
+1. Acceder a la página web de descargas de [INFLUXDB OSS](https://www.influxdata.com/downloads/).
+2. ![alt text](image-102.png "Descargar INFLUXDB desde url")
+3. Copiar la URL de descarga y pegar en el terminal de Raspberry Pi.
+4. Para la versión 2.7.12 y seleccionando procesador ARM64:
+   1. `wget https://download.influxdata.com/influxdb/releases/v2.7.12/influxdb2-2.7.12_linux_arm64.tar.gz`.
+   2. `tar xvfz influxdb2-2.7.12_linux_arm64.tar.gz`
+5. Para la versión 2.7.12 y seleccionando Ubuntu-Debian (ARM64):
+   1. `wget -q https://repos.influxdata.com/influxdata-archive_compat.key`
+   2. `echo '393e8779c89ac8d958f81f942f9ad7fb82a25e133faddaf92e15b16e6ac9ce4c influxdata-archive_compat.key' | sha256sum -c && cat influxdata-archive_compat.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg > /dev/null`
+   3. `echo 'deb [signed-by=/etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg] https://repos.influxdata.com/debian stable main' | sudo tee /etc/apt/sources.list.d/influxdata.list`
+   4. `sudo apt-get update && sudo apt-get install influxdb2`
+6. ![alt text](image-103.png "Comandos para descargar e instalar INFLUXDB")
+7. Para la versión 2.7.12 y seleccionando Ubuntu-Debian:
+   1. `wget -q https://repos.influxdata.com/influxdata-archive_compat.key`
+   2. `echo '393e8779c89ac8d958f81f942f9ad7fb82a25e133faddaf92e15b16e6ac9ce4c influxdata-archive_compat.key' | sha256sum -c && cat influxdata-archive_compat.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg > /dev/null`
+   3. `echo 'deb [signed-by=/etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg] https://repos.influxdata.com/debian stable main' | sudo tee /etc/apt/sources.list.d/influxdata.list`
+   4. `sudo apt-get update && sudo apt-get install influxdb2`
+8. Una vez que se instala, para ejecutar el servicio: `sudo service influxdb start`.
+9. Para ver el estado del servicio: `sudo service influxdb status`.
+10. Para probar, escribir en el navegador la siguiente URL: `http://localhost:8086/`.
+11. Crear una cuenta configurando un usuario y el nombre de la base de datos a utilizar.
+
+![alt text](image-104.png "Página con la versión correcta para instalar en RBPi")
+
+> [!NOTE]
+> La versión ARM no funciona en la RBPi.
+> Seleccionar Ubuntu-Debian es la versión recomendada.
+
+![alt text](image-105.png "Página inicial de la base de datos INFLUXDB")
+
+Para realizar una conexión en Python a la base de datos, seguiremos en tutorial disponible, tras hacer clic sober el icono de Python.
+
+1. Inicialmente escribiendo en consola: `python -m venv influxtest`
+2. Accedemos a la carpeta creada: `cd influxtest`
+3. Activamos el entorno virtual: `source bin/activate`
+4. Instalamos la dependencia: `pip install influxdb-client`
+5. El siguiente paso del tutorial, es establecer un TOKEN en nuestras variables de entorno (copiamos el número HASH) para pegar en el código de Python.
+6. En el siguiente paso tenemos el código, por lo que, creamos un fichero con extensión _influxtest.py_ y copiamos/pegamos el código.
+7. ![alt text](image-106.png "Código Python")
+8. En el siguiente paso, muestra el código para introducir datos en la base de datos. Lo copiamos y lo pegamos en el fichero influxtest.py.
+9. ![alt text](image-107.png "Código Python para datos")
+10. Ejecutamos el archivo _influxtest.py_: `python influxtest.py`.
+11. El siguiente paso, es ejecutar una consulta simple dentro de InfluxDB. Para ello creamos otro fichero que se llama _consultaingflux.py_. Y pequegamos el código.
+12. Otra opción es pegar el código de la consulta en el fichero _influxtest.py_.
+13. ![alt text](image-108.png "Código de la consulta")
+14. Guardamos y ejecutamos el archivo _influxtest.py_: `python influxtest.py`. Mostrando la consulta en pantalla.
+15. El siguiente paso es para añadir una consulta en la base de datos. Para ello creamos otro fichero que se llama _consultaingflux.py_. Y pegamos el código.
+16. Otra opción es pegar el código de la consulta en el fichero _influxtest.py_.
+17. ![alt text](image-109.png "Código para guardar datos en la BD")
+18. Ejecutamos el archivo _influxtest.py_: `python influxtest.py`.
+
+#### Visualizar datos
+
+Buscar el repositorio [influxdata/influx2-sample-data](https://github.com/influxdata/influxdb2-sample-data).
+
+Localizamos la carpeta _datos del sensor de aire_ y el archivo _datos del sensor de aire.csv_.
+![alt text](image-110.png "Repositorio influxdata")
+
+Hacemos clic en descargar. Y una vez descargado, lo que debemos hacer es importarlo desde la base de datos InfluxDB en los BUCKETS creamos uno llamado _air_ y hacemos clic en _Import_ seleccionando el archivo antes descargado.
+
+![alt text](image-111.png "Captura datos del sensor de aire")
+![alt text](image-112.png "Visualizando datos de temperatura")
+
+### CUESTIONARIO MÓDULO 5
+
+- ¿Qué es Docker?
+  - [X] Una herramienta para crear, ejecutar y administrar contenedores
+  - [ ] Un lenguaje de programación
+  - [ ] Un programa de edición de imágenes
+  - [ ] Un sistema operativo
+- Mediante MQTT puedo enviar datos desde Node-red a Fuxa
+  - [X] Sí
+  - [ ] No
+- ¿Qué es un contenedor en Docker?
+  - [ ] Una base de datos
+  - [ ] Un archivo comprimido
+  - [X] Un entorno aislado para ejecutar aplicaciones
+  - [ ] Un sistema de archivos virtual
+- ¿Docker puede funcionar en una Raspberry Pi?
+  - [ ] No, es solo para servidores grandes
+  - [ ] Solo con Windows instalado
+  - [ ] Sí, pero solo para bases de datos
+  - [X] Sí, con versiones compatibles
+- Una vez creado un contenedor Docker, no se puede detener ni eliminar.
+  - [ ] Falso
+  - [X] Verdadero
+- ¿Docker Compose sirve para usar varios contenedores a la vez?
+  - [ ] No
+  - [X] Sí
+- ¿El archivo docker-compose.yml sirve para decirle a Docker qué contenedores usar?
+  - [X] Sí
+  - [ ] No
+- ¿Qué es InfluxDB?
+  - [ ] Un sistema operativo
+  - [ ] Un servidor web
+  - [ ] Un lenguaje de programación
+  - [X] Una base de datos de series temporales
+¿Para qué se usa InfluxDB principalmente?
+  - [ ] Para almacenar fotos
+  - [X] Para almacenar datos de series temporales, como métricas y logs
+  - [ ] Para programar aplicaciones móviles
+  - [ ] Para gestionar bases de datos relacionales
+- ¿Qué es FUXA?
+  - [ ] Un dispositivo de hardware
+  - [X] Un software de visualización de procesos basado en web
+  - [ ] Un lenguaje de programación
+  - [ ] Un sistema operativo
+
+---
+
+## Módulo 6: Introducción y Prácticas con IA
+
+### Instroducción a la IA con ChatGPT
+
+### Conectando RBPi con OpenAI
+
