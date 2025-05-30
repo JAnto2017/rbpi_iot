@@ -109,7 +109,12 @@
     - [CUESTIONARIO MÓDULO 5](#cuestionario-módulo-5)
   - [Módulo 6: Introducción y Prácticas con IA](#módulo-6-introducción-y-prácticas-con-ia)
     - [Instroducción a la IA con ChatGPT](#instroducción-a-la-ia-con-chatgpt)
+      - [EL PROMPT](#el-prompt)
+      - [EL TOKEN](#el-token)
+      - [El Contexto](#el-contexto)
+      - [El ROL](#el-rol)
     - [Conectando RBPi con OpenAI](#conectando-rbpi-con-openai)
+      - [Programa en RBPi](#programa-en-rbpi)
 
 ---
 
@@ -2057,5 +2062,67 @@ Hacemos clic en descargar. Y una vez descargado, lo que debemos hacer es importa
 
 ### Instroducción a la IA con ChatGPT
 
+La IA Generativa es un conjunto de tecnologías que permiten a los sistemas inteligentes generar contenido de manera autóntoma (nuevo y original).
+
+Un LLM (Large Language Model) es un modelo de lenguaje entrenado para generar texto de manera autóntoma.
+
+Un GPT (Generative Pre-trained Transformer) es un modelo de lenguaje entrenado para generar texto de manera autóntoma.
+
+#### EL PROMPT
+
+Un prompt es una serie de instrucciones que el LLM puede seguir para generar el texto. Básicamente, se refiere a un conjunto de palabras, frases o descripciones que sirven como entrada para obtener una respuesta o acción.
+
+#### EL TOKEN
+
+Un token es una unidad de información que el LLM utiliza para generar el texto. Para medir el número de _tokens_:
+
+[Platform OpenAI Tokenizer](https://platform.openai.com/tokenizer?ref=hackernoon.com)
+
+#### El Contexto
+
+La IA "recuerda" el contexto de las conversaciones pasadas. El contexto es una serie de palabras, frases o descripciones que sirven como entrada para obtener una respuesta oacción.
+
+#### El ROL
+
+Podemos asignarle un rol a la IA. Por ejemplo, si queremos que la IA se comporte como un chatbot, podemos asignarle el rol de "chatbot".
+
+Una consulta, se puede escribie de la siguiente forma:
+
+```chatbot
+tu <rol>
+experto en matemáticas aplicadas
+</rol>
+ 
+<tarea>
+¿Calcular y explicar el volumen de un cilindro con un radio de 5 cm y una altura de 10 cm?
+</tarea>
+
+<respuesta>
+Responde en el lenguaje natural que se te pida.
+</respuesta>
+```
+
+Página web con listado de AIs gratuitas: [HUGGING FACE](https://huggingface.co/)
+
+El entorno [M STUDIO](https://lmstudio.ai/)
+
 ### Conectando RBPi con OpenAI
 
+En esta sección se muestra como hacer consultas automatizadas a la API de OpenAI.
+
+1. Se debe crear una cuenta en _Platform OpenAI_.
+2. Se debe aportar un saldo a la cuenta _Biliing_. A medida que se realizan consultas, se descontarán. Se puede configurar para añadir un límite por día.
+3. En _Dashboard > Usabe_ se pueden ver las consultas realizadas y el saldo restante.
+4. La _API KEY_ se encuentra en _Dashboard > API Keys_. Sirve para acceder a la API de OpenAI.
+
+#### Programa en RBPi
+
+En el siguiente paso, creamos un programa en RBPi para realizar consultas a la API de OpenAI. Se debe instalar a librería _openai_.
+
+1. Instalar a librería _openai_: `pip install openai==0.28.0 --break-system-packages`.
+2. Código en Python:
+3. ![alt text](image-113.png)
+4. Para ejecutar el programa, se debe ejecutar el siguiente comando: `python openai.py`.
+5. Obtendremos la respuesta de la API de OpenAI.
+6. Programa Python para entrenar el modelo de IA para que detecte email malicioso (Spam):
+7. ![alt text](image-114.png)
