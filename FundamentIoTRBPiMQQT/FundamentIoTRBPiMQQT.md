@@ -46,6 +46,7 @@
       - [Crear un suscriptor](#crear-un-suscriptor)
     - [Creando un chat con Python](#creando-un-chat-con-python)
     - [Control RBPi por línea de comandos](#control-rbpi-por-línea-de-comandos)
+    - [Control RBPi por linea de comandos II](#control-rbpi-por-linea-de-comandos-ii)
 
 ---
 
@@ -938,3 +939,86 @@ if __name__ == "__main__":
   cliente.disconnect()
   cliente.loop_stop()
 ```
+
+### Control RBPi por linea de comandos II
+
+Programa control de luces en Python y MQTT:
+
+```python
+import time
+import paho.mqtt.client as mqtt
+from gpiozero import LED, MCP3008
+
+FLAG = True
+mi_led = LED(17)
+temperatura_actual = 0
+
+def dame_temperatura():
+  global temperatura_actual
+  mi_adc = MCP3008(channel=0)
+  while True:
+    temperatura_actual = mi_adc.value*3.3*100
+    return temperatura_actual
+
+def on_connect(client, userdata, flags, rc):
+  print("Conexión con el código {}".format(rc))
+
+def on_message(client, userdata, msg):
+  global FLAG
+  global mensaje
+  respuesta = message.payload.decode("utf-8")
+  print("[TOPIC ORIGEN]: ", msg.topic)
+  print("[RESPUESTA]: ", respuesta)
+  if respuesta == "salir":
+    FLAG = False
+  elif respuesta == "on":
+    mi_led.on()
+    mensaje = "Luz encendida"
+    topic = topics_publicar[0]
+  elif respuesta == "off":
+    mi_led.off()
+    mensaje = "Luz apagada"
+    topic = topics_publicar[0]
+  elif respuesta == "temperatura":
+    mensaje = dame_temperatura()
+    mensaje = round(mensaje, 2)
+    topic = topics_publicar[1]
+
+  client.publish(topic, mensaje)
+
+def on_subscribe(client, userdata, mid, granted_qos):
+  print("Suscrito con QoS {}".format(granted_qos))
+
+def on_unsubscribe(client, userdata, rc):
+  if rc != 0:
+    print("Desconectado con el código {}".format(rc))
+
+if __name__ == "__main__":
+  # broker al que queremos conectarnos
+  broker = "localhost"  # 192.168.x.x
+  port = 1883
+  topics_publicar = ["Recamara/Luz", "Recamara/Temperatura"] # El tópico al que queremos suscribirnos
+  topic_subscribir = [("Peticion/Luz",0), ("Peticion/Temperatura",0)] # El tópico al que queremos suscribirnos
+
+  cliente = mqtt.Client()
+  cliente.on_subscribe = on_subscribe
+  cliente.on_unsubscribe = on_unsubscribe
+  cliente.on_connect = on_connect
+  cliente.on_message = on_message
+
+  cliente.connect(broker, port, keepalive=60)
+  time.sleep(0.1)
+  mensaje = None
+
+  cliente.loop_start()
+  cliente.subscribe(topic_subscribir)  # QoS es 0, se puede cambiar a 1 o 2
+  while True:
+    if (FLAG == False) or (mensaje == "salir"):
+      break
+  cliente.disconnect()
+  cliente.loop_stop()
+```
+
+Para probar el programa, desde el terminal ejecutamos el código del controlador: `python3 controlador.py`. Desde este programa, podemos apagar y encender la luz escribiendo `on`, `off`. Para saber el valor de la temperatura escribimos `temperatura`.
+
+En una nueva terminal, ejecutar el programa que controla las luces de la RBPi: `python3 luces.py`.
