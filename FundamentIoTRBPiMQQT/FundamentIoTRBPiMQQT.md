@@ -47,6 +47,11 @@
     - [Creando un chat con Python](#creando-un-chat-con-python)
     - [Control RBPi por línea de comandos](#control-rbpi-por-línea-de-comandos)
     - [Control RBPi por linea de comandos II](#control-rbpi-por-linea-de-comandos-ii)
+    - [¿Qué es Threading?](#qué-es-threading)
+    - [Manejando Threads con Python](#manejando-threads-con-python)
+    - [Control RBPi con GUI - I](#control-rbpi-con-gui---i)
+    - [Control RBPi con GUI - II](#control-rbpi-con-gui---ii)
+    - [Control RBPi con GUI - III](#control-rbpi-con-gui---iii)
 
 ---
 
@@ -1022,3 +1027,38 @@ if __name__ == "__main__":
 Para probar el programa, desde el terminal ejecutamos el código del controlador: `python3 controlador.py`. Desde este programa, podemos apagar y encender la luz escribiendo `on`, `off`. Para saber el valor de la temperatura escribimos `temperatura`.
 
 En una nueva terminal, ejecutar el programa que controla las luces de la RBPi: `python3 luces.py`.
+
+### ¿Qué es Threading?
+
+_Thread_ o hilos, son procesos secuenciales que se ejecutan en paralelo. En Python se implementan mediante la clase _threading.Thread_.
+
+Un procesador con cuatro núcleo implica que se pueden ejecutar cuatro hilos al mismo tiempo.
+
+Se puede cambiar entre los distintos hilos que se ejecutan al mismo tiempo. Por ejemplo, si tenemos dos hilos, uno de ellos se encarga de enviar y el otro de recibir, podemos cambiar entre ellos para enviar y recibir información. Esta acción se conoce como _switching_. Es la ejecución de hilos en distinta secuencia de tiempo.
+
+### Manejando Threads con Python
+
+[Ejemplo I Thread en Python](threadPythonI.py)
+
+[Ejemplo II Thread en Python](threadPythonII.py)
+
+[Ejemplo III Thread en Python](threadPythonIII.py)
+
+### Control RBPi con GUI - I
+
+Interfaz gráfica de usuario para controlar la RBPi usando librería Tkinter y PIL en Pyton.
+
+> [!NOTE]
+> Instalar en RBPi: `sudo apt-get install python3-pil python3-pil.imagetk`
+
+[Programa GUI para controlar la RBPi](GUI.py)
+
+### Control RBPi con GUI - II
+
+Construcción de todo el funcionamiento de la interfaz gráfica. Además, nos permitirá suscribirnos a un tópic de la temperatura para mostrar en la ventana gráfica.
+
+[Programa Cliente para controlar la RBPi](cliente_mqtt.py)
+
+### Control RBPi con GUI - III
+
+[Programa Control para controlar la RBPi](control_rbpi.py)
