@@ -30,6 +30,9 @@
 
 [EMQX - Broker MQTT plataforma IoT al alcance de tus manos](EMQX/EMQX.md)
 
+## IA y Programación Avanzada con Python y RBPi - PROF24
+
+[IA y Programación Avanzada con Python y RBPi - PROF24](Prof24/Prof24.md)
 ---
 
 ![createcommons](createcommons2.png)
