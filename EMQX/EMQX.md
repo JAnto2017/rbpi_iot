@@ -19,6 +19,11 @@
       - [Tópicos](#tópicos)
       - [Comodines](#comodines)
       - [Cómo Planificar un Tópico](#cómo-planificar-un-tópico)
+    - [MQTT Calidad de Servicio QoS](#mqtt-calidad-de-servicio-qos)
+      - [Calidad del Servicio QoS 0](#calidad-del-servicio-qos-0)
+      - [Calidad del Servicio QoS 1](#calidad-del-servicio-qos-1)
+      - [Calidad del Servicio QoS 2](#calidad-del-servicio-qos-2)
+      - [Impacto del nivel de QoS en el rendimiento](#impacto-del-nivel-de-qos-en-el-rendimiento)
   - [S3 - TODO SOBRE EL BROKER EMQX V4.4.X](#s3---todo-sobre-el-broker-emqx-v44x)
   - [S4 - TODO SOBRE EL BROKER EMQX V5.X.X](#s4---todo-sobre-el-broker-emqx-v5xx)
   - [S5 - ANÁLISIS DEL TRÁFICO MQTT CON WIRESHARK](#s5---análisis-del-tráfico-mqtt-con-wireshark)
@@ -286,6 +291,78 @@ Reglas recomendadas:
 - No suscribirse a `#` ya que el cliente tendrá problemas con el rendimiento.
 - Aunque los tópicos puedan contener cadenas arbitrarias, solo debe tenerse en cuenta para futuros crecimientos al formular una estructura.
 - Usar temas específicos, como temperatura, humedad, luminosidad, en lugar de solo `home/room/valores` que sería equivalente a transmitir un paquete con varios valores, algo más específico sería `home/room/temperatura`, `home/room/humedad` y `home/room/luminosidad`.
+
+### MQTT Calidad de Servicio QoS
+
+La calidad de servicio (QoS) es un parámetro de publicación y suscripción. Mecanismo para garantizar la entrega de los mensajes. Existen tres niveles:
+
+- QoS 0 -> Como máximo una vez (0) va a llegar la información.
+- QoS 1 -> Al menos una vez (1).
+- QoS 2 -> Exactamente una vez (2).
+
+La transmisión de información se puede ver en dos piezas:
+
+- Cliente al Broker( Client PUB - QoS)
+- Broker a Cliente(s) ( Client SUB - QoS)
+
+![alt text](img/image-15.png "MQTT Calidad de Servicio QoS")
+
+#### Calidad del Servicio QoS 0
+
+- Los mensajes que se seleccionan se entregan como máximo una vez de acuerdo con el mejor esfuerzo de la red subyacente.
+- No se espera una respuesta y no se requiere semántica de reintento definitivo en el protocolo.
+- El mensaje llega al servidor MQTT una vez o nunca llega.
+- Este es el nivel de QoS más bajo.
+- El cliente o servidor MQTT intenta enviar el mensaje sin esperar una confirmación de recibo.
+- No se toman medidas para asegurar que se entrega el mensaje, además de las funciones proporcionadas por la capa TCP/IP.
+- Además, si el mensaje no se entrega, no hay un reintento realizado por la capa MQTT.
+- Por lo tanto, si el cliente está enviando un mensaje, llegará al servidor MQTT una vez o nunca.
+- El mensaje QoS 0 puede perderse si el cliente se desconecta inesperadamente o si falla el servidor MQTT.
+- Desde una perspectiva de desempeño, esto agrega valor porque es la forma más rápida de enviar un mensaje.
+
+![alt text](img/image-16.png "Calidad del Servicio QoS 0")
+
+#### Calidad del Servicio QoS 1
+
+- El mensaje se entrega al menos una vez.
+- El cliente MQTT o el servidor intenta entregar el mensaje al menos una vez, pero también puede haber un duplicado de mensajes.
+- La recepción de un mensaje por parte del servidor MQTT es reconocida por un mensaje _PUBACK_. Si se identifica una falla en el enlace de comunicaciones o en el envío, o si el mensaje de reconocimiento no se recibe después de un periodo de tiempo especificado, el remitente vuelve a enviar el mensaje con el bit _DUP_ estabecido en el encabezado del mensaje.
+- Si el cliente no recibe un mensaje _PUBACK_ (ya sea dentro de un periodo de tiempo definido en la aplicación, o si se detecta una falla y se reinicia la sesión de comunicaciiones), el cliente reenvía el mensaje _PUBLISH_ con el indicador _DUP_ establecido. Cuando recibe un mensaje duplicado del cliente, el servidor MQTT vuelve a publicar el mensaje a los suscriptores y envía otro mensaje _PUBACK_ (PUBLICATION-ACKNOWLEDGE).
+- Un mensaje con QoS 1 tiene un _Id_ en el encabezado del mensaje.
+
+![alt text](img/image-17.png "Calidad del Servicio QoS 1")
+
+#### Calidad del Servicio QoS 2
+
+- Este es el nivel más alto de QoS.
+- Los flujos del protocolo adicionales con más altos que QoS 1 aseguran que los mensajes duplicados no se entreguen a la aplicación receptora.
+- Cuando se utiliza QoS 2, el mensaje se entrega una sola vez. El cliente MQTT o el servidor asegura que el mensaje se envía una sola vez.
+- Esta QoS debe usarse sólo cuando se envía mensajes duplicados no deseados, desde una perspectiva de rendimiento, hay un precio a pagar en términos de tráfico de red y poder de procesamiento.
+- Un mensaje con QoS 2 tiene un Id en el encabezado del mensaje.
+- Los mensajes de comando MQTT utilizados son: PUBLISH, PUBREC, PUBREL y PUBCOMP.
+- El mensaje se envía en el flujo PUBLISH y el cliente almacena ese mensaje MQTT en la capa de persistencia, si se utiliza. El mensaje permanece bloqueado en el servidor. PUBREC es enviado por el servidor en respuesta a PUBLISH. PUBREL se despacha al servidor desde el cliente en respuesta a PUBREC. Una vez que el servidor MQTT recibe PUBREL, los mensajes se pueden enviar a los suscriptores y PUBCOMP se devuelve en respuesta a PUBREL.
+- Los mensajes de QoS 2 tienen un Id en el encabezado del mensaje.
+- Si se detecta una falla, o después de un periodo de tiempo definido, se vuelve a intentar cada parte del flujo del protocolo con el bit DUP establecido. Los flujos de protocolo adicionales aseguran que el mensaje se entregue a suscriptores una sola vez.
+
+![alt text](img/image-18.png "Calidad del Servicio QoS 2")
+
+#### Impacto del nivel de QoS en el rendimiento
+
+Hay una regla simple cuando se considera el impacto en el rendimiento de QoS: cuanto mayor sea QoS menor será el rendimiento.
+
+Supongamos que el tiempo necesario para enviar un mensaje PUBLISH es _pt_:
+
+- Si se utiliza QoS 0, el tiempo total tomado para transferir _n_ número de mensajes es _$n·pt$_.
+- Para QoS 1, el mensaje PUBACK (respuesta al mensaje PUBLISH) fluye del servidor al cliente. Éste es de 2 bytes mensaje y generalmente toma menos tiempo que _pt_. Por lo tanto, el tiempo para la respuesta al mensaje PUBLISH se llama _mt_. Entonces, el timepo necesario para transferir _n_ mensajes es _$n·(pt+mt)$_.
+- Para QoS 2, los menajes PUBREC, PUBREL y PUBCOMP fluyen. Por lo tanto, _n_ número de mensajes toma aproximadamente _$n·(pt+3·mt)$_.
+
+_Ejemplo_: si se necesitan $n=10$ mensajes para ser transferido del cliente al servidor, y _pt_ es 1 segundo y _mt_ es 0.4 segundos, entonces el tiempo necesario para cada uno de los QoS es:
+
+| QoS | Tiempo | Inconvenientes |
+| --- | --- | --- |
+| 0 | $10·1 =10s$ | los mensajes puede que no lleguen |
+| 1 | $10·(1+0.4) = 14s$ | los mensajes pueden llegar duplicados |
+| 2 | $10·(1+1.2) = 22s$ | se garantiza la entrega, pero se tarda más tiempo |
 
 
 ## S3 - TODO SOBRE EL BROKER EMQX V4.4.X
