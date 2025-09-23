@@ -24,6 +24,12 @@
       - [Calidad del Servicio QoS 1](#calidad-del-servicio-qos-1)
       - [Calidad del Servicio QoS 2](#calidad-del-servicio-qos-2)
       - [Impacto del nivel de QoS en el rendimiento](#impacto-del-nivel-de-qos-en-el-rendimiento)
+    - [MQTT Keep Alive y Mensajes](#mqtt-keep-alive-y-mensajes)
+      - [Keep Alive](#keep-alive)
+      - [Mensajes Retenidos en Broker MQTT](#mensajes-retenidos-en-broker-mqtt)
+    - [El identificador de cliente MQTT](#el-identificador-de-cliente-mqtt)
+    - [Sesiones sin Estado y con Estado (CleanSession)](#sesiones-sin-estado-y-con-estado-cleansession)
+    - [MQTT Bibliografía](#mqtt-bibliografía)
   - [S3 - TODO SOBRE EL BROKER EMQX V4.4.X](#s3---todo-sobre-el-broker-emqx-v44x)
   - [S4 - TODO SOBRE EL BROKER EMQX V5.X.X](#s4---todo-sobre-el-broker-emqx-v5xx)
   - [S5 - ANÁLISIS DEL TRÁFICO MQTT CON WIRESHARK](#s5---análisis-del-tráfico-mqtt-con-wireshark)
@@ -364,6 +370,82 @@ _Ejemplo_: si se necesitan $n=10$ mensajes para ser transferido del cliente al s
 | 1 | $10·(1+0.4) = 14s$ | los mensajes pueden llegar duplicados |
 | 2 | $10·(1+1.2) = 22s$ | se garantiza la entrega, pero se tarda más tiempo |
 
+### MQTT Keep Alive y Mensajes
+
+#### Keep Alive
+
+Mantenerse vivo:
+
+- Un servidor MQTT puede determinar si el cliente MQTT todavía está en la red (y viceversa). Mediante el uso del temporizador de mantener vivo.
+- Los mecanismos de gestión de errores y tiempo de espera de TCP/IP son en la capa de red, pero el ciente y el servidor MQTT no necesitan depender de eso.
+- El cliente dice hola al servidor, y el servidor responde, reconociéndolo. Así de sencillo es, el temporizador de mantener vivo.
+
+Hay dos mensajes que constituyen la interacción de mantener vivo:
+
+- PINGREQ (enviado por el cliente al servidor): El cliente envía la solicitud al servidor cuando el temporizador de mantenimiento caduca.
+- PINGRESP (enviado por el servidor al cliente): La respuesta de de ping es la respuesta enviada por el servidor a una solicitud de ping del cliente.
+
+![alt text](img/image-19.png "Keep Alive")
+
+#### Mensajes Retenidos en Broker MQTT
+
+MQTT proporciona una función en la que retiene un mensaje para un tópico, incluso después de que el mensaje sea entregado a los suscriptores conectados. Esta función se logra mediante el uso de una bandera de retención en el mensaje cuando se publica.
+
+_El publicador del mensaje establece esta marca en el mensaje durante la publicación_.
+
+El siguiente flujo de ejemplo muestra cómo comprender los mensajes retenidos:
+
+- El cliente A se conecta al servidor y se suscribe al tópico a/b.
+- El cliente B se conecta al servidor y publica el mensaje "Hola" con el indicador de retención para el tópico a/b.
+- El cliente A recibe el mensaje sin el indicador de retención establecido en 0.
+- El cliente C se conecta al servidor y se suscribe al tópico a/b.
+- El cliente C recibe el mensaje con el indicador de retención establecido en 1.
+
+Incluso si se reinicia el Broker MQTT, el mensaje retenido no se perderá.
+
+_Solo se retiene un mensaje por tópico_.
+
+Las publicaciones retenidas se utilizan principalmente para mantener la información del estado. Si se usa un tópico en particular para publicar un mensaje de estado desde un dispositivo, los mensajes pueden ser mensajes retenidos.
+
+Una ventaja es que, un programa de monitoreo que se conecta puede suscribirse a este tópico y obtener información sobre los últimos mensajes de estado publicados desde el dispotivo de posicionamiento.
+
+### El identificador de cliente MQTT
+
+El protocolo MQTT requiere que el cliente defina un ID de cliente, de modo que el cliente se defina de forma única en una red. En términos simples, el cliente especifica una cadena única para conectarse al servidor MQTT. Hay varias formas de elegir un ID de cliente, por ejemplo:
+
+- Un sensor instalado en una ubicación particular puede usar el código de ubicación como ID de cliente.
+- Un dispositivo móvil con una conexión de red puede usar la dirección de control de acceso a medios MAC o la identificación única del dispositivo como la identificación del cliente.
+  - MQTT restringe la longitud del ID del cliente a 23 caracteres.
+  - La ID del cliente no puede ser la misma que cualquier otra ID de cliente en la red.
+
+Si dos clientes tuvieran el mismo identificador de cliente, uno de los clientes podría recibir un mensaje y el otro no. El servidor MQTT realiza un seguimiento de los mensajes pendientes que se enviarán a un cliente en función de la ID del cliente. Por lo tanto, si un cliente ha estado usando QoS 1 o 2, y se ha suscrito a cualquier tema y se ha desconectado del servidor, el servidor guarda los mensajes que le llegaron al cliente cuando se desconectó. Después de que el cliente se vuelve a conectar, el servidor envía esos mensajes al cliente. Si un segundo dispositivo MQTT usa la misma ID de cliente y se conecta al servidor, el servidor enviará los mensajes guardados al segundo dispositivo.
+
+Otro escenario relacionado con los ID de ciente son las conexiones duplicadas.Suponga que un dispositivo en particular que usa el ID de cliente DeviceA está conectado al servidor MQTT. Si otro cliente inicia sesión con el mismo ID de cliente DeviceA, el primer cliente (más antiguo) debe ser desconectado por el servidor antes de completar el flujo de CONEXIÓN del segundo (nuevo) cliente. Esta es una características opcional de un servidor MQTT.
+
+### Sesiones sin Estado y con Estado (CleanSession)
+
+El servidor MQTT identifica la conexión del cliente mediante el identificador del cliente. El servidor comprueba si la información de la sesión se ha guardado desde una conexión anterior al servidor.
+
+El parámetro _CleanSession_ en las opciones de conexión indica si la conexión es sin estado o con estado. Si aún existe una sesión anterior y `cleanSession=true` se borra la información de la sesión anterior en el cliente y el servidor. Si `cleanSession=false`, se reanuda la sesión anterior. Si no existe una sesión anterior, se inicia una nueva sesión. El valor predeterminado de `cleanSession` es `true`.
+
+- Para publicaciones, la configuración de sesión limpia solo afecta las publicaciones enviadas con designación de QoS=1 y QoS=2. El uso de `cleanSession=true` puede provocar la pérdida de una publicación, ya que descarta todas las publicaciones que no han sido recibidas.
+- Para las suscripciones, si `cleanSession=true`, las suscripciones antiguas del cliente se eliminan cuando el cliente se conecta. Cualquier suscripción nueva que el cliente realice durante la sesión se eliminará cuando se desconecte.
+
+### MQTT Bibliografía
+
+- [MQTT v3.1.1 Specification](https://www.hivemq.com/hivemq-mqtt-3-1-1-specification/)
+- [MQTT v5.0 Specification](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html)
+- [MQTT v5.0.1 Specification](https://docs.oasis-open.org/mqtt/mqtt/v5.0.1/os/mqtt-v5.0.1-os.html)
+- [MQTT v5.0.2 Specification](https://docs.oasis-open.org/mqtt/mqtt/v5.0.2/os/mqtt-v5.0.2-os.html)
+- [MQTT v5.0.3 Specification](https://docs.oasis-open.org/mqtt/mqtt/v5.0.3/os/mqtt-v5.0.3-os.html)
+- [MQTT v5.0.4 Specification](https://docs.oasis-open.org/mqtt/mqtt/v5.0.4/os/mqtt-v5.0.4-os.html)
+- [MQTT v5.0.5 Specification](https://docs.oasis-open.org/mqtt/mqtt/v5.0.5/os/mqtt-v5.0.5-os.html)
+- [MQTT v5.0.6 Specification](https://docs.oasis-open.org/mqtt/mqtt/v5.0.6/os/mqtt-v5.0.6-os.html)
+- [MQTT v5.0.7 Specification](https://docs.oasis-open.org/mqtt/mqtt/v5.0.7/os/mqtt-v5.0.7-os.html)
+- [MQTT v5.0.8 Specification](https://docs.oasis-open.org/mqtt/mqtt/v5.0.8/os/mqtt-v5.0.8-os.html)
+- [MQTT v5.0.9 Specification](https://docs.oasis-open.org/mqtt/mqtt/v5.0.9/os/mqtt-v5.0.9-os.html)
+- [MQTT v5.0.10 Specification](https://docs.oasis-open.org/mqtt/mqtt/v5.0.10/os/mqtt-v5.0.10-os.html)
+- [RedBooks](chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.redbooks.ibm.com/redbooks/pdfs/sg248228.pdf)
 
 ## S3 - TODO SOBRE EL BROKER EMQX V4.4.X
 
