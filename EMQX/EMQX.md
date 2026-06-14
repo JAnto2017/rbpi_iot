@@ -31,6 +31,9 @@
     - [Sesiones sin Estado y con Estado (CleanSession)](#sesiones-sin-estado-y-con-estado-cleansession)
     - [MQTT Bibliografía](#mqtt-bibliografía)
   - [S3 - TODO SOBRE EL BROKER EMQX V4.4.X](#s3---todo-sobre-el-broker-emqx-v44x)
+    - [EMQX V4.4.X - INTRODUCCIÓN](#emqx-v44x---introducción)
+    - [INSTALACIÓN BROKER EMQX V4.4.X EN W10](#instalación-broker-emqx-v44x-en-w10)
+    - [DASHBOARD Y PÁGINAS HTTP](#dashboard-y-páginas-http)
   - [S4 - TODO SOBRE EL BROKER EMQX V5.X.X](#s4---todo-sobre-el-broker-emqx-v5xx)
   - [S5 - ANÁLISIS DEL TRÁFICO MQTT CON WIRESHARK](#s5---análisis-del-tráfico-mqtt-con-wireshark)
   - [S6 - EMQX MODO DE PRODUCCIÓN EN NUBE](#s6---emqx-modo-de-producción-en-nube)
@@ -139,6 +142,8 @@ El concepto de IBM Smarter Planet, se basa en un conjunto de pilares llamados la
 Permite medir o monitorizar cosas a distancia. Además, las mejoras en la tecnología de telemetría permiten interconectar dispositivos y sistemas de manera eficiente en diferentes ubicaciones, permitiendo la creación de un entorno de telemetría inteligente y de alta calidad.
 
 MQTT proporciona la tecnología de telemetría para enfrentar los desafíos de información de los usuarios en el mundo real.
+
+- - -
 
 ## S2 - CARACTERÍSTICAS DEL PROTOCOLO MQTT
 
@@ -447,32 +452,87 @@ El parámetro _CleanSession_ en las opciones de conexión indica si la conexión
 - [MQTT v5.0.10 Specification](https://docs.oasis-open.org/mqtt/mqtt/v5.0.10/os/mqtt-v5.0.10-os.html)
 - [RedBooks](chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.redbooks.ibm.com/redbooks/pdfs/sg248228.pdf)
 
+- - -
+
 ## S3 - TODO SOBRE EL BROKER EMQX V4.4.X
+
+### EMQX V4.4.X - INTRODUCCIÓN
+
+[EMQX](https://emqx.io) es un Broker MQTT open source, de bajo costo y bajo mantenimiento. Puede ser usado para la gestión de datos, IoT, IoT de la nube, IoT de la nube y IoT de la nube, etc.
+
+### INSTALACIÓN BROKER EMQX V4.4.X EN W10
+
+- [emqx.io](https://emqx.io)
+- [emqx.com](https://emqx.com)
+
+En la web [emqx.io](https://emqx.io) hacer clic en _Download_, seleccionar _Windows_ y seleccionar la versión 4.4.7. Tras la descarga, extraer en una carpeta en el directorio raiz de Windows.
+
+Abrimos la consola como Administrador y entramos en la carpeta 'bin' de la carpeta extraida. Y ejecutamos el comando `emqx console` para comprobar que se ha instalado correctamente. Habilitar los permisos del Firewall para los puertos en TCP 18083 y 8883 además de otros.
+
+Para comprobar que funciona, en el navegador escribir en la URL: `http://localhost:18083`. El usuario es `admin` y la password `public`.
+
+- El siguiente comando `emqx start` sirve para iniciar el servicio.
+- El siguiente comando `emqx stop` sirve para parar el servicio.
+- El siguiente comando `emqx restart` sirve para reiniciar el servicio.
+- El siguiente comando `emqx status` sirve para comprobar el estado del servicio.
+- El siguiente comando `emqx console` sirve para entrar a la consola.
+
+### DASHBOARD Y PÁGINAS HTTP
+
+Dentro de la carpeta `/bin` ejecutar el archivo: `emqx start`, el cual tiene todos los scripts para la gestión del servicio, iniciando el Dashboard.
+
+- - -
 
 ## S4 - TODO SOBRE EL BROKER EMQX V5.X.X
 
+- - -
+
 ## S5 - ANÁLISIS DEL TRÁFICO MQTT CON WIRESHARK
+
+- - -
 
 ## S6 - EMQX MODO DE PRODUCCIÓN EN NUBE
 
+- - -
+
 ## S7 - CLIENTE ESP32
+
+- - -
 
 ## S8 - CLIENTE ARDUINO UNO
 
+- - -
+
 ## S9 - CLIENTE PHP
+
+- - -
 
 ## S10 - CLIENTE MQTT CON VUE.JS V3 POR WS Y WSS
 
+- - -
+
 ## S11 - CLIENTE MQTT CON NODE.JS
+
+- - -
 
 ## S12 - INSTALACIÓN EMQX CON DOCKER
 
+- - -
+
 ## S13 - INSTALACIÓN EMQX V5.8.0 USANDO DOCKER COMPOSE
+
+- - -
 
 ## S14 - PLATAFORMA IOT CLOUD V1 CONTROL CON ESP32 Y MQTT
 
+- - -
+
 ## S15 - PLATAFORMA IOT CLOUD V1 PROGRAMACIÓN ESP32
 
+- - -
+
 ## S16 - PLATAFORMA IOT CLOUD V1 PROYECTO PLATAFORMA IOT CON PHP
+
+- - -
 
 ## S17 - PRODUCCIÓN PLATAFORMA IOT CON NUBE ORACLE CLOUD
