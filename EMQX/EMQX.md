@@ -34,6 +34,32 @@
     - [EMQX V4.4.X - INTRODUCCIÓN](#emqx-v44x---introducción)
     - [INSTALACIÓN BROKER EMQX V4.4.X EN W10](#instalación-broker-emqx-v44x-en-w10)
     - [DASHBOARD Y PÁGINAS HTTP](#dashboard-y-páginas-http)
+    - [CONEXIÓN POR WEBSOCKETS](#conexión-por-websockets)
+    - [CLIENTE MQTT X](#cliente-mqtt-x)
+    - [CONEXIÓN CON EL CLIENTE MQTTX](#conexión-con-el-cliente-mqttx)
+    - [DOCUMENTACIÓN VERSIÓN V4.4.7 DEL BROKER Y CLIENTE EMQX](#documentación-versión-v447-del-broker-y-cliente-emqx)
+    - [INSTALAR OPEN SSL EN WINDOWS](#instalar-open-ssl-en-windows)
+    - [GENERAR LOS CERTIFICADOS AUTOFIRMADOS SSL PARA EL BROKER EMQX](#generar-los-certificados-autofirmados-ssl-para-el-broker-emqx)
+      - [GENERATE SERVER CERTIFICATE](#generate-server-certificate)
+    - [CONEXIÓN SEGURA SSL CON EL CLIENTE MQTTX](#conexión-segura-ssl-con-el-cliente-mqttx)
+    - [CONEXIÓN SEGURA HTTPS EN DASHBOARD EMQX BROKER](#conexión-segura-https-en-dashboard-emqx-broker)
+    - [PREPARAR EL ENTORNO DE AUTENTICACIÓN MySQL CON LARAGON](#preparar-el-entorno-de-autenticación-mysql-con-laragon)
+      - [LARAGON](#laragon)
+    - [AUTENTICACIÓN CON EL PLUGIN EMQX AUTH MYSQL](#autenticación-con-el-plugin-emqx-auth-mysql)
+      - [CREAR UNA BASE DE DATOS](#crear-una-base-de-datos)
+    - [EVITAR CONEXIÓN ANÓNIMAS AL BROKER EMQX](#evitar-conexión-anónimas-al-broker-emqx)
+    - [LISTA DE CONTROL DE ACCESO (ACL)](#lista-de-control-de-acceso-acl)
+    - [ACL - EJEMPLOS](#acl---ejemplos)
+    - [INSTALAR PHPMYADMIN EN LARAGON](#instalar-phpmyadmin-en-laragon)
+    - [INSTALACIÓN MQTTX BROKER EN LINUX UBUNTU 20.04.4](#instalación-mqttx-broker-en-linux-ubuntu-20044)
+      - [PASOS DE LA INSTALACIÓN EN UBUNTU SERVER](#pasos-de-la-instalación-en-ubuntu-server)
+    - [INSTALAR CYBERDUCK PARA FTP - SFTP EN LINUX](#instalar-cyberduck-para-ftp---sftp-en-linux)
+    - [USAR CERTIFICADOS SSL AL SERVIDOR USANDO CYBERDUCK](#usar-certificados-ssl-al-servidor-usando-cyberduck)
+    - [CONFIGURAR CERTIFICADOS SSL EN EL SERVIDOR EMQX BROKER EN UBUNTU SERVER](#configurar-certificados-ssl-en-el-servidor-emqx-broker-en-ubuntu-server)
+    - [CONFIGURAR CERTIFICADOS SSL AL DASHBOARD EMQX BROKER EN UBUNTU SERVER](#configurar-certificados-ssl-al-dashboard-emqx-broker-en-ubuntu-server)
+    - [LINUX CONFIGURAR LAMP EN UBUNTU](#linux-configurar-lamp-en-ubuntu)
+    - [LINUX AUTENTICACIÓN MYSQL](#linux-autenticación-mysql)
+    - [LINUX ACL CON MYSQL](#linux-acl-con-mysql)
   - [S4 - TODO SOBRE EL BROKER EMQX V5.X.X](#s4---todo-sobre-el-broker-emqx-v5xx)
   - [S5 - ANÁLISIS DEL TRÁFICO MQTT CON WIRESHARK](#s5---análisis-del-tráfico-mqtt-con-wireshark)
   - [S6 - EMQX MODO DE PRODUCCIÓN EN NUBE](#s6---emqx-modo-de-producción-en-nube)
@@ -464,6 +490,7 @@ El parámetro _CleanSession_ en las opciones de conexión indica si la conexión
 
 - [emqx.io](https://emqx.io)
 - [emqx.com](https://emqx.com)
+- [https://github.com/emqx/emqx/releases/tag/v4.4.7](https://github.com/emqx/emqx/releases/tag/v4.4.7)
 
 En la web [emqx.io](https://emqx.io) hacer clic en _Download_, seleccionar _Windows_ y seleccionar la versión 4.4.7. Tras la descarga, extraer en una carpeta en el directorio raiz de Windows.
 
@@ -471,15 +498,700 @@ Abrimos la consola como Administrador y entramos en la carpeta 'bin' de la carpe
 
 Para comprobar que funciona, en el navegador escribir en la URL: `http://localhost:18083`. El usuario es `admin` y la password `public`.
 
-- El siguiente comando `emqx start` sirve para iniciar el servicio.
-- El siguiente comando `emqx stop` sirve para parar el servicio.
-- El siguiente comando `emqx restart` sirve para reiniciar el servicio.
-- El siguiente comando `emqx status` sirve para comprobar el estado del servicio.
-- El siguiente comando `emqx console` sirve para entrar a la consola.
+- El siguiente comando `/emqx/bin/emqx start` sirve para iniciar el servicio.
+- El siguiente comando `/emqx/bin/emqx stop` sirve para parar el servicio.
+- El siguiente comando `/emqx/bin/emqx restart` sirve para reiniciar el servicio.
+- El siguiente comando `/emqx/bin/emqx status` sirve para comprobar el estado del servicio.
+- El siguiente comando `/emqx/bin/emqx console` sirve para entrar a la consola.
 
 ### DASHBOARD Y PÁGINAS HTTP
 
 Dentro de la carpeta `/bin` ejecutar el archivo: `emqx start`, el cual tiene todos los scripts para la gestión del servicio, iniciando el Dashboard.
+
+1. Ejecutar el comando: `emqx start`, dentro de la carpeta `/bin`.
+2. En el navegador escribir la URL: `http://localhost:18083`.
+3. Ingresar con el usuario `admin` y la password `public`.
+
+![alt text](image.png "Dashboard EMQX v4.4.7")
+
+### CONEXIÓN POR WEBSOCKETS
+
+Desde la plataforma MQTT en _Tools_ se puede hacer la conexión por WebSockets.
+
+Una vez conectado, solo nos queda, subcribirnos a los tópicos y publicar mensajes.
+
+- Topic = 'testtopic/#' (`/#` indica que se recibe todo el contenido de ese tópico, es decir, cualquier cosa que se publica en el tópico 'testtopic' se recibe en el tópico `'testtopic'/#`)
+- QoS = 0
+- Payload = 'Hello World'
+
+### CLIENTE MQTT X
+
+MQX tiene una herramienta para conectarnos online a un broker MQTT, llamada _MQTTX_.
+
+- MQTT 5.0 Desktop Client
+
+Dicha herramienta se puede descargar desde repositorio GitHub:
+
+- [https://github.com/emqx/MQTTX](https://github.com/emqx/MQTTX)
+- [https://github.com/emqx/MQTTX/releases/tag/v1.13.0](https://github.com/emqx/MQTTX/releases/tag/v1.13.0)
+- [https://mqttx.app/downloads](https://mqttx.app/downloads)
+
+### CONEXIÓN CON EL CLIENTE MQTTX
+
+1. Crear nueva conexión haciendo clic en 'New Connection'.
+2. En las opciones seleccionar:
+   1. Name = 'TestClientMQTTX'
+   2. Client ID = 'mqttx_b01082'
+   3. Host = 'localhost'
+   4. Port = 1883
+   5. MQTT Versión = 3.1.1
+   6. Connect Timeout = 10 segundos
+   7. Keep Alive = 60 segundos
+   8. Clean Session = true
+   9. Auto Reconnect = false
+   10. Last-Will Topic = 'cliente01/status'
+   11. Last-Will QoS = 2
+   12. Last-Will Retain = false
+   13. Last-Will Payload = {"status": false} (JSON)
+
+Tras la configuración de los parámetros anteriores, hacer clic en 'Connect' y comprobar que se ha conectado correctamente.
+
+Luego desde el cliente MQTTX (localhost:18083/#/clients) en la pestaña de 'Clients' debe aparecer el cliente conectado.
+
+En la pestaña 'WebSockets' nos suscribiremos al tópico antes creado 'client01/status' y publicaremos el mensaje 'Hello World' en el tópico 'client01/status' usando el siguiente comando:
+
+`publish('client01/status', 'Hello World', 2, false)`
+
+### DOCUMENTACIÓN VERSIÓN V4.4.7 DEL BROKER Y CLIENTE EMQX
+
+- [EMQX Documentación](https://mqttx.app/docs)
+
+### INSTALAR OPEN SSL EN WINDOWS
+
+Utilizando el siguiente enlace y en la barra de búsquedas, escribir _ssl_ nos muestra varios artículos con respecto a la instalación de OpenSSL en Windows y en EMQX.
+
+- [emqx.com/en/blog](https://emqx.com/en/blog)
+
+Localizar el artículo `Enable two-way SSL/TLS for EMQX` y hacer clic en el enlace de descarga.
+
+- [https://www.emqx.com/en/blog/enable-two-way-ssl-for-emqx](https://www.emqx.com/en/blog/enable-two-way-ssl-for-emqx)
+
+Para generar un certificado autofirmado se utiliza el comando: `openssl genrsa -out ca.key 2048` ejecutado en la consola CMD. Pero previamente se debe instalar el paquete OpenSSL desde la URL siguiente:
+
+- [https://slproweb.com/products/Win32OpenSSL.html](https://slproweb.com/products/Win32OpenSSL.html)
+
+Una descargado e instalado la versión deseada de OpenSSL. Se debe agregar a las _Variables de Entorno_ la carpeta /bin de la instalación de OpenSSL, para que reconozca así el comando `openssl` en la consola CMD.
+
+### GENERAR LOS CERTIFICADOS AUTOFIRMADOS SSL PARA EL BROKER EMQX
+
+Primero, necesitamos un certificado de CA autofirmado. Si desea generar este certificado, necesita una clave privada, por lo tanto debe ejecutar el siguiente comando en la consola CMD dentro de una carpeta de trabajo:
+
+`openssl genrsa -out ca.key 2048`
+
+Esto genera una clave privada en un archivo llamado _ca.key_ con 2048 bits.
+
+Luego, debe ejecutar el siguiente comando para generar el certificado autofirmado:
+
+`openssl req -x509 -new -nodes -key ca.key -sha256 -days 3650 -out ca.pen`
+
+Tras ejecutar, pedirá una información:
+
+- Country Name (2 letter code) [US]: ES
+- State or Province Name (full name) [California]: Madrid
+- Locality Name (eg, city) [Madrid]: Madrid
+- Organization Name (eg, company) [EMQX]: EMQX
+- Organizational Unit Name (eg, section) [EMQX]: EMQX
+- Common Name (eg, YOUR name) []: EMQX
+- Email Address []: `6xTtZ@example.com`
+
+El certificado raíz es el punto de partida de toda una cadena de confianza. Si el emisor de cada nivel de un certificado y el emisor del certificado raíz son de confianza, este certificado es de confianza y podemos usarlo para emitir el certificado para EMQX.
+
+#### GENERATE SERVER CERTIFICATE
+
+EMQX requiere un certificado autofirmado para el puerto 8883. Por lo tanto, debe ejecutar el siguiente comando en la consola CMD dentro de una carpeta de trabajo:
+
+`openssl genrsa -out emqx.key 2048`
+
+Esto genera una clave privada en un archivo llamado _server.key_ con 2048 bits.
+
+Ahora tenemos que generar un archivo con el nombre `openssl.cnf` con el siguiente contenido:
+
+```cnf
+[ req ]
+default_bits = 2048
+prompt = no
+default_md = sha256
+distinguished_name = req_distinguished_name
+[ req_distinguished_name ]
+C = ES
+ST = Madrid
+L = Madrid
+O = EMQX
+OU = EMQX
+CN = EMQX
+emailAddress = 6xTtZ@example.com
+[ v3_ca ]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+basicConstraints = critical,CA:true
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+[ v3_server ]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+basicConstraints = critical,CA:false
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+```
+
+Ahora tenemos que ejecutar el siguiente comando para generar el certificado autofirmado:
+
+`openssl req -new -key ./emqx.key -config openssl.cnf -out emqx.csr`
+
+Tras ejecutar, creará el archivo `emqx.csr`.
+
+Luego tenemos que ejecutar el siguiente comando para emitir el certificado autofirmado:
+
+`openssl x509 -req -in ./emqx.csr -CA ca.pem -CAkey ca.key -CAcreateserial -out emqx.pem -days 3650 -sha256 extensions v3_req -extfile openssl.cnf`
+
+Para visualizar el contenido del el certificado:
+
+`openssl x509 -in emqx.pem -text -noout`
+
+Para verificar el certificado:
+
+`openssl verify -CAfile ca.pen emqx.pem`
+
+### CONEXIÓN SEGURA SSL CON EL CLIENTE MQTTX
+
+Copie el archivo `emqx.key` y `emqx.crt` dentro del directorio `/emqx/etc/certs/` de EMQXX y modificar el archivo `emqx.conf` existente en la ruta `/emqx/etc/`.
+
+```conf
+# 8883
+listeners.https.default.keyfile = etc/certs/emqx.key
+listeners.https.default.certfile = etc/certs/emqx.pem
+listeners.https.default.cacertfile = etc/certs/ca.pem
+
+# 8884
+listeners.https.default.keyfile = etc/certs/emqx.key
+listeners.https.default.certfile = etc/certs/emqx.pem
+listeners.https.default.cacertfile = etc/certs/ca.pem
+```
+
+Ahora debemos para e inicar el servidor de EMQX, con los comandos `emqx stop` y `emqx start` respectivamente. También valdría ejecutar el comando `emqx restart` para reiniciar el servicio.
+
+Abrimos el MQTTX Cliente y lo configuramos para conectarnos con el puerto 8883 con mqtts// y activando la opción SSL/TLS con la opción _CA Signed server certificate_. Hacemos clic en conectar.
+
+Si en la opción SSL/TLS seleccionamos la opción _Self signed_ nos pedirá un fichero de certificado y una clave privada, tipo `ca.pem` ubicado en la carpeta `/emqx/etc/certs/`.
+
+Si nos queremos conectar usando wss:// usando el puerto 8084, debemos activar la opció _CA Signed server certificate_ y seleccionar la opció _Self signed_.
+
+Para realizar la conexión con EMQX Broker desde la opción Tools>Websockets, seleccionando la opción SSL; debemos tener una URL del tipo `https://localhost:8084` para que se pueda realizar la conexión.
+
+### CONEXIÓN SEGURA HTTPS EN DASHBOARD EMQX BROKER
+
+Para que la conexión HTTPS funcione correctamente, utilizando MQTTX Broker en la opción Websockets, debemos agregar los certificados de la siguiente manera:
+
+- Archivo de configuraciones; `/emqx/etc/plugins/emqx_dashboard.conf`.
+
+```conf
+# 18084
+# Habilitar lo siguiente para las conexiones HTTPS
+dashboard.listeners.https = 18084
+dashboard.listeners.https.acceptors = 2
+dashboard.listeners.https.max_clients = 512
+dashboard.listeners.https.inet6 = false
+dashboard.listeners.https.keyfile = etc/certs/emqx.key
+dashboard.listeners.https.certfile = etc/certs/emqx.pem
+dashboard.listeners.https.cacertfile = etc/certs/ca.pem
+```
+
+- Archivo de configuraciones; `/emqx/etc/plugins/emqx_management.conf`.
+
+```conf
+# Habilitar lo siguiente para las conexiones HTTPS LISTENERS
+management.listeners.https = 8082 # debe ser distinto al puerto usado en HTTP que es 8081
+management.listeners.https.acceptors = 2
+management.listeners.https.max_clients = 512
+management.listeners.https.backlog = 512
+management.listeners.https.send_timeout = 15s
+management.listeners.https.send_timeout_close = on
+management.listeners.https.keyfile = etc/certs/emqx.key
+management.listeners.https.certfile = etc/certs/emqx.pem
+management.listeners.https.cacertfile = etc/certs/ca.pem
+```
+
+Ya podríamos reiniciar el servicio con el comando `emqx restart` y comprobar que funciona correctamente.
+
+### PREPARAR EL ENTORNO DE AUTENTICACIÓN MySQL CON LARAGON
+
+En el _MQTX Broker>Plugins_ habilitaremos la opción de autenticación de usuarios, para evitar la conexión de ususrios anónimos.
+
+#### LARAGON
+
+[Laragon](https://www.laragon.org/) Es una herramienta de alto rendimineto y confiabilidad para desarrollar aplicaciones web y aplicaciones de escritorio con PHP y MySQL.
+
+### AUTENTICACIÓN CON EL PLUGIN EMQX AUTH MYSQL
+
+Seleccionaremos la opción _EMQ X Authentication/ACL with MySQL_, para tratar de conectar con el servidor MySQL.
+
+Primero se debe configurar el archivo `/emqx/etc/plugins/emqx_auth_mysql.conf` con la siguiente información:
+
+```conf
+auth.mysql.server = 127.0.0.1:3306
+auth.mysql.pool = 8 # connection pool size
+auth.mysql.name = emqx
+auth.mysql.password = public
+auth.mysql.database = mqtt # nombre de la base de datos
+auth.mysql.query_timeout = 5s # in milliseconds 5000
+
+# en la siguiente línea se indica el nombre de la tabla con los usuarios y contrasenas
+# nombre de la tabla = mqtt_users
+# este nombre se puede cambiar en el archivo emqx_auth_mysql.conf
+auth.mysql.auth_query = select password from mqtt_users where username = '%u' limit 1
+auth.mysql.super_query = select is_superuser from mqtt_users where username = '%u' limit 1
+```
+
+Se debe agregar el password encriptado con el algoritmo SHA256 en el archivo `/emqx/etc/plugins/emqx_auth_mysql.conf`:
+
+```conf
+auth.mysql.password_hash = sha256
+```
+
+En la opción Plugins>ENQ X Authentication/ACL with MySQL, haremos clic sobre Start.
+
+#### CREAR UNA BASE DE DATOS
+
+Según la guía de MQTTX Broker, debemos crear una base de datos con el siguiente comando:
+
+```sql
+CREATE DATABASE emqx;
+```
+
+Con las siguientes credenciales:
+
+- IP:localhost
+- user: emqx
+- password: public (encriptado con el algoritmo SHA256)
+- port: 3306
+- Activar todos los privilegios en el tablero de MySQL.
+
+Ahora debemos crear una tabla con el siguiente comando:
+
+```sql
+CREATE TABLE 'mqtt_users' (
+  'id' int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  'username' varchar(100) DEFAULT NULL,
+  'password' varchar(100) DEFAULT NULL,
+  'salt' varchar(35) DEFAULT NULL,
+  'is_superuser' tinyint(1) DEFAULT 0,
+  'created' datetime DEFAULT NULL,
+  PRIMARY KEY ('id'),
+  UNIQUE KEY 'mqtt_username' ('username')
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+Una vez creada la tabla, podemos hacer una inserción de datos con el siguiente comando:
+
+El password es la palabra _public_ encriptado con el algoritmo SHA256.
+
+```sql
+INSERT INTO mqtt_users (username, password, salt) VALUES 
+  ('emqx', 'efa1f375d76194fa51a3556a97e641e61685f914d446979da50a551a4333ffd7', NULL);
+```
+
+### EVITAR CONEXIÓN ANÓNIMAS AL BROKER EMQX
+
+Desde el panel de administración de EMQX Broker>Tools>Websockets, nos permite conectarnos sin el _Username_ y el _Password_ (conexiones anónimas). Para evitar esto, debemos configurar `bypass_auth_plugins` y cambiar el valor de `listener.{type}.{name}.enable_auth = true | false` seleccionar verdadero o falso, según nos interese. Esto está dentro del archivo `/emqx/etc/emqx.conf`:
+
+```conf
+# línea nº 660 en el archivo /emqx/etc/emqx.conf
+allow_anonymous = false
+```
+
+Con esta configuración modificada, no se podrá conectar con el servidor sin el _Username_ y el _Password_.
+
+Para conectarnos tendríamos que usar el _Username: emqx_ y el _Password: public_ creados en la sección anterior para la base de datos.
+
+Desde el MQTTX Client, también debemos configurar el campo _Username_ y el _Password_.
+
+### LISTA DE CONTROL DE ACCESO (ACL)
+
+La Access Crontol List (ACL) en MySQL se usa para controlar el acceso a los clientes MQTT. Creamos una tabla para la consula ACL con el siguiente comando:
+
+```sql
+CREATE TABLE 'mqtt_acl' (
+  'id' int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  'allow' int(1) DEFAULT 1 COMMENT '0: deny, 1: allow',
+  'ipaddr' varchar(60) DEFAULT NULL COMMENT 'IpAddress',
+  'username' varchar(100) DEFAULT NULL COMMENT 'Username',
+  'clientid' varchar(100) DEFAULT NULL COMMENT 'ClientID',
+  'access' int(2) NOT NULL COMMENT '1: subscribe, 2: publish, 3: pubsub',
+  'topic' varchar(100) NOT NULL DEFAULT '' COMMENT 'Topic Filter',
+  PRIMARY KEY ('id'),
+  INDEX (ipaddr),
+  INDEX (username),
+  INDEX (clientid)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+Algunas inserciones en la tabla ACL con el siguiente comando:
+
+```sql
+# All users cannot subscribe to system topics
+INSERT INTO 'mqtt_acl' (allow, ipaddr, username, clientid, access, topic) VALUES 
+  (0, NULL, '$all', NULL, 1, '$SYS/#');
+```
+
+```sql
+# Allow clients on IP 10.59.1.100 to subscribe to system topics
+INSERT INTO 'mqtt_acl' (allow, ipaddr, username, clientid, access, topic) VALUES 
+  (1, '10.59.1.100', NULL, NULL, 1, '$SYS/#');
+```
+
+```sql
+# Deny all clients to subscribe to topics smarthome/+/temperatura
+INSERT INTO 'mqtt_acl' (allow, ipaddr, username, clientid, access, topic) VALUES 
+  (0, NULL, '$all', NULL, 1, '/smarthome/+/temperatura');
+```
+
+```sql
+# Authorize all clients to subscribe to topics smarthome/%c/temperatura
+INSERT INTO 'mqtt_acl' (allow, ipaddr, username, clientid, access, topic) VALUES 
+  (1, NULL, '$all', NULL, 1, '/smarthome/%c/temperatura');
+```
+
+- `%u`: Username
+- `%c`: ClientID
+- `%p`: Topic
+- `%C`: TLS certificate common name
+- `$all`: Todos los usuarios
+- `$SYS/#`: Todos los topicos del sistema
+
+### ACL - EJEMPLOS
+
+Insertamos un nuevo usuario en la base de datos con la contraseña _public_ encriptada con el algoritmo SHA256.
+
+```sql
+INSERT INTO mqtt_users (username, password, salt) VALUES 
+  ('jose73', 'efa1f375d76194fa51a3556a97e641e61685f914d446979da50a551a4333ffd7', NULL);
+```
+
+Para conectarnos con el usuario _jose73_ debemos usar el _Username: jose73_ y el _Password: public_, desde MQTTX Client.
+
+Realizaremos varis subscripciones y publicaciones con el usuario _jose73_. Por ejemplo:
+
+- `jose73/+/temperatura`
+- `jose73/+/temperatura/#`
+- `emqx/+/temperatura`
+- `emqx/+/temperatura/#`
+
+Para publicar con uno de los usuarios:
+
+- `emqx/home/temperatura` - Plaintext - QoS 0 - No Retained, 'Temp. 25°C'
+- `emqx/home/temperatura` - Plaintext - QoS 1 - Retained, 'Temp. 25°C'
+- `jose73/home/temperatura` - Plaintext - QoS 2 - Retained, 'Temp. 25°C'
+- `jose73/cuarto/temperatura` - Encrypted - QoS 0 - No Retained, 'Temp. 25°C'
+
+### INSTALAR PHPMYADMIN EN LARAGON
+
+En Laragon se abre por defecto HeidiSQL para acceder a la base de datos MySQL. Aunque se puede añadir PHPMyAdmin y acceder desde el navegador.
+
+[PHPMyAdmin](https://www.phpmyadmin.net/)
+
+Tras la descarga y descompresión, le cambiamos el nombre `phpMyAdmin` y lo colocamos dentro de la carpeta de `laragon/etc/apps/`.
+
+El acceso a través de la URL es: `http://localhost/phpmyadmin/` y el usuario es `root` y la contraseña, no tiene.
+
+### INSTALACIÓN MQTTX BROKER EN LINUX UBUNTU 20.04.4
+
+Descargamos el EMQX Broker para Ubuntu desde la página web de [EMQX](https://emqx.io/).
+
+Repositorio gitHub para la descarga alternativa: [EMQX Enterprise](https://github.com/emqx/releases).
+
+Para el EMQX Cliente en Ubuntu, la página web de descarga es: [EMQX Client](https://mqttx.app/downloads).
+
+Página web EMQX Entrerprise, explicando el proceso de isntalación para paquetes Apt:
+
+- [Instalación paquete Apt EMQX](https://docs.emqx.com/en/emqx/latest/deploy/install-ubuntu.html)
+- [Instalación paquete Apt EMQX Ubuntu](https://www.emqx.com/en/downloads-and-install/enterprise?os=Ubuntu)
+
+Para Ubuntu se puede instalar desde dos formas distintas:
+
+Como un archivo de script (Apt):
+
+- `curl -s https://assets.emqx.com/scripts/install-emqx.deb.sh | sudo bash`
+- `sudo apt-get install emqx`
+- `sudo emqx start`
+
+Como un tipo de paquete:
+
+- `wget https://www.emqx.com/en/downloads/broker/4.4.7/emqx-4.4.7-opt24.1.5-3-ubuntu20.04-amd64.zip`
+- `unzip emqx-4.4.7-opt24.1.5-3-ubuntu20.04-amd64.zip`
+- `./emqx/bin/emqx start`
+
+#### PASOS DE LA INSTALACIÓN EN UBUNTU SERVER
+
+1. Conexión a través de PuTTY al RBPi con Ubuntu Server.
+2. Nos situamos en el directorio raiz de Ubuntu Server.
+3. Nos descargamos el paquete de EMQX. `wget https://www.emqx.com/en/downloads/enterprise/6.0.3/emqx-enterprise-6.0.3-ubuntu24.04-arm64.deb`.
+4. El siguiente paso es la descompresión del paquete. `sudo apt install ./emqx-enterprise-6.0.3-ubuntu24.04-arm64.deb`.
+5. Ejecutamos el comando `sudo systemctl start emqx`.
+6. En el navegador escribir la URL: `http://localhost:18083`.
+
+### INSTALAR CYBERDUCK PARA FTP - SFTP EN LINUX
+
+Los Certificados antes creados, los podemos llevar al sistema Linux; para ello usaremos la herramienta CyberDuck.
+
+- [CYBERDUCK](https://cyberduck.io/)
+- [CYBERDUCK SFTP](https://cyberduck.io/sftp)
+- [CYBERDUCK FTP](https://cyberduck.io/ftp)
+- [CYBERDUCK DOWNLOAD](https://cyberduck.io/download/)
+
+### USAR CERTIFICADOS SSL AL SERVIDOR USANDO CYBERDUCK
+
+- En el CyberDuck, seleccionar la opció _SFTP (SSH Transfer Protocol Secure)_.
+- En servidor, añadimos la IP de la RBPi.
+- En puerto, ponemos el puerto 22.
+- El nombre de usuario: localhost
+- La clave: XXXX
+- Clic en _Connect_ y _Permitir acceso a la carpeta de trabajo_.
+- Por defecto las carpetas son: `/home/localhost`.
+- Debemos seleccionar la carpeta `/emqx/etc/` de a RBPi para subir los certificados.
+- Los archivos que necesitamos exportar son: `ca.pem`, `emqx.key` y `emqx.pem`.
+- Los archivos los peqamos en la carpeta `/hoome/localhost` primero, y luego desde la consola Linux usamos los comandos:
+  - `cd /home/localhost`
+  - `ls`
+  - `cp ca.pem /emqx/etc/certs/ca.pem`
+  - `cp emqx.key /emqx/etc/certs/emqx.key`
+  - `cp emqx.pem /emqx/etc/certs/emqx.pem`
+- En el navegador escribir la URL: `http://localhost:18083`.
+
+### CONFIGURAR CERTIFICADOS SSL EN EL SERVIDOR EMQX BROKER EN UBUNTU SERVER
+
+Con el editor Vim abrimos el fichero `emqx.conf` ubicado en la carpeta `/emqx/etc/` y lo modificamos de la siguiente manera:
+
+```conf
+# 8883
+listeners.https.default.keyfile = etc/certs/emqx.key
+listeners.https.default.certfile = etc/certs/emqx.pem
+listeners.https.default.cacertfile = etc/certs/ca.pem
+
+# 8884
+listeners.https.default.keyfile = etc/certs/emqx.key
+listeners.https.default.certfile = etc/certs/emqx.pem
+listeners.https.default.cacertfile = etc/certs/ca.pem
+
+listener.wss.external.cacertfile = etc/certs/ca.pem
+```
+
+### CONFIGURAR CERTIFICADOS SSL AL DASHBOARD EMQX BROKER EN UBUNTU SERVER
+
+Con el editor Vim abrimos el fichero `emqx_dashboard.conf` ubicado en la carpeta `/emqx/etc/plugins/` y lo modificamos de la siguiente manera:
+
+```conf
+## HTTPS LISTENER
+dashboard.listeners.https = 18084
+dashboard.listeners.https.acceptors = 2
+dashboard.listeners.https.max_clients = 512
+dashboard.listeners.https.inet6 = false
+dashboard.listeners.https.ipv6_v6only = false
+
+dashboard.listeners.https.keyfile = etc/certs/emqx.key
+dashboard.listeners.https.certfile = etc/certs/emqx.pem
+dashboard.listeners.https.cacertfile = etc/certs/ca.pem
+```
+
+Modificando el archivo `emqx_management.conf` ubicado en la carpeta `/emqx/etc/plugins/` de la siguiente manera:
+
+```conf
+## HTTPS LISTENER
+management.listeners.https = 8082 # debe ser distinto al puerto usado en HTTP que es 8081
+management.listeners.https.acceptors = 2
+management.listeners.https.max_clients = 512
+management.listeners.https.backlog = 512
+management.listeners.https.send_timeout = 15s
+management.listeners.https.send_timeout_close = on
+management.listeners.https.keyfile = etc/certs/emqx.key
+management.listeners.https.certfile = etc/certs/emqx.pem
+management.listeners.https.cacertfile = etc/certs/ca.pem
+```
+
+### LINUX CONFIGURAR LAMP EN UBUNTU
+
+Para actualizar e instalar el Serividor Apache:
+
+- `sudo apt update`
+- `sudo apt install apache2 -y`
+- `sudo ufw app list`
+- `sudo ufw allow 'Apache Full'`
+- `sudo ufw allow 8080/tcp`
+- `sudo ufw allow 443/tcp`
+- `sudo service apache2 start`
+- `sudo service apache2 status`
+- `sudo ufw status`
+- `sudo ufw enable`
+- `sudo ufw status`
+- `sudo systemctl status apache2`
+- `sudo systemctl start apache2`
+- `sudo systemctl restart apache2`
+
+Para actualizar e instalar el Servidor MySQL:
+
+- `sudo apt update`
+- `sudo apt install mysql-server`
+- `sudo systemctl status mysql`
+- `sudo systemctl start mysql`
+- `sudo mysql_secure_installation` (recomendado)
+- `sudo mysql -u root -p`
+
+Para actualizar e instalar el Servidor PHP:
+
+- `sudo apt update`
+- `sudo apt install php -y` (El -y permite instalar sin preguntar)
+- `php -v`
+- `sudo apt install php-curl php-mbstring php-xml`
+- `sudo apt install libapache2-mod-php`
+- `sudo apt install php-mysql`
+- `apt-cache search php-` (sirve para otras extensiones disponibles en PHP)
+- `sudo service apache2 restart`
+- `sudo service apache2 status`
+
+En la carpeta `/var/www/html/` creamos el archivo `index.php` con el siguiente contenido:
+
+```php
+<?php
+phpinfo();
+?>
+```
+
+Comprobamos usando el navegador la URL: `http://localhost/info.php` para ver la información del servidor.
+
+Para instalar el Servidor PHPMyAdmin:
+
+- `sudo apt install phpmyadmin`
+
+Debemos realizar una configuración en Apache `/etc/apache2/apache2.conf` y al final del archivo anexar lo siguiente:
+
+```conf
+Include /etc/phpmyadmin/apache.conf
+```
+
+- `sudo service apache2 restart`
+- `sudo service apache2 status`
+
+Tras el reinicio del servidio, escribimos el siguiente URL en el navegador: `http://localhost/phpmyadmin/` para acceder al Servidor PHPMyAdmin.
+
+- Usuario: `root`
+- Contraseña: desconocida
+
+Para añadir la contraseña al Servidor PHPMyAdmin:
+
+- `sudo mysql -u root -p` usando la contraseña por defecto en la instalación.
+- `ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '1234';` para cambiar la contraseña a `1234`.
+- `FLUSH PRIVILEGES;` para aplicar los cambios.
+- `exit;`
+- `sudo service apache2 restart`
+- `sudo service apache2 status`
+
+### LINUX AUTENTICACIÓN MYSQL
+
+Editamos el archivo `/etc/plugins/emqx_auth_mysql.conf` con la siguiente información:
+
+```conf
+auth.mysql.server = 127.0.0.1:3306
+auth.mysql.pool = 8 # connection pool size
+auth.mysql.username = root
+auth.mysql.password = 1234
+auth.mysql.database = mqtt # nombre de la base de datos
+auth.mysql.query_timeout = 5s # in milliseconds 5000ms = 5s
+```
+
+Creamos tabla en la base de datos `mqtt` con `utf16_spanish_ci` con la siguiente estructura:
+
+```sql
+CREATE TABLE `mqtt_users` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `username` varchar(100) DEFAULT NULL,
+  `password` varchar(100) DEFAULT NULL,
+  `salt` varchar(100) DEFAULT NULL,
+  `is_superuser` tinyint(1) DEFAULT 0,
+  `created` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `mqtt_username` (`username`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+```
+
+Registramos un usuario con el nombre de usuario y la contraseña usando SHA256 con el siguiente comando:
+
+```sql
+INSERT INTO `mqtt_users` (`username`, `password`, `salt`) VALUES 
+  ('emqx', 'efa1f375d76194fa51a3556a97e641e61685f914d446979da50a551a4333ffd7', NULL);
+```
+
+Editar el archivo `/etc/plugins/emqx_auth_mysql.conf` con la siguiente información:
+
+```conf
+auth.mysql.auth_query = SELECT password FROM mqtt_users WHERE username = '%u' LIMIT 1
+auth.mysql.password_hash = sha256
+```
+
+Editamos el archivo `emqx.conf` con la siguiente información:
+
+```conf
+allow_anonymous = false
+acl_nomatch = allow
+```
+
+### LINUX ACL CON MYSQL
+
+Añair reglas ACL al Broker EMQX añadiendo una tabla a la base de datos `mqtt` con la siguiente estructura:
+
+```sql
+CREATE TABLE `mqtt_acl` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `allow` tinyint(1) DEFAULT 1 COMMENT '1: allow 0: deny',
+  `ipaddr` varchar(60) DEFAULT NULL COMMENT 'IpAddress',
+  `username` varchar(100) DEFAULT NULL COMMENT 'Username',
+  `clientid` varchar(100) DEFAULT NULL COMMENT 'ClientID',
+  `access` int(2) NOT NULL COMMENT '1: subscribe, 2: publish, 3: pubsub',
+  `topic` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  INDEX (ipaddr),
+  INDEX (username),
+  INDEX (clientid)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+```
+
+Realizamos la inserción de reglas ACL con el siguiente comando:
+
+```sql
+# All users cannot subscribe to system topics
+INSERT INTO `mqtt_acl` (allow, ipaddr, username, clientid, access, topic) VALUES 
+  (0, NULL, '$all', NULL, 1, '$SYS/#');
+```
+
+```sql
+# Allow clients on IP 10.59.1.100 to subscribe to system topics
+INSERT INTO `mqtt_acl` (allow, ipaddr, username, clientid, access, topic) VALUES 
+  (1, '10.59.1.100', NULL, NULL, 1, '$SYS/#');
+```
+
+```sql
+# Not allow clients and users to subscribe to topic +/#
+INSERT INTO `mqtt_acl` (allow, ipaddr, username, clientid, access, topic) VALUES 
+  (0, NULL, '$all', NULL, 3, '+/#');
+```
+
+```sql
+# Allow clients and users to subscribe to topic +/#
+INSERT INTO `mqtt_acl` (allow, ipaddr, username, clientid, access, topic) VALUES 
+  (1, NULL, '$all', NULL, 3, '%u/%c/#');
+```
+
+- `%u` = username
+- `%c` = clientid
+- `+` = wildcard
+- `#` = wildcard
 
 - - -
 
