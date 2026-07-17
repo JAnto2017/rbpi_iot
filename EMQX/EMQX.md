@@ -61,6 +61,16 @@
     - [LINUX AUTENTICACIÓN MYSQL](#linux-autenticación-mysql)
     - [LINUX ACL CON MYSQL](#linux-acl-con-mysql)
   - [S4 - TODO SOBRE EL BROKER EMQX V5.X.X](#s4---todo-sobre-el-broker-emqx-v5xx)
+    - [INSTALACIÓN EN LINUX UBUNTU](#instalación-en-linux-ubuntu)
+    - [LINUX SERVER-ESTIMATE](#linux-server-estimate)
+    - [LINUX RECONOCIMIENTO DEL DASHBOARD EMQX V5.X.X O SUPERIOR](#linux-reconocimiento-del-dashboard-emqx-v5xx-o-superior)
+    - [CERTIFICADOS AUTOFIRMADOS PARA LINUX CON OPENSSL](#certificados-autofirmados-para-linux-con-openssl)
+      - [CREAR CERTIFICADOS CA AUTOFIRMADOS CON OPENSSL](#crear-certificados-ca-autofirmados-con-openssl)
+      - [EMITIR CERTIFICADOS DE SERVIDOR](#emitir-certificados-de-servidor)
+    - [AGREGAR CCERTIFICADOS AL BROKER EMQX V5.8.0 EN LINUX](#agregar-ccertificados-al-broker-emqx-v580-en-linux)
+    - [AUTENTICARNOS CON MYSQL EN EMQX V5.8.0](#autenticarnos-con-mysql-en-emqx-v580)
+      - [CONFIGURAR CON EL PANEL DE CONTROL](#configurar-con-el-panel-de-control)
+    - [REGLAS ACL EN EMQX V5.8.0 CON MYSQL EN LINUX](#reglas-acl-en-emqx-v580-con-mysql-en-linux)
   - [S5 - ANÁLISIS DEL TRÁFICO MQTT CON WIRESHARK](#s5---análisis-del-tráfico-mqtt-con-wireshark)
   - [S6 - EMQX MODO DE PRODUCCIÓN EN NUBE](#s6---emqx-modo-de-producción-en-nube)
   - [S7 - CLIENTE ESP32](#s7---cliente-esp32)
@@ -74,6 +84,19 @@
   - [S15 - PLATAFORMA IOT CLOUD V1 PROGRAMACIÓN ESP32](#s15---plataforma-iot-cloud-v1-programación-esp32)
   - [S16 - PLATAFORMA IOT CLOUD V1 PROYECTO PLATAFORMA IOT CON PHP](#s16---plataforma-iot-cloud-v1-proyecto-plataforma-iot-con-php)
   - [S17 - PRODUCCIÓN PLATAFORMA IOT CON NUBE ORACLE CLOUD](#s17---producción-plataforma-iot-con-nube-oracle-cloud)
+  - [MOSQUITTO](#mosquitto)
+    - [ARGUMENTOS ÚTILES PARA LA SUSCRIPCION CON MOSQUITTO](#argumentos-útiles-para-la-suscripcion-con-mosquitto)
+    - [COMODINES EN MOSQUITTO](#comodines-en-mosquitto)
+    - [EJEMPLOS PRÁCTICOS CON MOSQUITTO](#ejemplos-prácticos-con-mosquitto)
+    - [MQTT BROKER MOSQUITTO CON CERTIFICADO SERVIDOR (SELF-SIGNED)](#mqtt-broker-mosquitto-con-certificado-servidor-self-signed)
+      - [CONFIGURACIÓN DE MOSQUITTO CON CERTIFICADOS](#configuración-de-mosquitto-con-certificados)
+      - [CLIENTES MOSQUITO](#clientes-mosquito)
+    - [CERTIFICADOS CON EASY-RSA EN LINUX](#certificados-con-easy-rsa-en-linux)
+      - [INSTALAR EASY-RSA](#instalar-easy-rsa)
+      - [CREAR UN DIRECTORIO DE CERTIFICADOS](#crear-un-directorio-de-certificados)
+      - [INICIAR LA INFRAESTRUCTURA DE CLAVE PÚBLICA (PKI)](#iniciar-la-infraestructura-de-clave-pública-pki)
+      - [CREAR UNA AUTORIDAD DE CERTIFICACIÓN (CA)](#crear-una-autoridad-de-certificación-ca)
+    - [OBTENCIÓN DE CERTIFICADOS CON EASY-RSA EN UBUNTU SERVER](#obtención-de-certificados-con-easy-rsa-en-ubuntu-server)
 
 - - -
 
@@ -1197,6 +1220,211 @@ INSERT INTO `mqtt_acl` (allow, ipaddr, username, clientid, access, topic) VALUES
 
 ## S4 - TODO SOBRE EL BROKER EMQX V5.X.X
 
+### INSTALACIÓN EN LINUX UBUNTU
+
+- [EMQX Enterprise](https://www.emqx.com/en/downloads-and-install/enterprise?os=Ubuntu)
+- [MQTTX](https://mqttx.app/downloads)
+
+La instalación de EMQX Enterprive v5 o superior se instala en la ruta `/etc/emqx/` y ya no están los archivos a modificar como si estaban en la v4.
+
+Para iniciar el servidio, se escribe en la url `http://localhost:18083`.
+
+### LINUX SERVER-ESTIMATE
+
+Herramienta para dimensionar el servidor [EMQX](https://emqx.com/en/server-estimate).
+
+### LINUX RECONOCIMIENTO DEL DASHBOARD EMQX V5.X.X O SUPERIOR
+
+- [EMQX Dashboard V6.2.2](https://www.emqx.com/en/downloads-and-install/enterprise?os=Ubuntu)
+- Para Ubuntu 22.04 con ARM64:
+  - Descarga: `wget https://www.emqx.com/en/downloads/enterprise/6.2.2/emqx-enterprise-6.2.2-ubuntu22.04-arm64.deb`.
+  - Instalar: `sudo apt install ./emqx-enterprise-6.2.2-ubuntu22.04-arm64.deb`.
+  - Iniciar: `sudo systemctl start emqx`.
+
+### CERTIFICADOS AUTOFIRMADOS PARA LINUX CON OPENSSL
+
+En la ruta `/etc/emqx/certs` y es donde guardaremos los certificados.
+
+#### CREAR CERTIFICADOS CA AUTOFIRMADOS CON OPENSSL
+
+[Documentación Certificados CA Autofirmados con OpenSSL](https://docs.emqx.com/en/emqx/latest/network/tls-certificate.html#issue-server-certificates)
+
+Requiere de OpenSSL instalado.
+
+- Paso 1: Ejecutar el siguiente comando para generar un par de claves. Pedirá que ingrese contraseñas para proteger el par de claves.
+  - `openssl genrsa -des3 -out rootCA.key 2048`
+- Paso 2: Ejecutar el siguiente comando para generar el certificado CA utilizando la clave privada del par de claves. Pedirá que configure el nombre distintivo (DN) del certificado.
+  - `openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 3650 -out rootCA.crt`
+
+#### EMITIR CERTIFICADOS DE SERVIDOR
+
+Utilizando el certificado de CA generado, se usarán para emitir el certificado de servidor, que los oyentes de EMQX utilizan para demostrar su identidad a los clientes.
+
+El certificado de servidor se suele emitir para el nombre de host, el nombre del servidor o el nombre de dominio.
+
+Necesitamos la clave de CA (rootCA.key) y el certificado de CA (rootCA.crt) además de la solicitud de certificado (server.csr) del servidor, para generar el certificado de servidor.
+
+- Paso 1: Ejecutar el comando para generar un par de claves para el certificado del servidor:
+  - `openssl genrsa -out server.key 2048`
+- Paso 2: Ejecutar el comando para crear una solicitud de firma de certificado (CSR) utilizando el par de claves del servidor. Una vez que la CSR esté firmada con la clave privada del certificado raíz de la CA, se generará un archivo de clave pública del certificado y se entregará al usuario. Pedirá que configure el nombre distintivo (DN) del certificado.
+  - `openssl req -new -key server.key -out server.csr`
+
+El sistema solicita la siguiente información:
+
+```csr
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]: # country/region
+State or Province Name (full name) [Some-State]: # state/province
+Locality Name (eg, city) []: # The city or locality
+Organization Name (eg, company) [Internet Widgets Pty Ltd]: # The full name of the organization (or company name), e.g. EMQ
+Organizational Unit Name (eg, section) []: # The name of the department or division within the organization，e.g. EMQX
+Common Name (e.g. server FQDN or YOUR name) []: # The fully-qualified domain name (FQDN) of the server that will use the certificate, e.g. mqtt.emqx.com
+...
+```
+
+- Paso 3: Usando la solicitud de firma de certificado (CSR) del servidor para generar el certificado del servidor y especificar el periodo de validez del certificado, que en este ejemplo es de 3650 días.
+  - `openssl x509 -req -in server.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -out server.crt -days 3650 -sha256`
+
+El conjunto de certificados generados son:
+
+- `rootCA.key`
+- `rootCA.crt`
+- `rootCA.srl`
+- `server.key`
+- `server.csr`
+- `server.crt`
+- `server.key`
+
+Pasos realizados en el vídeo:
+
+1. `sudo openssl genrsa -out ca.key 2048`
+2. `sudo openssl req -x509 -new -nodes -key ca.key -sha256 -days 3650 -out ca.pem`
+3. `sudo openssl x509 -in ca.pem -noout -text` (Opcional es para ver el contenido del certificado)
+4. `sudo openssl genrsa -out eqmx.key 2048`
+5. Crear el archivo `openssl.cnf` con el siguiente contenido:
+
+```cnf
+[req]
+default_bits = 2048
+distinguished_name = req_distinguished_name
+req_extensions = req_ext
+x509_extensions = v3_req
+prompt = no
+
+[req_distinguished_name]
+countryName = ES
+stateOrProvinceName = SPAIN
+localityName = CANARY ISLAND
+organizationName = IOTMQTT
+commonName = Server certificate
+
+[req_ext]
+subjectAltName = @alt_names
+
+[V3_req]
+subjectAltName = @alt_names
+
+[alt_names]
+IP.1 = 192.168.1.41
+DNS.1 = 192.168.1.41
+DNS.2 = localhost
+```
+
+6. `sudo openssl req -new -key ./eqmx.key -config openssl.cnf -out eqmx.csr`
+7. `sudo openssl x509 -req -in ./eqmx.csr -CA ca.pem -CAkey ca.key -CAcreateserial -out eqmx.pem -days 3650 -sha256 -extensions v3_req -extfile openssl.cnf`
+8. `sudo openssl x509 -in eqmx.pem -noout -text` (Opcional es para ver el contenido del certificado)
+
+### AGREGAR CCERTIFICADOS AL BROKER EMQX V5.8.0 EN LINUX
+
+Para configurar el certificado SSL en el servidor EMQX Broker, debemos seguir los siguientes pasos:
+
+- Clic en _Management>Listeners_ donde se indican los puertos seguros, ssl :8883, wss :8884. Y los no seguros, tcp :1883, ws :8083.
+- Haciendo clic sobre el nombre del puerto (por ejemplo wss), aparecen las características de la conexión. Entre ellas está el campo _TLS Cert_ con la ruta al archivo del certificado (cert.pem) además del campo _TLS Key_ con la ruta al archivo de la clave privada (key.pem).
+- Si hacemos clic sobre _Reset_ en la opción _TLS Cert_ nos permite adjuntar un nuevo certificado. Idem para _TLS Key_ y _CA Cert_.
+- Clic en _Save_ y cerramos el navegador.
+
+### AUTENTICARNOS CON MYSQL EN EMQX V5.8.0
+
+En la pestaña de _Access Control>Authentication_ inicialmente está vacío. Consultando la documentación oficial, en la opción de Seguridad (Password Authentication using MySQL), podemos encontrar la siguiente información:
+
+- [Authentication > Password Authentication > Integrate with MySQL](https://docs.emqx.com/en/emqx/latest/access-control/authn/mysql.html)
+- [Authorization > Integrate with MySQL](https://docs.emqx.com/en/emqx/latest/access-control/authz/mysql.html)
+
+#### CONFIGURAR CON EL PANEL DE CONTROL
+
+Puedes usar el panel de control de EMQX para configurar cómo usar MySQL para la autenticación por contraseña.
+
+1. En el panel de control de EMQX, haga clic en Control de (Access Control -> Authentication) acceso -> Autenticación en el menú de navegación de la izquierda.
+2. En la página de (Authentication ) autenticación , haga clic en (Create) Crear en la esquina superior derecha.
+3. Haz clic para seleccionar (Password-Based) "Basado en contraseña" como mecanismo y "MySQL" como backend para ir a la pestaña "Configuración" , como se muestra a continuación.
+
+Probamos desde la opción _Diagnostics Tools>WebSocket Client_ la conexión con el servidor EMQX Broker. Usando el _Username_ y el _Password_ creados en la sección anterior para la base de datos.
+
+### REGLAS ACL EN EMQX V5.8.0 CON MYSQL EN LINUX
+
+Documentación en [Authorization > Integrate with MySQL](https://docs.emqx.com/en/emqx/latest/access-control/authz/mysql.html)
+
+Creamos la tabla `mqtt_acl` en la base de datos `mqtt` con la siguiente estructura:
+
+```sql
+CREATE TABLE `mqtt_acl` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `ipaddress` VARCHAR(60) NOT NULL DEFAULT '',
+  `username` VARCHAR(255) NOT NULL DEFAULT '',
+  `clientid` VARCHAR(255) NOT NULL DEFAULT '',
+  `action` ENUM('publish', 'subscribe', 'all') NOT NULL,
+  `permission` ENUM('allow', 'deny') NOT NULL,
+  `topic` VARCHAR(255) NOT NULL DEFAULT '',
+  `qos` tinyint(1),
+  `retain` tinyint(1),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+Los usuarios deben proporcionar una plantilla de consulta y asegurarse de que se incluyan los siguientes campos:
+
+- `permission`. El valor especifica la acción aplicada si la regla coincide. Debe ser uno de denyo allow.
+- `action`. El valor especifica la solicitud para la cual la regla es relevante. Debe ser uno de publish, subscribe, o all.
+- `topic`. El valor especifica el filtro de temas para los temas relevantes para la regla. Debe ser una cadena que admita comodines y marcadores de posición de temas .
+- `qos`(Opcional). El valor especifica los niveles de QoS a los que se aplica la regla. Las opciones de valor son 0, 1, 2. También puede ser una cadena separada por ,para especificar varios niveles de QoS, por ejemplo 0,1. El valor predeterminado es todos los niveles de QoS.
+- `retain`(Opcional). El valor especifica si la regla actual admite mensajes retenidos. Las opciones de valor son 0y 1. Por defecto, se permiten los mensajes retenidos.
+
+Si desea agregar una regla de autorización para un usuario user123que tiene permiso para publicar temas data/user123/#, la consulta debería ser:
+
+```sql
+INSERT INTO mqtt_acl(username, permission, action, topic, ipaddress) VALUES ('user123', 'allow', 'publish', 'data/user123/#', '127.0.0.1');
+```
+
+Los parámetros de configuración son:
+
+```sql
+SELECT action, permission, topic, ipaddress, qos, retain FROM mqtt_acl where username = ${username} and ipaddress = ${peerhost}
+```
+
+Si deseo que todos los usuarios tengan denegado el acceso a todos los temas, la consulta debería ser:
+
+```sql
+INSERT INTO mqtt_acl(username, permission, action, topic, ipaddress) VALUES ('%', 'deny', 'all', '+/#', '127.0.0.1');
+```
+
+Si deseo que el usuario jose23 tenga acceso y pueda suscribirse para a todos los tópicos que comiencen con data/jose23/#, la consulta debería ser:
+
+```sql
+INSERT INTO mqtt_acl(username, permission, action, topic, ipaddress) VALUES ('jose23', 'allow', 'subscribe', 'data/jose23/#', '127.0.0.1');
+```
+
+Si deseo que el usuario jose99 tenga acceso y pueda suscribirse y publicar para a todos los tópicos que comiencen con home/iot/#, la consulta debería ser:
+
+```sql
+INSERT INTO mqtt_acl(username, permission, action, topic, ipaddress) VALUES ('jose99', 'allow', 'all', 'home/iot/#', '127.0.0.1');
+```
+
 - - -
 
 ## S5 - ANÁLISIS DEL TRÁFICO MQTT CON WIRESHARK
@@ -1248,3 +1476,191 @@ INSERT INTO `mqtt_acl` (allow, ipaddr, username, clientid, access, topic) VALUES
 - - -
 
 ## S17 - PRODUCCIÓN PLATAFORMA IOT CON NUBE ORACLE CLOUD
+
+- - -
+
+## MOSQUITTO
+
+Para suscribirte a un tópico (tema) usando Mosquitto, abre tu terminal o símbolo del sistema y utiliza el comando mosquitto_sub. Debes especificar el host del broker (por ejemplo, localhost) y el tópico que deseas escuchar.
+
+```bash
+mosquitto_sub -h localhost -t "mi/topico/ejemplo"
+```
+
+Si necesitas conectarte a un broker remoto, autenticarte con un usuario y contraseña, o quieres ver los mensajes entrantes junto con sus tópicos correspondientes, consulta las opciones detalladas a continuación.
+
+### ARGUMENTOS ÚTILES PARA LA SUSCRIPCION CON MOSQUITTO
+
+- **-h (Host)**: Dirección IP o dominio del broker al que te conectas. Por defecto usa localhost.
+- **-p (Puerto)**: Puerto de escucha del broker (por defecto es el 1883 para conexiones sin cifrar).
+- **-t (Tópico)**: El tema al que te suscribes. Puedes usar comodines como # (para varios niveles) o + (para un solo nivel).
+- **-v (Verbose)**: Muestra el nombre del tópico junto con el mensaje recibido, ideal si te suscribes a varios temas.
+- **-u (Usuario)**: Nombre de usuario, si el broker lo requiere.
+- **-P (Contraseña)**: Contraseña correspondiente al usuario.
+- **-s (SSL)**: Usa SSL/TLS para conectarse al broker.
+- **-t (TLS)**: Usa TLS para conectarse al broker.
+- **-V (Version)**: Muestra la versión de Mosquitto.
+
+### COMODINES EN MOSQUITTO
+
+- `#`: Subcribirse a todos los tópicos. Coincide con múltiples niveles.
+- `+`: Cualquier tópico con un nivel de tópico.
+- `+/#`: Todos los tópicos y subtópicos.
+- `+/#/+`: Todos los tópicos y subtópicos.
+- `+/#/#`: Todos los tópicos y subtópicos.
+
+### EJEMPLOS PRÁCTICOS CON MOSQUITTO
+
+Si requieres conectarte a un servidor externo, con credenciales y ver de forma detallada el tópico de dónde proviene el mensaje, usa el siguiente comando:
+
+```bash
+mosquitto_sub -h broker.mqtt.com -t "mi/topico/ejemplo" -u mi_usuario -P mi_contrasena
+```
+
+Si deseas ver los mensajes entrantes junto con sus tópicos correspondientes, utiliza el siguiente comando:
+
+```bash
+mosquitto_sub -h broker.mqtt.com -t "#" -v
+```
+
+Si deseas usar SSL/TLS para conectarte al broker, utiliza el siguiente comando:
+
+```bash
+mosquitto_sub -h broker.mqtt.com -t "mi/topico/ejemplo" -s
+```
+
+Si deseas usar TLS para conectarte al broker, utiliza el siguiente comando:
+
+```bash
+mosquitto_sub -h broker.mqtt.com -t "mi/topico/ejemplo" -tls
+```
+
+Si deseas ver la versión de Mosquitto, utiliza el siguiente comando:
+
+```bash
+mosquitto_sub -h broker.mqtt.com -V
+```
+
+### MQTT BROKER MOSQUITTO CON CERTIFICADO SERVIDOR (SELF-SIGNED)
+
+Cómo realizar la conexión cifrada a través del certificado usando OpenSSL como cliente TCP+SSL/TLS.
+
+El servicio se conecta con el cliente MQTTX vía consola con el servicio TCP y WebSockets.
+
+#### CONFIGURACIÓN DE MOSQUITTO CON CERTIFICADOS
+
+En el archivo `mosquitto.conf` se configura el puerto TCP/8883 además del puerto WSS/8884:
+
+```conf
+# MQTT secure
+listener 8883 0.0.0.0
+cafile certs/ca.crt
+keyfile certs/mqtt.example.tld.key
+certfile certs/mqtt.example.tld.crt
+crlfile certs/pki.example.tld.crl
+allow_anonymous true
+require_certificate false
+
+# MQTT WebSocket secure
+listener 8884 0.0.0.0
+protocol websockets
+cafile certs/ca.crt
+keyfile certs/mqtt.example.tld.key
+certfile certs/mqtt.example.tld.crt
+crlfile certs/pki.example.tld.crl
+require_certificate false
+```
+
+Para lanzar el servicio, ejecutamos el siguiente comando: `mosquitto -c mosquitto.conf`.
+
+#### CLIENTES MOSQUITO
+
+Usando `mosquitto_sub` y `mosquitto_pub` para publicar y suscribirse a tópicos a través de un enlace cifrado.
+
+- `mosquitto_sub --cafile pki/ca.crt -d -h mqtt.example.tld -p 8883 -t topic1 -v`. Me suscribo al tópico `topic1` en el servidor MQTT, esperando que se publique un mensaje.
+- `mosquitto_pub --cafile pki/ca.crt -d -h mqtt.example.tld -p 8883 -t topic1 -m message1`. Publico el mensaje `message1` en el tópico `topic1` en el servidor MQTT.
+
+### CERTIFICADOS CON EASY-RSA EN LINUX
+
+Para instalar y configurar Easy-RSA en Ubuntu Server, puedes usar el administrador de paquetes del sistema, ya que se encuentra en los repositorios predeterminados. Esto te permitirá crear tu propia Autoridad de Certificación (CA) para gestionar de manera segura los certificados de OpenVPN u otros servicios.
+
+#### INSTALAR EASY-RSA
+
+Abre tu terminal en Ubuntu Server y ejecuta los siguientes comandos para actualizar el sistema e instalar el paquete:
+
+```bash
+sudo apt-get update
+sudo apt-get install easy-rsa
+```
+
+#### CREAR UN DIRECTORIO DE CERTIFICADOS
+
+Se recomienda no trabajar directamente en los archivos originales del sistema. En su lugar, crea un directorio exclusivo en tu usuario (sin privilegios de root) y enlaza los scripts de Easy-RSA:
+
+```bash
+mkdir ~/easy-rsa
+ln -s /usr/share/easy-rsa/* ~/easy-rsa/
+cd ~/easy-rsa
+```
+
+#### INICIAR LA INFRAESTRUCTURA DE CLAVE PÚBLICA (PKI)
+
+Para comenzar a generar certificados, debes inicializar el directorio PKI. Este comando creará una estructura limpia (eliminará cualquier configuración anterior):
+
+```bash
+./easyrsa init-pki
+```
+
+#### CREAR UNA AUTORIDAD DE CERTIFICACIÓN (CA)
+
+Crea tu certificado raíz y la llave privada. El sistema te pedirá establecer una contraseña segura (que necesitarás más adelante para firmar otros certificados) y un "Common Name" (por ejemplo, el nombre de tu servidor):
+
+```bash
+./easyrsa build-ca
+```
+
+Una vez completado esto, tu entorno Easy-RSA estará listo para generar los certificados del servidor y de los clientes.
+
+### OBTENCIÓN DE CERTIFICADOS CON EASY-RSA EN UBUNTU SERVER
+
+- Paso 1 - Creamos la petición de certificado.
+
+El objetivo es rellenar los campos que va a tener nuestro certificado con la información que identifica a nuestro servicio. El campo más importante es el X.509 DN, porque debe coincidir con al menos uno de los nombres canónicos de la máquina (FQDN). Si no tendremos problemas cuando se conecten los clientes, ya que estos se quejarán de que no somos quienes decimos ser. El principal objetivo de un certificado es asegurar que somos quienes decimos ser.
+
+> [!NOTE]
+> El Common Name (CN), también conocido como Fully Qualified Domain Name (FQDN), es el valor característico que se almacena dentro del campo DN (Distinguished Name), también conocido como X.509 DN.
+
+```bash
+# desde la máquina que queramos con easy-rsa instalado
+./easyrsa gen-req mqtt.example.tld
+# se genera fichero mqtt.example.tld.req
+```
+
+- Paso 2 - Firmar la petición de certificado.
+
+Si no se lanzó la petición de certificado (certificate request) desde el mismo PKI, hay que copiarlo a la máquina del PKI e importarlo. No lo olvidemos. Aunque en soluciones domésticas típicamente todo lo movemos dentro de la misma estructura de directorios de la PKI.
+
+```bash
+# en la PKI:
+## importamos el certificado, si no se ha hecho la petición desde aquí
+## se asume que se copió el fichero de certificate request en
+## /the-path/mqtt.example.tld.req
+./easyrsa import-req /the-path/mqtt.example.tld.req mqtt.example.tld
+## esto colocará una copia del fichero .req en la PKI y algunos enlaces.
+
+## Se le pide a la PKI que firme el certificado
+./easyrsa sign-req server mqtt.example.tld
+### esto generará el fichero .key y .crt necesarios para armar el servidor.
+```
+
+- Paso 3 - Creación y firma de la petición de certificado.
+
+En un solo comando, en el caso de hacerlo todo desde la PKI (en un solo servidor) podemos obtener: clave privada, request de certificador y certificado firmado. Este certificado será de tipo servidor.
+
+```bash
+./easyrsa build-server-full mqtt.example.tld
+
+# sin cifrado de la clave privada:
+./easyrsa build-server-full mqtt.example.tld --no-pass
+# IMPORTANTE, no tiene sentido hacer este comando si previamente hemos hecho la creación de request, (importación) y firmado.
+```
