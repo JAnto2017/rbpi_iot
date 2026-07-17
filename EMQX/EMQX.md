@@ -72,6 +72,9 @@
       - [CONFIGURAR CON EL PANEL DE CONTROL](#configurar-con-el-panel-de-control)
     - [REGLAS ACL EN EMQX V5.8.0 CON MYSQL EN LINUX](#reglas-acl-en-emqx-v580-con-mysql-en-linux)
   - [S5 - ANÁLISIS DEL TRÁFICO MQTT CON WIRESHARK](#s5---análisis-del-tráfico-mqtt-con-wireshark)
+    - [ANÁLISIS DEL TRÁFICO MQTT CON WIRESHARK](#análisis-del-tráfico-mqtt-con-wireshark)
+    - [ANÁLISIS DEL TRÁFICO ENVÍO DE MENSAJE CON MQTT Y CAPTURA CON WIRESHARK](#análisis-del-tráfico-envío-de-mensaje-con-mqtt-y-captura-con-wireshark)
+    - [ANÁLISIS DEL TRÁFICO ENVÍO DE MENSAJE DE RED MQTT USANDO TLS Y CAPTURA CON WIRESHARK](#análisis-del-tráfico-envío-de-mensaje-de-red-mqtt-usando-tls-y-captura-con-wireshark)
   - [S6 - EMQX MODO DE PRODUCCIÓN EN NUBE](#s6---emqx-modo-de-producción-en-nube)
   - [S7 - CLIENTE ESP32](#s7---cliente-esp32)
   - [S8 - CLIENTE ARDUINO UNO](#s8---cliente-arduino-uno)
@@ -97,6 +100,7 @@
       - [INICIAR LA INFRAESTRUCTURA DE CLAVE PÚBLICA (PKI)](#iniciar-la-infraestructura-de-clave-pública-pki)
       - [CREAR UNA AUTORIDAD DE CERTIFICACIÓN (CA)](#crear-una-autoridad-de-certificación-ca)
     - [OBTENCIÓN DE CERTIFICADOS CON EASY-RSA EN UBUNTU SERVER](#obtención-de-certificados-con-easy-rsa-en-ubuntu-server)
+      - [EJEMPLO PRÁCTICO CON EASY-RSA EN UBUNTU SERVER](#ejemplo-práctico-con-easy-rsa-en-ubuntu-server)
 
 - - -
 
@@ -1429,6 +1433,55 @@ INSERT INTO mqtt_acl(username, permission, action, topic, ipaddress) VALUES ('jo
 
 ## S5 - ANÁLISIS DEL TRÁFICO MQTT CON WIRESHARK
 
+Se utiliza la herramienta [Wireshark](https://www.wireshark.org/) para analizar el tráfico MQTT.
+
+De todos los mensajes que llegan de la red, nos interesan los mensajes de tipo 0x10 (PUBLISH) y 0x8 (SUBSCRIBE) y MQTT en el puerto 1883.
+
+Captura del usuario y contraseña en MQTT en el puerto 1883:
+
+![alt text](image-1.png "Captura de Wireshark con MQTT en el puerto 1883")
+
+### ANÁLISIS DEL TRÁFICO MQTT CON WIRESHARK
+
+Tráfico que se genera con MQTT en el puerto 1883. Al suscribirse a un tópico, se envia un mensaje de tipo SUBSCRIBE y luego se publican mensajes de tipo PUBLISH.
+
+Captura con QoS 0:
+
+![alt text](image-3.png "Captura de Wireshark con MQTT en el puerto 1883")
+
+Captura con QoS 1:
+
+![alt text](image-2.png "Captura de Wireshark con MQTT en el puerto 1883")
+
+Captura con QoS 2:
+
+![alt text](image-4.png "Captura de Wireshark con MQTT en el puerto 1883")
+
+En QoS 2, se envía el mensaje al Broker y luego reenvía un PUBACK a todos los otros clientes diferentes de la sesión.
+
+![alt text](image-5.png "Comunicación MQTT QoS 2")
+
+### ANÁLISIS DEL TRÁFICO ENVÍO DE MENSAJE CON MQTT Y CAPTURA CON WIRESHARK
+
+Las respuestas del Broker a los mensajes con QoS 0, 1 y 2 son diferentes.
+
+![alt text](image-6.png "QoS 0")
+
+![alt text](image-7.png "QoS 1")
+
+![alt text](image-8.png "QoS 2")
+
+### ANÁLISIS DEL TRÁFICO ENVÍO DE MENSAJE DE RED MQTT USANDO TLS Y CAPTURA CON WIRESHARK
+
+Realizamos conexión SSL/TLS con el Broker MQTT usando el protocolo `mqtts//` por el puerto `8883`.
+
+Al capturar el tráfico, no se puede ver el contenido del mensaje. El filtro de Wireshark es:
+
+- ip.addr == 127.0.0.1
+- tcp.port == 8883
+
+![alt text](image-9.png "Captura de Wireshark con TLS MQTT en el puerto 8883")
+
 - - -
 
 ## S6 - EMQX MODO DE PRODUCCIÓN EN NUBE
@@ -1496,9 +1549,10 @@ Si necesitas conectarte a un broker remoto, autenticarte con un usuario y contra
 - **-t (Tópico)**: El tema al que te suscribes. Puedes usar comodines como # (para varios niveles) o + (para un solo nivel).
 - **-v (Verbose)**: Muestra el nombre del tópico junto con el mensaje recibido, ideal si te suscribes a varios temas.
 - **-u (Usuario)**: Nombre de usuario, si el broker lo requiere.
+- **-q (QoS)**: Nivel de QoS, 0, 1 o 2.
 - **-P (Contraseña)**: Contraseña correspondiente al usuario.
 - **-s (SSL)**: Usa SSL/TLS para conectarse al broker.
-- **-t (TLS)**: Usa TLS para conectarse al broker.
+- **-T (TLS)**: Usa TLS para conectarse al broker.
 - **-V (Version)**: Muestra la versión de Mosquitto.
 
 ### COMODINES EN MOSQUITTO
@@ -1539,6 +1593,10 @@ Si deseas ver la versión de Mosquitto, utiliza el siguiente comando:
 
 ```bash
 mosquitto_sub -h broker.mqtt.com -V
+```
+
+```bash
+mosquitto_sub -h localhost -t "tu/tema/aqui" -q [0|1|2]
 ```
 
 ### MQTT BROKER MOSQUITTO CON CERTIFICADO SERVIDOR (SELF-SIGNED)
@@ -1664,3 +1722,89 @@ En un solo comando, en el caso de hacerlo todo desde la PKI (en un solo servidor
 ./easyrsa build-server-full mqtt.example.tld --no-pass
 # IMPORTANTE, no tiene sentido hacer este comando si previamente hemos hecho la creación de request, (importación) y firmado.
 ```
+
+#### EJEMPLO PRÁCTICO CON EASY-RSA EN UBUNTU SERVER
+
+- Paso 1: Instalar Easy-RSA.
+
+Abre una terminal en tu Ubuntu Server y actualiza los repositorios para instalar el paquete:
+
+```bash
+sudo apt update
+sudo apt install easy-rsa
+```
+
+- Paso 2: Crear el directorio de trabajo.
+
+Copia los scripts de Easy-RSA a un directorio seguro (por ejemplo, en tu carpeta de inicio) para no modificar los archivos originales:
+
+```bash
+make-cadir ~/easyrsa
+cd ~/easyrsa
+```
+
+- Paso 3: Configurar la CA.
+
+Edita las variables: Puedes crear un archivo de configuración vars basado en la plantilla para definir los valores predeterminados de tus certificados (país, organización, etc.):
+
+```bash
+nano vars
+```
+
+- Paso 4: Inicializar PKI.
+
+Preparar el directorio para crear los certificados:
+
+```bash
+./easyrsa init-pki
+```
+
+- Paso 5: Crear la Autoridad de Certificación (CA).
+
+Genera el certificado raíz y la clave privada. Se te pedirá una contraseña segura que deberás recordar.
+
+```bash
+./easyrsa build-ca
+```
+
+Esto generará los archivos `ca.crt` (público) y `ca.key` (privado) en la carpeta `pki/`.
+
+- Paso 6: Crear el certificado del servidor.
+
+Genera la clave y la petición (opcional: agrega nopass si no deseas ingresar contraseña al iniciar el servicio):
+
+```bash
+./easyrsa gen-req servidor nopass
+```
+
+- Paso 7: Firmar la petición utilizando CA.
+
+```bash
+/easyrsa sign-req server servidor
+```
+
+Escribe _yes_ y luego ingresa la contraseña de la CA creada en el paso _Crear la Autoridad de Certificación (CA)_.
+
+- Paso 8: Crear el certificado del cliente.
+
+Si estás generando certificados para conectar usuarios (como en OpenVPN):
+
+```bash
+# Generar la petición
+./easyrsa gen-req cliente1
+
+# Firmar la petición como cliente
+./easyrsa sign-req client cliente1
+```
+
+Escribe _yes_ y confirma con la contraseña de tu CA.
+
+- Paso 9: Ubicación de los archivos generados.
+
+Tus certificados listos para usar estarán ubicados en las siguientes carpetas dentro de tu directorio `~/easyrsa`:
+
+- **Certificado firmado**: `pki/issued/servidor.crt` (ej. `cliente1.crt`)
+- **Clave privada**: `pki/private/servidor.key` (ej. `cliente1.key`)
+- **Certificado de la CA**: `pki/ca.crt`
+
+[Vídeo de ejemplo de Easy-RSA](https://www.youtube.com/watch?v=uOosiiGntl0&t=955s)
