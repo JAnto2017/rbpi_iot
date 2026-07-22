@@ -76,6 +76,15 @@
     - [ANÁLISIS DEL TRÁFICO ENVÍO DE MENSAJE CON MQTT Y CAPTURA CON WIRESHARK](#análisis-del-tráfico-envío-de-mensaje-con-mqtt-y-captura-con-wireshark)
     - [ANÁLISIS DEL TRÁFICO ENVÍO DE MENSAJE DE RED MQTT USANDO TLS Y CAPTURA CON WIRESHARK](#análisis-del-tráfico-envío-de-mensaje-de-red-mqtt-usando-tls-y-captura-con-wireshark)
   - [S6 - EMQX MODO DE PRODUCCIÓN EN NUBE](#s6---emqx-modo-de-producción-en-nube)
+    - [VPS ORACLE CLOUD](#vps-oracle-cloud)
+    - [LOGGER DESDE PUTTY EN VPS](#logger-desde-putty-en-vps)
+    - [INSTALAR HESTIA PANEL EN UBUNTU SERVER EN ORACLE CLOUD](#instalar-hestia-panel-en-ubuntu-server-en-oracle-cloud)
+    - [FREENOM Y REGISTRAR EL DOMINIO](#freenom-y-registrar-el-dominio)
+    - [CERTIFICADOS SSL EN EL DOMINIO](#certificados-ssl-en-el-dominio)
+    - [INSTALAR EMQX EN UBUNTU SERVER EN ORACLE CLOUD](#instalar-emqx-en-ubuntu-server-en-oracle-cloud)
+    - [CONEXIÓN CON CYBERDUCK](#conexión-con-cyberduck)
+    - [CONEXIÓN AL BROKER MQTTX EN UBUNTU SERVER EN ORACLE CLOUD](#conexión-al-broker-mqttx-en-ubuntu-server-en-oracle-cloud)
+    - [CERTIFICADOS SSL AL DASHBOARD DE EMQX](#certificados-ssl-al-dashboard-de-emqx)
   - [S7 - CLIENTE ESP32](#s7---cliente-esp32)
   - [S8 - CLIENTE ARDUINO UNO](#s8---cliente-arduino-uno)
   - [S9 - CLIENTE PHP](#s9---cliente-php)
@@ -1485,6 +1494,97 @@ Al capturar el tráfico, no se puede ver el contenido del mensaje. El filtro de 
 - - -
 
 ## S6 - EMQX MODO DE PRODUCCIÓN EN NUBE
+
+Los VPS son servidores virtuales de prestacción de servicios.
+
+### VPS ORACLE CLOUD
+
+Creación de VPS en la nube de [Oracle Cloud](https://oracle.com/es/cloud).
+
+### LOGGER DESDE PUTTY EN VPS
+
+Previamente se generan las llaves privadas y publicas.
+
+clic en PuTTYgeb y elegir la opción de open para cargar la llave privada. Luego clic en _Save Public Key_ y _Private Key_. Lo guardamos en una carpeta, donde la extensión del fichero es .ppk.
+
+Abrimos PuTTy para añadir la IP y el puerto SSH. Clic en SSH en Authentication y elegir la llave privada.
+
+### INSTALAR HESTIA PANEL EN UBUNTU SERVER EN ORACLE CLOUD
+
+HestiaCP es un panel de control de código abierto diseñado para simplificar la administración de servidores web.
+
+[Instalar Hestia en Ubuntu Server v24.04](https://voidnull.es/instalacion-de-hestiacp-en-ubuntu-24-04/)
+
+Instala:
+
+- NGINX
+- PHP
+- Apache2
+- MariaDB
+- Hestia Control
+- Mail
+- DNS
+- Backups
+- CRON (tareas programadas)
+
+Tras la instalación, nos muestra el acceso: Admin URL, Username, Password.
+
+### FREENOM Y REGISTRAR EL DOMINIO
+
+[Freenom](https://www.freenom.com/) es un servicio de dominio gratuito.
+
+### CERTIFICADOS SSL EN EL DOMINIO
+
+Agregar los Certificados en SSL en el dominio para la página web.
+
+- SSL Certificate
+- SSL Private Key
+- SSL Certificate Authority / Intermediate (Optional)
+
+### INSTALAR EMQX EN UBUNTU SERVER EN ORACLE CLOUD
+
+Siguiendo la página web de documentación e instalación de EMQX, [Instalar EMQX](https://emqx.io/es/download.html)
+
+1. Descarga la versión del paqueta para la distribución Ubuntu 20.04:
+   1. `wget https://github.com/emqx/emqx/releases/download/v5.0.0/emqx_5.0.0-ubuntu20.04_amd64.deb`
+2. Instala el paquete:
+   1. `sudo dpkg -i emqx_5.0.0-ubuntu20.04_amd64.deb`
+3. Inicia el servicio:
+   1. `sudo systemctl start emqx`
+
+Con el comando `emqx console` se puede comprobar si funciona y arranca todos los puertos que necesita EMQX.
+
+### CONEXIÓN CON CYBERDUCK
+
+[Download CybeDuck](https://cyberduck.io/download/)
+
+### CONEXIÓN AL BROKER MQTTX EN UBUNTU SERVER EN ORACLE CLOUD
+
+### CERTIFICADOS SSL AL DASHBOARD DE EMQX
+
+Usando CyberDuck o WinSCP nos conectamos al Ubuntu Server, y en la carpeta plugins localizamos el archivo emqx_dashboard.conf. Modificamos la configuración de la siguiente manera:
+
+```conf
+dashboard.listener.port = 18083
+dashboard.listener.https.acceptors = 2
+dashboard.listener.https.max_clients = 512
+dashboard.listener.https.inet6 = false
+dashboard.listener.https.cacertfile = /etc/ssl/certs/ca-certificates.crt
+dashboard.listener.https.certfile = /etc/ssl/certs/localhost.crt
+dashboard.listener.https.keyfile = /etc/ssl/private/localhost.key
+```
+
+El otro archivo a modificar es emqx.management.conf:
+
+```conf
+management.listener.port = 18084
+management.listener.https.acceptors = 2
+management.listener.https.max_clients = 512
+management.listener.https.inet6 = false
+management.listener.https.cacertfile = /etc/ssl/certs/ca-certificates.crt
+management.listener.https.certfile = /etc/ssl/certs/localhost.crt
+management.listener.https.keyfile = /etc/ssl/private/localhost.key
+```
 
 - - -
 
