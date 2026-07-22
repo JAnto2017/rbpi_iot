@@ -86,6 +86,10 @@
     - [CONEXIÓN AL BROKER MQTTX EN UBUNTU SERVER EN ORACLE CLOUD](#conexión-al-broker-mqttx-en-ubuntu-server-en-oracle-cloud)
     - [CERTIFICADOS SSL AL DASHBOARD DE EMQX](#certificados-ssl-al-dashboard-de-emqx)
   - [S7 - CLIENTE ESP32](#s7---cliente-esp32)
+    - [ESP32-MQTT-WIFI](#esp32-mqtt-wifi)
+    - [LIBRERÍA PUBSUBCLIENT DE ESP32 PARA MQTT](#librería-pubsubclient-de-esp32-para-mqtt)
+    - [CONEXIÓN SEGURA CON TLS EN EL CLIENTE ESP32](#conexión-segura-con-tls-en-el-cliente-esp32)
+    - [CONEXIÓN A EMQX CON ETHERNET Y MÓDULO W5500](#conexión-a-emqx-con-ethernet-y-módulo-w5500)
   - [S8 - CLIENTE ARDUINO UNO](#s8---cliente-arduino-uno)
   - [S9 - CLIENTE PHP](#s9---cliente-php)
   - [S10 - CLIENTE MQTT CON VUE.JS V3 POR WS Y WSS](#s10---cliente-mqtt-con-vuejs-v3-por-ws-y-wss)
@@ -1589,6 +1593,492 @@ management.listener.https.keyfile = /etc/ssl/private/localhost.key
 - - -
 
 ## S7 - CLIENTE ESP32
+
+### ESP32-MQTT-WIFI
+
+Conexión al Borker MQTT desde ESP32 vía WiFi.
+
+Usando VSCode y PlatformIO, creamos el proyecto ESP32-MQTT-WIFI.
+
+- Clic en PlatformIO y elegir la carpeta del proyecto.
+- Seleccionar la plataforma ESP32.
+- Seleccionar el Framework de Arduino.
+- Tras aceptar, se crea el proyecto con una estructura de carpetas.
+  - En la carpeta `src`, creamos el archivo `main.cpp`.
+  - En la carpeta `include`, creamos el archivo `mqtt.h`.
+  - Archivo importante es el platformio.ini. Permite realizar configuraciones de la placa.
+
+Configuraciones que se añaden al arvhivo `platformio.ini`:
+
+```ini
+[env:esp32dev]
+platform = espressif32
+board = esp32dev
+framework = arduino
+
+; flags
+build_type = debug
+
+; Libraries options. Desde repositorio
+lib_deps = knolleary/PubSubClient@^2.8
+
+; Serial Monitor options
+monitor_speed = 115200
+monitor_port = /dev/ttyUSB0 ; para sistemas Linux
+monitor_port = COM3 ; para sistemas Windows
+
+; Upload options
+upload_speed = 921600
+upload_port = /dev/ttyUSB0 ; para sistemas Linux
+upload_port = COM3 ; para sistemas Windows
+```
+
+Configuraciones en el archivo `main.cpp`:
+
+```cpp
+#include <Arduino.h>
+#include <WiFi.h>
+#include <PubSubClient.h>
+
+// Configuraciones WiFi
+const char* ssid = "SSID";
+const char* password = "PASSWORD";
+
+// Configuraciones MQTT Broker
+const char* mqtt_broker = "IP_BROKER_MQTT";
+const char* mqtt_topic = "TOPIC";
+const char* mqtt_username = "USER";
+const char* mqtt_password = "PASSWORD";
+const char* mqtt_port = 1883;
+
+// Establece un cliente y conexión a través de la librería PubSubClient
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+// Función de callback para recibir mensajes MQTT
+void callback(char* topic, byte* payload, unsigned int length) {
+  Serial.print("Message arrived in topic: [");
+  Serial.print(topic);
+  Serial.print("] ");
+  for (int i = 0; i < length; i++) {
+    Serial.print((char)payload[i]);
+  }
+  Serial.println();
+  Serial.println("-----------------------");
+}
+
+// -----------------------------------------------
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.println("Connecting to WiFi..");
+  }
+  Serial.println("Connected to the WiFi network");
+  // configuraciones para conexión a MQTT Broker
+  client.setServer(mqtt_broker, mqtt_port);
+  client.setCallback(callback);
+  // establecemos conexión
+  while (!client.connected()) {
+    
+    Serial.println("Connecting to MQTT...");
+    String clientId = "ESP32Client-";
+    clientId += String(WiFi.macAddress());
+    
+    if (client.connect(clientId.c_str(), mqtt_username, mqtt_password)) {
+      Serial.println("connected");
+    } else {
+      Serial.print("failed with state ");
+      Serial.print(client.state());
+      delay(2000);
+    }
+  }
+  // publicar y suscribirse
+  client.publish(mqtt_topic, "hello world from ESP32");
+  client.subscribe(mqtt_topic);
+}
+
+// -----------------------------------------------
+void loop() {
+  client.loop();
+}
+```
+
+Desde la Platforma MQTT en _Tools_ se puede hacer la compilación y la conexión con ESP32, cargando el programa.
+
+### LIBRERÍA PUBSUBCLIENT DE ESP32 PARA MQTT
+
+Página web oficial de la librería PubSubClient para ESP32. [API Documentación](http://pubsubclient.knolleary.net/api)
+
+### CONEXIÓN SEGURA CON TLS EN EL CLIENTE ESP32
+
+En el archivo `platformio.ini` se establece la configuración de la conexión segura con TLS:
+
+```ini
+[platformio]
+default_envs = esp32dev
+
+[env:esp32dev]
+platform = espressif32
+board = esp32dev
+framework = arduino
+
+; flags
+build_type = 
+  '-D WIFI_SSID="iotmaster"'
+  '-D WIFI_PASSWORD="12345678"'
+
+; Libraries options. Desde repositorio
+lib_deps = knolleary/PubSubClient@^2.8
+
+; Serial Monitor options
+monitor_speed = 115200
+monitor_port = /dev/ttyUSB0 ; para sistemas Linux
+monitor_port = COM3 ; para sistemas Windows
+
+; Upload options
+upload_speed = 921600
+upload_port = /dev/ttyUSB0 ; para sistemas Linux
+upload_port = COM3 ; para sistemas Windows
+```
+
+Configuraciones en el archivo `main.cpp`:
+
+```cpp
+#include <Arduino.h>
+#include <WiFi.h>
+#include <PubSubClient.h>
+
+// Configuraciones MQTT Broker
+const char* mqtt_broker = "IP_BROKER_MQTT";
+const char* mqtt_topic = "TOPIC";
+const char* mqtt_username = "USER";
+const char* mqtt_password = "PASSWORD";
+const char* mqtt_port = 8883; // puerto TLS para MQTT
+
+// define el buffer para los mensajes MQTT
+#define MQTT_MAX_PACKET_SIZE 1024
+
+// define el LED en GPIO-2
+#define LED 26
+
+// define conexión por TLS
+#define TLS
+
+#ifdef(TLS)
+  #include <WiFiClientSecure.h>
+#endif
+
+// define instancias de WiFiClientSecure
+#ifdef(TLS)
+  WiFiClientSecure espClient;
+#endif
+
+// Establece un cliente y conexión TLS a través de la librería PubSubClient
+PubSubClient client(espClient);
+
+// define el certificado para conexión TLS
+// es el archivo SSL CERTIFICATE AUTHORIZED / INTERMEDIATE
+#ifdef(TLS)
+const char* caCert = // \n
+"-----BEGIN CERTIFICATE-----\n\
+MIIDxTCCAq2gAwIBAgIQAqtcL8Gk1b5xQ7HLtayCkTANBgkqhkiG9w0BAQsFADBs\n\
+MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3\n\
+d3cuZGlnaWNlcnQuY29tMSswKQYDVQQDEyJEaWdpQ2VydCBIaWdoIEFzc3VyYW5j\n\
+ZSBFViBSb290IENBMB4XDTA2MTExMDAwMDAwMFoXDTMxMTExMDAwMDAwMFowbDEL\n\
+MAkGA1UEBhMCVVMxFTATBgNVBAoTDERpZ2lDZXJ0IEluYzEZMBcGA1UECxMQd3d3\n\
+LmRpZ2ljZXJ0LmNvbTErMCkGA1UEAxMiRGlnaUNlcnQgSGlnaCBBc3N1cmFuY2Ug\n\
+RVYgUm9vdCBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMbM5XPm\n\
++9S75S0tMqbf5YE/ylRef7b4pxb1ikJjyYsjJS5/2bX16y/0slcQFu/52LMcrjA6\n\
+TTBc/2wCGe9SwvZ4E8cQFXqNEHpn9cGk1r84a5yYorNN40h2Vd3aZd2+XsQo7lQG\n\
+J2eo/MBiI3z1GsBadYwggUcCAwEAAaOBwjCBvzAOBgNVHQ8BAf8EBAMCAQYwEwYD\n\
+VR0lBAwwCgYIKwYBBQUHAwMwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUsT7D\n\
+uU2UuwtHFD6ZQ6ey22uEbw0wawYIKwYBBQUHAQEEazBpMCQGCCsGAQUFBzABhhho\n\
+dHRwOi8vb2NzcC5kaWdpY2VydC5jb20wQQYIKwYBBQUHMAKGNWh0dHA6Ly9jYWNl\n\
+cnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEhpZ2hBc3N1cmFuY2VFVlJvb3RDQS5j\n\
+cnQwHwYDVR0jBBgwFoAUReuir/SSy4IxLVGLp6chnfNtyA8wDQYJKoZIhvcNAQEF\n\
+BQADggEBAEKRP0EvA2y0mYUW7BUf6x3jAYd2ZKcAKQgX0kgDp0y+DrJlVK8zFdI9\n\
+2OA5yAr4iX19eqlSBIotsKdVtTsDykSbtdjW+QR5I4z8yX2qkRrNQdmWyKz0APuG\n\
+dR+Q5cdt0m1m6UCAwEAAaNGMEQwDgYDVR0PAQH/BAQDAgGGMDQGCCsGAQUFBwEB\n\
+BCgwJjAkBggrBgEFBQcCAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29tME4GCCsG\n\
+AQUFBzAChkJodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vRGlnaUNlcnRIaWdo\n\ 
+QXNzdXJhbmNlRVYwQ29kZVNpZ25pbmdDQS5jcnQwDAYDVR0TAQH/BAIwADANBgkq\n\
+hkiG9w0BAQsFAAOCAQEAVc1fL7DwO1gwSdWyJyf6cnLWjUz2e9lA4hPc0LHjxjso\n\
+q1EuW4F3qZCtKE6Jymr6HJy1PN/2rYI1Wwe4e4oXNKTvqjftxkQxP1FbCv6kMdFm\n\
+q5O8e47lQ3z6Zkozcz5zq7lGpW+KbqdiDndN99tOSe4r4Xt8t63R4kUjwpyF39+Um\n\
+D6FkhZiW6g3U6/U7ni6sLXCMrQ0f3avDyYUJSt5LT/1iVYf9YzPglTjxqS5J/LxJ\n\
+5SIQK2xMl3uJY2/M8Lr3+1/Hi3zvJQIDAQABo4IBtTCCAbEwHwYDVR0jBBgwFoAU\n\
+WkEv2xsrUaglfvxtTijhE2YqNjA8BgNVHR8ENTAzMDGgL6AthitodHRwOi8vY3Js\n\
+My5kaWdpY2VydC5jb20vRGlnaUNlcnRIaWdoQXNzdXJhbmNlRVYwQ29kZVNpZ25p\n\
+bmdDQS5jcmwwWAYIKwYBBQUHAQEETDBKMCIGCCsGAQUFBzABhhZodHRwOi8vb2Nz\n\
+cC5kaWdpY2VydC5jb20wQwYIKwYBBQUHMAKGN2h0dHA6Ly9jYWNlcnRzLmRpZ2lj\n\
+lGVydC5jb20vRGlnaUNlcnRIaWdoQXNzdXJhbmNlRVYwQ29kZVNpZ25pbmdDQS5j\n\
+cnQwDQYJKoZIhvcNAQEFBQADggEBAHjPpaZCYFO1ssI4ZFRSRxmecG2LiUO2M16Z\n\
+6k2kVv0k1AO2r10kEA3Asy0L0JxW1R6dTLhpr9lsb78pVpQ7k+juIAH0zRJU8Zs0\n\
+Qy6IYqgPQZk1nrECAwEAAaOCAcUwggHBMB8GA1UdIwQYMBaAFFrEuXsqCqOl6nED\n\
+w5LsnQvOl/1FMAsGA1UdDwQEAwIBhjB5BggrBgEFBQcBAQRtMGswJAYIKwYBBQUH==\n\
+--END CERTIFICATE--\n"
+#endif
+
+// establece las conexiones
+uint8_t connection_intention_init = 0;
+uint8_t cont_intent_conect;
+
+
+// Función de callback para recibir mensajes MQTT
+void callback(char* topic, byte* payload, unsigned int length) {
+  Serial.print("Message arrived in topic: [");
+  Serial.print(topic);
+  Serial.print("] ");
+  for (int i = 0; i < length; i++) {
+    incoming += (char)payload[i];
+  }
+  incoming.trim();
+  Serial.print("Mensaje: " + incoming);
+  
+  if (incoming == "ON") {
+    digitalWrite(LED, HIGH);
+  } else if (incoming == "OFF") {
+    digitalWrite(LED, LOW);
+  }
+  incoming = "";
+}
+
+// función para reconectar
+void reconnect() {
+  while (!client.connected()) {
+    Serial.println("Connecting to MQTT...");
+    String clientId = "ESP32Client-";
+    clientId += String(WiFi.macAddress());
+    if (client.connect(clientId.c_str(), mqtt_username, mqtt_password)) {
+      Serial.println("connected");
+      Serial.printf("Subscribing to %s\n", mqtt_topic);
+      client.subscribe(mqtt_topic);
+    } else {
+      Serial.print("failed with state ");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+      delay(5000);
+    }
+  }
+}
+
+// -----------------------------------------------
+void setup() {
+  // frecuencia de comunicación ESP32 a 240 MHz
+  set_cpu_frequency(240);
+  Serial.begin(115200);
+  // PIN de salida
+  pinMode(LED, OUTPUT);
+  // escribimos en pin de salida
+  digitalWrite(LED, LOW);
+  // configuraciones de WiFi en modo ESTACIÓN no AP
+  uint8_t cont_intent_conect = 0;
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD); // variables desde archivo de configuración
+  
+  while (WiFi.status() != WL_CONNECTED) {
+    cont_intent_conect++;
+    delay(500);
+    Serial.println("Connecting to WiFi..");
+    if (cont_intent_conect == 40) {
+      Serial.println("No se pudo conectar a la red. Reiniciando ESP32...");
+      cont_intent_conect = 0;
+      delay(1000);
+      ESP.restart();
+    }
+  }
+  Serial.println("Connected to the WiFi network");
+  Serial.println(WiFi.localIP());
+  delay(200);
+  Serial.printf("Conectado a la red %s, IP: %s\n", WIFI_SSID, WiFi.localIP().toString().c_str());
+
+  // configuraciones para conexión a MQTT Broker por TLS
+  #ifdef TLS
+    espClient.setCACert(ca_cert);
+    client.setServer(mqtt_broker, mqtt_port);
+  #endif
+  
+  client.setCallback(callback);
+
+  // establecemos conexión
+  while (!client.connected()) {
+    
+    Serial.println("Connecting to MQTT...");
+    String clientId = "ESP32Client-";
+    clientId += String(WiFi.macAddress());
+    
+    if (client.connect(clientId.c_str(), mqtt_username, mqtt_password)) {
+      Serial.println("connected");
+      Serial.println(client.state());
+      if (client.subscribe(mqtt_topic)) {
+        Serial.printf("Subscribed to %s\n", mqtt_topic);
+      }
+    } else {
+      cont_intent_conect++;
+      Serial.print("failed with state ");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+      delay(5000);
+      if (cont_intent_conect == 10) {
+        Serial.println("No se pudo conectar a la red. Reiniciando ESP32...");
+      }
+    }
+  }
+  
+  Serial.println("Connected to MQTT Broker!");
+}
+
+// -----------------------------------------------
+void loop() {
+  if (!client.connected()) {
+    reconnect();
+  }
+  client.loop();
+}
+```
+
+### CONEXIÓN A EMQX CON ETHERNET Y MÓDULO W5500
+
+![alt text](image-10.png "Diagrama de conexión a EMQX con Ethernet y módulo W5500")
+
+Configuración del archivo `platformio.ini`:
+
+```ini
+[env:esp32doit-devkit-v1]
+platform = espressif32
+board = esp32doit-devkit-v1
+framework = arduino
+monitor_speed = 115200
+upload_protocol = espota
+upload_port = 38.0.101.76
+upload_flags =
+    --port=3232
+    --auth=esp32
+lib_deps =
+    PubSubClient@^2.8.0
+    knolleary/PubSubClient@^2.8
+
+; Serial Monitor options
+monitor_speed = 115200
+monitor_port = /dev/ttyUSB0 ; para sistemas Linux
+monitor_port = COM3 ; para sistemas Windows
+
+; Upload options
+upload_speed = 921600
+upload_port = /dev/ttyUSB0 ; para sistemas Linux
+upload_port = COM3 ; para sistemas Windows
+```
+
+Configuración del archivo `main.cpp`:
+
+```cpp
+#include <Arduino.h>
+#include <Ethernet.h>
+#include <PubSubClient.h>
+
+// definimos la conexión
+const char* mqtt_broker = "38.0.101.76";
+const int mqtt_port = 1883;
+const char* mqtt_username = "emqx";
+const char* mqtt_password = "public";
+const char* mqtt_topic = "esp32/led";
+
+// definimos el pin de salida para el LED
+const int LED = 4;
+
+// variables globales MAC
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+
+// definimos la función callback
+void callback(char* topic, byte* payload, unsigned int length) {
+  
+  String incoming = "";
+  Serial.print("Message arrived [");
+  Serial.print(topic);
+  Serial.print("] ");
+  for (int i = 0; i < length; i++) {
+    incoming += ((char)payload[i]);
+  }
+  incoming.trim();
+  // si recibe un ON encendemos el LED y si recibe OFF lo apagamos
+  if (incoming == "ON") {
+    digitalWrite(LED, HIGH);
+  } else if (incoming == "OFF") {
+    digitalWrite(LED, LOW);
+  }
+  incoming = "";
+  Serial.println();
+}
+
+// definimos el cliente y le pasamos conexión Ethernet
+EthernetClient ethClient;
+PubSubClient client(mqqt_broker, mqtt_port, callback, ethClient);
+
+// definimos la función de reconexión
+void reconnect() {
+  
+  while (!client.connected()) {
+    Serial.println("Connecting to MQTT...");
+    String clientId = "ESP32Client_Ethernet";
+    
+    if (client.connect(clientId.c_str(), mqtt_username, mqtt_password)) {
+      Serial.println("connected");
+      Serial.println(client.state());
+      if (client.subscribe(mqtt_topic)) {
+        Serial.printf("Subscribed to %s\n", mqtt_topic);
+      }
+    } else {
+      Serial.print("failed with state ");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+      delay(5000);
+    }
+  }
+}
+// -----------------------------------------------
+void setup() {
+  // frecuencia de operación del ESP32 a 240 MHz
+  setCpuFrequencyMhz(240);
+  // iniciamos la comunicación serial
+  Serial.begin(115200);
+  //PIN de salida
+  pinMode(LED, OUTPUT);
+  // escribimos en el pin de salida
+  digitalWrite(LED, LOW);
+
+  // definimos la conexión Ethernet
+  Ethernet.init(21); // CS pin 21
+  Ethernet.begin(mac); //use DHCP al pasar solo la MAC
+
+  if (Ethernet.hardwareStatus() == EthernetNoHardware) {
+    Serial.println("Failed to initialize Ethernet using DHCP - cannot run without Ethernet hardware");
+    while (true) {
+      delay(1);
+    }
+  }
+
+  if (Ethernet.linkStatus() == LinkOFF) {
+    Serial.println("Ethernet cable is not connected.");
+    while (true) {
+      delay(1);
+    }
+  }
+
+  Serial.print("IP address: ");
+  Serial.println(Ethernet.localIP());
+
+  delay(1500);
+}
+// -----------------------------------------------
+void loop() {
+  if (!client.connected()) {
+    reconnect();
+  }
+  client.loop();
+}
+```
 
 - - -
 
