@@ -90,7 +90,9 @@
     - [LIBRERÍA PUBSUBCLIENT DE ESP32 PARA MQTT](#librería-pubsubclient-de-esp32-para-mqtt)
     - [CONEXIÓN SEGURA CON TLS EN EL CLIENTE ESP32](#conexión-segura-con-tls-en-el-cliente-esp32)
     - [CONEXIÓN A EMQX CON ETHERNET Y MÓDULO W5500](#conexión-a-emqx-con-ethernet-y-módulo-w5500)
-  - [S8 - CLIENTE ARDUINO UNO](#s8---cliente-arduino-uno)
+  - [S8 - CLIENTE ARDUINO UNO R3](#s8---cliente-arduino-uno-r3)
+    - [ARDUINO-MQTT-ETHERNET](#arduino-mqtt-ethernet)
+    - [CONEXIÓN MQTT CON SIM800 GSM](#conexión-mqtt-con-sim800-gsm)
   - [S9 - CLIENTE PHP](#s9---cliente-php)
   - [S10 - CLIENTE MQTT CON VUE.JS V3 POR WS Y WSS](#s10---cliente-mqtt-con-vuejs-v3-por-ws-y-wss)
   - [S11 - CLIENTE MQTT CON NODE.JS](#s11---cliente-mqtt-con-nodejs)
@@ -2082,7 +2084,291 @@ void loop() {
 
 - - -
 
-## S8 - CLIENTE ARDUINO UNO
+## S8 - CLIENTE ARDUINO UNO R3
+
+### ARDUINO-MQTT-ETHERNET
+
+![alt text](image-11.png "Conexión Arduino Uno R3y ENC20J60")
+
+El código para el Arduino Uno R3, utilizando el IDE de Arduino, es el siguiente:
+
+```c
+#include <PubSubClient.h>
+#include <UIPEthernet.h>
+
+#define LED 4
+
+// MQTT Broker
+const char* broker = "38.0.101.101";
+const int port = 1883;
+const char* topic = "esp32/led";
+const char* username = "emqx";
+const char* password = "public";
+
+EthernetClient ethClient;
+PubSubClient client(broker, port, callback, ethClient);
+
+// función de reconexión
+void reconnect() {  
+  While (!client.connected()) {
+    Serial.println("Connecting to MQTT...");
+    String clientId = "ESP32Client_Ethernet";
+    
+    if (client.connect(clientId.c_str(), username, password)) {
+      Serial.println("connected");
+      Serial.println(client.state());
+      if (client.subscribe(topic)) {
+        Serial.printf("Subscribed to %s\n", topic);
+      }
+    } else {
+      Serial.print("failed with state ");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+      delay(5000);
+    }
+  }
+}
+
+// función callback para recibir mensajes MQTT
+void callback(char* topic, byte* payload, unsigned int length) {
+  
+  String incoming = "";
+  Serial.print("Message arrived [");
+  Serial.print(topic);
+  Serial.print("] ");
+  for (int i = 0; i < length; i++) {
+    incoming += ((char)payload[i]);
+  }
+  incoming.trim();
+  // si recibe un ON encendemos el LED y si recibe OFF lo apagamos
+  Serial.print("Mensaje: " + incoming);
+
+  if (incoming == "ON") {
+    turnOnLed();
+  } else if (incoming == "OFF") {
+    turnOffLed();
+  }
+  incoming = "";
+  Serial.println();
+}
+
+// turnOnLed() y turnOffLed()
+void turnOnLed() {
+  Serial.println("Encendiendo LED");
+  digitalWrite(LED, HIGH);
+  client.publish(topic, "ON");
+}
+void turnOffLed() {
+  Serial.println("Apagando LED");
+  digitalWrite(LED, LOW);
+  client.publish(topic, "OFF");
+}
+
+// -----------------------------------------------
+void setup() {
+  Serial.begin(115200);
+  pinMode(LED, OUTPUT);
+  digitalWrite(LED, LOW);
+
+  uint8_t mac[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05 };
+  Ethernet.begin(mac);  // use DHCP al pasar solo la MAC
+
+  Serial.println(Ethernet.localIP());
+  Serial.println(Ethernet.subnetMask());
+  Serial.println(Ethernet.gatewayIP());
+  Serial.println(Ethernet.dnsServerIP());
+
+  //client.setServer(broker, port);
+  client.setCallback(callback);
+}
+// -----------------------------------------------
+void loop() {
+  if (!client.connected()) {
+    reconnect();
+  }
+  client.loop();
+}
+```
+
+Ahora desde un Cliente MQTT, podemos hacer las siguientes pruebas:
+
+- Si envías un mensaje "ON" se encenderá el LED.
+- Si envías un mensaje "OFF" se apagará el LED.
+- Si envías cualquier otro mensaje se enviará un mensaje de error.
+- Si envías un mensaje vacío se enviará un mensaje de error.
+
+### CONEXIÓN MQTT CON SIM800 GSM
+
+![alt text](image-12.png "Conexión SIM800 GSM")
+
+Código para el Arduino Uno R3:
+
+```c
+#include <PubSubClient.h>
+#include <TinyGsmClient.h>
+
+// MoDEM SIM800
+#define TINY_GSM_MODEM_SIM800
+
+// set serial for debug console (to the Serial Monitor, default speed 115200)
+#define SerialMon Serial
+
+// or software serial for UNO, Nano, 
+#include <SoftwareSerial.h>
+SoftwareSerial SerialAT(10, 11); // RX, TX
+
+// rango to attempt to autobaud to the module GSM
+#define GSM_AUTOBAUD_MIN 9600
+#define GSM_AUTOBAUD_MAX 115200
+
+// modo de uso de la librería TinyGSM
+#define TINY_GSM_USE_GPRS true  //2G = true, 3G = false
+#define TINY_GSM_USE_WIFI false
+
+// PIN SIM
+#define SIM_PIN ""
+
+// Your GPRS credentials
+// Leave empty, if missing user or pass
+const char apn[]  = "internet";
+const char user[] = "";
+const char pass[] = "";
+
+// MQTT Broker
+const char* broker = "38.0.101.101";
+const int port = 1883;
+const char* username = "emqx";
+const char* password = "public";
+
+const char* topicled = "esp32/led";
+const char* topicinit = "esp32/init";
+const char* topicstatus = "esp32/status";
+const char* topicPing = "esp32/ping";
+
+TinyGsm modem(SerialAT);
+TinyGsmClient client(modem);
+PubSubClient mqtt(client);
+
+#define LED 13
+int ledState = LOW;
+
+long lastReconnectAttempt = 0;
+long lastPing = 0;
+unisigned long t = 0;
+
+// función mqttcallback para recibir mensajes MQTT
+void mqttcallback(char* topic, byte* payload, unsigned int length) {
+  Serial.print("Message arrived [");
+  Serial.print(topic);
+  Serial.print("] ");
+  
+  Serial.write(payload, length);
+  Serial.println();
+
+  //only proceed if the message's topic matches the topic we're subscribed to
+  if (string(topic) == topicled) {
+    ledState = !ledState;
+    digitalWrite(LED, ledState);
+    mqtt.publish(topicstatus, ledState ? "ON" : "OFF");
+  }
+}
+
+// función boolean mqttConnect() para reconectar
+boolean mqttConnect() {
+  Serial.print("Connecting to ");
+  Serial.print(broker);
+  Serial.println(" as ");
+  Serial.println(username);
+
+  // Connect to MQTT Broker
+  boolean status = mqtt.connect("arduinoClient", username, password);
+
+  if (status == false) {
+    Serial.println("Connect MQTT failed");
+    return false;
+  }
+
+  Serial.println("Connected to mqtt broker success!");
+
+  mqtt.publish(topicinit, "GSM Client Subscribed and started");
+  mqtt.subscribe(topicled)
+  
+  return mqtt.connected();
+}
+
+// -----------------------------------------------
+void setup() {
+  Serial.begin(115200);
+  delay(10);
+
+  pinMode(LED, OUTPUT);
+  digitalWrite(LED, LOW);
+
+  SerialMon.begin("Waiting for modem...");
+  SerialAT.begin(9600);
+  delay(3000);
+  SerialMon.println("Modem init");
+  modem.restart();
+  modem.init(GSM_AUTOBAUD_MIN, GSM_AUTOBAUD_MAX);
+
+  String modemInfo = modem.getModemInfo();
+  SerialMon.print("Modem Info: ");
+  SerialMon.println(modemInfo);
+
+  #if TINY_GSM_USE_GPRS
+  // Unlock your SIM card with a PIN if needed
+  if (strlen(SIM_PIN) && modem.getSimStatus() != 3 ) {
+    modem.simUnlock(SIM_PIN);
+  }
+  #endif
+
+  #if TINY_GSM_USE_GPRS && defined TINY_GSM_MODEM_XBEE
+  // The XBee must run the gprsConnect() function before using HTTPS
+  modem.gprsConnect(apn, gprsUser, gprsPass);
+  #endif
+
+  #if TINY_GSM_USE_GPRS
+  Serial.print("Waiting for network...");
+  if (!modem.gprsConnect(apn, gprsUser, gprsPass)) {
+    SerialMon.println(" fail GSM network");
+    delay(10000);
+    return;
+  }
+  SerialMon.println(" success GSM network");
+
+  if (modem.isGprsConnected()) {
+    SerialMon.println("GPRS Network connected");
+  }
+  #endif
+
+  mqtt.setServer(broker, port);
+  mqtt.setCallback(mqttcallback);
+}
+
+// -----------------------------------------------
+void loop() {
+  t = millis();
+
+  if (!mqtt.connected()) {
+    Serial.println("MQTT not connected");
+
+    if (t - lastReconnectAttempt > 1000L) {
+      lastReconnectAttempt = t;
+      // Attempt to reconnect
+      if (mqttConnect()) {
+        lastReconnectAttempt = 0;
+      }
+    }
+    delay(100);
+    return;
+  } else if (t - lastPing > 5000L) {
+    lastPing = t;
+    mqtt.publish(topicPing, "ping");
+    t = millis();
+  }
+    mqtt.loop();
+}
+```
 
 - - -
 
