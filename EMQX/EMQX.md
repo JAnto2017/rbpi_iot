@@ -94,6 +94,11 @@
     - [ARDUINO-MQTT-ETHERNET](#arduino-mqtt-ethernet)
     - [CONEXIÓN MQTT CON SIM800 GSM](#conexión-mqtt-con-sim800-gsm)
   - [S9 - CLIENTE PHP](#s9---cliente-php)
+    - [INSTALACIÓN DE COMPOSER EN UBUNTU SERVER](#instalación-de-composer-en-ubuntu-server)
+    - [DEFINICIÓN DE CLIENTE PHP](#definición-de-cliente-php)
+    - [PROGRAMA PARA ESP32 ENVÍO DE TEMPERATURA POR MQTT](#programa-para-esp32-envío-de-temperatura-por-mqtt)
+    - [ALMACENAR DATOS DE TEMPERATURA EN BD DESDE MQTT](#almacenar-datos-de-temperatura-en-bd-desde-mqtt)
+    - [SERVICIO PHP LADO SERVIDOR CRONTAB GUARDAR EN BD DESDE MQTT](#servicio-php-lado-servidor-crontab-guardar-en-bd-desde-mqtt)
   - [S10 - CLIENTE MQTT CON VUE.JS V3 POR WS Y WSS](#s10---cliente-mqtt-con-vuejs-v3-por-ws-y-wss)
   - [S11 - CLIENTE MQTT CON NODE.JS](#s11---cliente-mqtt-con-nodejs)
   - [S12 - INSTALACIÓN EMQX CON DOCKER](#s12---instalación-emqx-con-docker)
@@ -2373,6 +2378,332 @@ void loop() {
 - - -
 
 ## S9 - CLIENTE PHP
+
+Conexión al Broker MQTT con PHP.
+
+Creamos una carpeta de trabajo dentro de `/var/www/` y dentro de ella creamos un debemos añadir la librería `phpMQTT` descargada del GitHub [bluerhinos/phpMQTT](https://github.com/bluerhinos/phpmqtt).
+
+Para su instalación, requiere de [Composer](https://getcomposer.org/), gestor de paquetes para PHP.
+
+- `composer require bluerhinos/phpmqtt=@dev`
+
+Tras la instalación, se crean los archivos: `composer.json` y `composer.lock` y la carpeta `vendor` y, a su vez, dentro de `vendor`se crea el archivo `phpMQTT.php` que es la librería que utiizaremos, todo ello dentro de la carpeta de trabajo.
+
+### INSTALACIÓN DE COMPOSER EN UBUNTU SERVER
+
+- `sudo apt update`
+- `sudo apt install php-cli` -> instala el interprete de PHP si no lo tienes
+- `sudo apt install unzip`
+- `sudo apt install curl`
+- `sudo apt install git`
+- `curl -sS https://getcomposer.org/installer -o composer-setup.php`
+- `sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer`
+- `rm composer-setup.php` -> borra el archivo temporal
+- `composer --version` -> comprueba la instalación
+
+### DEFINICIÓN DE CLIENTE PHP
+
+Dentro de la carpeta de trabajo, y dentro de la carpeta `vendor` creamos un archivo `mqtt.php` con el siguiente contenido:
+
+```php
+<?php
+
+require_once __DIR__ . '/vendor/autoload.php';
+//require(vendor/autoload.php);
+
+
+use Bluerhinos\phpMQTT;
+//use \Bluerhinos\phpMQTT;
+
+
+$server = "192.168.1.41";
+$port = 1883;
+$username = "emqx";
+$password = "public";
+$clientId = 'phpMQTT-'.rand(5, 15);
+$topicPub = "phpMQTT/testpublish";
+$topicSub = "phpMQTT/testsubcribe";
+
+$mqtt = new phpMQTT($server, $port, $clientId, null);
+
+$conex_ok = $mqtt->connect(fase, null, $username, $password);
+
+if ($conex_ok) {
+  $mqtt->publish($topicPub, "Hello World from PHP", '', 0, false);
+  
+  //topicos a suscribirse
+  $topicos[$topicSub] = array("qos" => 0, "function" => "phpMQTTsubcribe");
+  
+  $mqtt->subscribe($topicos);
+  //$mqtt->close();
+}
+
+// definición de la función que recibe los mensajes del MQTT al que se está suscrito
+function phpMQTTsubcribe($topic, $message) {
+  echo "Topic: $topic\n";
+  echo "Message: $message\n";
+}
+
+// bucle que está escuchando continuamente
+while ($mqtt->proc()) {
+  
+}
+
+//$mqtt->close();
+?>
+```
+
+[Archivo PHP](mqtt.php)
+
+Tras crear el programa, para su ejecución, debemos entrar en la carpeta de trabajo y ejecutar el siguiente comando:
+
+```bash
+php mqtt.php
+```
+
+En el Cliente MQTT que previamente debe estar funcionando y suscrito al Topic correspondiente, veríamos el mensaje enviado por el Cliente PHP. Lo mismo sucedería a la inversa, es decir, si enviamos un mensaje desde el Cliente PHP, lo recibimos en el Cliente MQTT.
+
+### PROGRAMA PARA ESP32 ENVÍO DE TEMPERATURA POR MQTT
+
+Sensor usado el DALLAS DS18B20. Donde, el Pin 1 es GND, el Pin 2 es Data y el Pin 3 es 3,3 Vcc. Entre Pin 2 y Pin 3 tenemos el resistor de 4,7 k$\Omega$.
+
+![alt text](image-13.png "Esquema de conexión del ESP32 con el DS18B20")
+
+- [Leer Temperatura por MQTT](https://github.com/anto/cursoCEP/blob/main/EMQX/leer+ds18b20.py)
+
+Configuración del archivo `platformio.ini`:
+
+```ini
+[env:esp32doit-devkit-v1]
+platform = espressif32
+board = esp32doit-devkit-v1
+framework = arduino
+;librerías usadas
+lib_deps =
+    knolleary/PubSubClient@^2.8
+    arduino-libraries/Ethernet@^2.0.1
+    ; Temp
+    paulstoffregen/OneWire@^2.3.7
+    milesburton/DallasTemperature@^3.9.1
+;Serial monitor speed 
+monitor_speed = 115200
+;monitor_port = /dev/ttyUSB0 ;para linux
+monitor_port = COM3 ;para windows
+
+upload_speed = 921600
+;upload_port = /dev/ttyUSB0 ;para linux
+upload_port = COM3 ;para windows
+;upload_protocol = esptool
+```
+
+Configuración del archivo `main.cpp`:
+
+```cpp
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#include <PubSubClient.h>
+#include <Arduino.h>
+#include <WiFi.h>
+#include <Ethernet.h>
+
+//MQTT Broker
+const char* mqtt_server = "192.168.1.41";
+const int mqtt_port = 1883;
+const char* mqtt_user = "emqx";
+const char* mqtt_password = "public";
+const char* mqtt_client_id = "esp32doit-devkit-v1";
+const char* mqtt_topic = "esp32/temperatura";
+
+//PUBLICAR TEMPERATURA
+const char* temp_topic = "esp32/temperatura";
+long lastMsgMQTT = 0;
+
+#define LED 32
+#define ONE_WIRE_BUS 4
+
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
+
+byte mac[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05 };
+
+void callback(char* topic, byte* payload, unsigned int length) {
+  String incoming = "";
+  Serial.print("Message arrived [");
+  Serial.print(topic);
+  Serial.print("] ");
+  for (int i = 0; i < length; i++) {
+    incoming += ((char)payload[i]);
+  }
+  incoming.trim();
+  Serial.println("Message: " + incoming);
+
+  if (incoming == "ON") {
+    digitalWrite(LED, HIGH);
+  } else if (incoming == "OFF") {
+    digitalWrite(LED, LOW);
+  }
+}
+
+EthernetClient ethClient;
+PubSubClient client(mqtt_server, mqtt_port, callback, ethClient);
+
+void reconnect() {
+  while (!client.connected()) {
+    Serial.print("Attempting MQTT connection...");
+    if (client.connect(mqtt_client_id, mqtt_user, mqtt_password)) {
+      Serial.println("connected");
+      client.subscribe(temp_topic);
+      if (client.subscribe(temp_topic)) {
+        Serial.println("Subscribed to topic %s\r\n", temp_topic);
+      }
+    } else {
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+      delay(5000);
+    }
+  }
+}
+
+// envío de datos por MQTT
+void mqtt_publish() {
+  //leer valores del sensor
+  Serial.println("Leyendo valores del sensor");
+  sensors.requestTemperatures();
+  float tempC = sensors.getTempCByIndex(0);
+
+  //envío de datos por MQTT
+  if (tempC != DEVICE_DISCONNECTED_C) {
+    Serial.print("Publish message: ");
+    Serial.println(tempC);
+    // empaquetar los datos y enviar por MQTT con JSON
+    // { "temperatura": "23.5" }
+    String mqtt_data = "{\"temperatura\":" + String(tempC) +"\" }";
+    client.publish(temp_topic, mqtt_data.c_str());
+  } else {
+    Serial.println("Error al leer el sensor");   
+  }
+}
+
+void setup() {
+  SetCpuFrequencyMhz(240);
+  Serial.begin(115200);
+
+  pinMode(LED, OUTPUT);
+  digitalWrite(LED, LOW);
+
+  Ethernet.init(21);  //CS pin 21
+  Ethernet.begin(mac);
+
+  if (Ethernet.hardwareStatus() == EthernetNoHardware) {
+    Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+    while (true) {
+      delay(1); // do nothing, no point running without Ethernet hardware
+    }  
+  }
+
+  if (Ethernet.linkStatus() == LinkOFF) {
+    Serial.println("Ethernet cable is not connected.");
+  }
+
+  Serial.print("IP address: ");
+  Serial.println(Ethernet.localIP());
+
+  delay(1000);
+
+  sensors.begin();
+}
+
+void loop() {
+  if (!client.connected()) {
+    reconnect();
+  }
+
+  client.loop();
+
+  // publicar cada 60 segundos
+  if (client.connected()) {
+    if (millis() - lastMsgMQTT > 60000) {
+      mqtt_publish();
+      lastMsgMQTT = millis();
+    }
+  }
+}
+```
+
+### ALMACENAR DATOS DE TEMPERATURA EN BD DESDE MQTT
+
+El objetivo es guardar en una base de datos, los valores de temperatura enviados por el ESP32 a traves de MQTT.
+
+En el programa PHP, tenemos que suscribirnos al Topic correspondiente que utiliza ESP32 para publicar los datos.
+
+```php
+$topic = "esp32/temperatura";
+
+...
+// función para subscribirnos al Topic de ESP32 en objeto JSON
+function phpMQTTsubcribe($topic, $message) {
+  //echo "Topic: $topic\n";
+  //echo "Message: $message\n";
+
+  //variabes JSON
+  $json = json_decode($message, true);
+  //$json = json_encode($message);
+  // {"temperatura": "23.5" }
+  // permite extraer el valor de la clave "temperatura"
+  $send = isset($json["tempC"]) ? $json["tempC"] : $message;
+  echo 'mensaje: '.$send;
+}
+
+// bucle que está escuchando continuamente
+while ($mqtt->proc()) {
+  
+}
+```
+
+[Archivo PHP con MQTT y BD](emqxbd.php)
+
+Creamos una base de datos en MySQL con el siguiente script:
+
+```sql
+CREATE TABLE datos (
+  id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  topic VARCHAR(50),
+  tempC VARCHAR(50)
+);
+```
+
+### SERVICIO PHP LADO SERVIDOR CRONTAB GUARDAR EN BD DESDE MQTT
+
+Para conseguir que el servicio quede ejecutando constantemente, usaremos el servicio _crontab_.
+
+Los _contrab_ son funciones temporizadas que se ejecutan en un intervalo de tiempo determinado. Por defecto están el sistemas Linux.
+
+En la ruta `/var/www/html/mqtt/`. Y copiamos todo el contenido del Vendor editamos el archivo `mqtt.php`.
+
+Para dejar funcionando el servicio, debemos editar el archivo `/etc/crontab` y agregar la siguiente linea:
+
+```bash
+* * * * * root /usr/bin/php /var/www/html/mqtt/mqtt.php
+```
+
+Una página web en línea que nos permite configurar las funciones crontab es [crontab.guru](https://crontab.guru/).
+
+Ejemplo de crontab:
+
+- minutos
+- horas
+- dias del mes
+- meses
+- dias de la semana
+
+```bash
+# At minute 1 
+# root
+# indica quién ejecuta
+# donde está alojado el script
+1 * * * * root /usr/bin/php /var/www/html/mqtt/mqtt.php
+```
 
 - - -
 
