@@ -100,6 +100,20 @@
     - [ALMACENAR DATOS DE TEMPERATURA EN BD DESDE MQTT](#almacenar-datos-de-temperatura-en-bd-desde-mqtt)
     - [SERVICIO PHP LADO SERVIDOR CRONTAB GUARDAR EN BD DESDE MQTT](#servicio-php-lado-servidor-crontab-guardar-en-bd-desde-mqtt)
   - [S10 - CLIENTE MQTT CON VUE.JS V3 POR WS Y WSS](#s10---cliente-mqtt-con-vuejs-v3-por-ws-y-wss)
+    - [INTRODUCCIÓN CLIENTE VUE 3 Y MQTT](#introducción-cliente-vue-3-y-mqtt)
+    - [INSTALACIÓN DE VUE 3](#instalación-de-vue-3)
+    - [PROYECTO DE VUE 3](#proyecto-de-vue-3)
+    - [BOOTSTRAP Y VUE 3](#bootstrap-y-vue-3)
+    - [AÑADIENDO EL JAVASCRIPT A NUESTRO EN VUE 3](#añadiendo-el-javascript-a-nuestro-en-vue-3)
+    - [INSTALAR LIBRERÍA MQTT](#instalar-librería-mqtt)
+    - [CONEXIÓN MQTT EN VUE 3](#conexión-mqtt-en-vue-3)
+    - [DESTRUIR CONEXIÓN Y FUNCIONES TOAST](#destruir-conexión-y-funciones-toast)
+    - [SUSCRIBIRSE A UN TÓPICO CON VUE 3](#suscribirse-a-un-tópico-con-vue-3)
+    - [UNSUBSCRIBE DE UN TÓPICO CON VUE 3](#unsubscribe-de-un-tópico-con-vue-3)
+    - [PUBLISHER DE UN TÓPICO CON VUE 3](#publisher-de-un-tópico-con-vue-3)
+    - [RECEIVER DE UN TÓPICO CON VUE 3](#receiver-de-un-tópico-con-vue-3)
+    - [GENERAR ARCHIVOS PARA UTILIZAR EN LA PRODUCCIÓN (SERVIDOR WEB CLOUD)](#generar-archivos-para-utilizar-en-la-producción-servidor-web-cloud)
+    - [APP EN NETLIFY](#app-en-netlify)
   - [S11 - CLIENTE MQTT CON NODE.JS](#s11---cliente-mqtt-con-nodejs)
   - [S12 - INSTALACIÓN EMQX CON DOCKER](#s12---instalación-emqx-con-docker)
   - [S13 - INSTALACIÓN EMQX V5.8.0 USANDO DOCKER COMPOSE](#s13---instalación-emqx-v580-usando-docker-compose)
@@ -2708,6 +2722,597 @@ Ejemplo de crontab:
 - - -
 
 ## S10 - CLIENTE MQTT CON VUE.JS V3 POR WS Y WSS
+
+### INTRODUCCIÓN CLIENTE VUE 3 Y MQTT
+
+Usando VUE 3, se puede crear un cliente MQTT con WebSockets y WebSockets Secure.
+
+- [Documentación VUE 3](https://v3.vuejs.org/guide/quick-start.html)
+
+### INSTALACIÓN DE VUE 3
+
+Se debe instalar Node.js y NPM que es el gestor de paquetes de JavaScript.
+
+```bash
+sudo apt-get install nodejs
+sudo apt-get install npm
+```
+
+- [Node.js](https://nodejs.org/en/download/)
+- [NPM](https://www.npmjs.com/get-npm)
+- [VUE 3 Quick Start](https://v3.vuejs.org/guide/quick-start.html)
+- [VUE 3 Installation](https://es.vuejs.org/v2/guide/installation)
+- [VUE CLI Installation](https://cli.vuejs.org/guide/installation.html)
+
+VUE 3 es un framework de JavaScript que utiliza WebSockets y WebSockets Secure.
+
+- `sudo npm install -g @vue/cli`
+- `vue create my-project`
+- `cd my-project`
+- `npm run serve`
+- `npm run build`
+- `cd dist`
+- `http://localhost:8080`
+- `http://localhost:8080/index.html`
+- `http://localhost:8080/404.html`
+- `http://localhost:8080/js/app.js`
+- `http://localhost:8080/js/chunk-vendors.js`
+- `http://localhost:8080/css/app.css`
+- `http://localhost:8080/img/logo.png`
+- `http://localhost:8080/img/logo.2d1fd6e4.png`
+- `http://localhost:8080/img/logo.2d1fd6e4.svg`
+
+Añadir a Chrome la extensión `Vue.js Devtools` y activarla.
+
+- [Vue.js Devtools](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
+- [Vue.js Devtools](https://github.com/vuejs/vue-devtools)
+- [Vue.js Devtools](https://github.com/vuejs/vue-devtools/blob/master/README.md)
+
+### PROYECTO DE VUE 3
+
+Creamos una carpeta para alojar el proyecto.
+
+[VUE MQTT](/EMQX/vue_mqtt/)
+
+Creamos un proyecto con VUE ejecutando el siguiente comando:
+
+```bash
+vue create vue_mqtt
+```
+
+Seleccionar de forma manual la opción:
+
+- [X] `Manually select features`.
+
+De las opciones disponibles, seleccionar con la barra espaciadora las siguientes opciones:
+
+- [X] Babel
+- [ ] TypeScript
+- [ ] Progressive Web App (PWA)
+- [ ] Router
+- [ ] Vuex
+- [ ] CSS Pre-Processors
+- [ ] Linter / Formatter
+- [ ] Unit Tests
+- [ ] E2E Tests
+
+De las dos opciones disponibles, seleccionar con la barra espaciadora la siguiente:
+
+- [X] 3.x
+- [ ] 2.x
+
+De las dos opciones disponibles, seleccionar con la barra espaciadora la siguiente:
+
+- [X] In dedicated config files
+- [ ] In package.json
+
+En la opción `Save this as a preset for future projects`, seleccionar con la barra espaciadora la siguiente:
+
+- [X] No
+- [ ] Yes
+
+A partir de ahora, comienza a crear el proyecto. De las dos sugerencias disponibles, `Get started with the following commands` realizar las dos acciones siguientes:
+
+- [X] `cd vue_mqtt`
+- [X] `npm run serve`
+
+Donde se abrirá un servidor en la URL `http://localhost:8081/` en _localhost_; y `http://192.168.1.100:8081/` en la red.
+
+Si abrimos un navegaror en la URL `http://localhost:8081/` veremos la siguiente pantalla:
+
+![alt text](image-14.png "Servidor VUE en localhost")
+
+En el árbol del directorio del proyecto, veremos el archivo `package.json` y el archivo `vue.config.js`.
+
+En el archivo `package.json` nos sirve para instalar las dependencias del proyecto. Y en el archivo `vue.config.js` nos sirve para configurar el proyecto.
+
+En el archivo `index.html` nos sirve para la página web está dentro de la carpeta `public` junto con el archivo `favicon.ico`.
+
+En la carpeta `src` nos sirve para alojar el proyecto. Y dentro de la carpeta `components` nos sirve para alojar los componentes del proyecto, como es el archivo `HelloWorld.vue` y el `App.vue` que es el componente principal del proyecto.
+
+El mensaje _Note that the development build is not optimized. To create a production build, run_ `npm run build`.
+
+### BOOTSTRAP Y VUE 3
+
+Para iniciar el proyecto, ejecutar el siguiente comando: `npm run serve`.
+
+En el fichero `App.vue` podemos modificar el contenido del mensaje para mostrarlo en la pantalla.
+
+```html
+<template>
+  <div id="app">
+    <img alt="Vue logo" src="./assets/logo.png">
+    <HelloWorld msg="Welcome to MQTT with Vue.js App"/>
+  </div>
+</template>
+```
+
+Instalando la librería [Bootstrap(https://getbootstrap.com/)].
+
+```bash
+; opción 1
+npm install bootstrap@5.3.8
+
+; opcion 2
+npm install bootstrap --save
+```
+
+También se instalará _propper.js_ para poder usar Bootstrap.:
+
+```bash
+npm install @popperjs/core --save
+```
+
+Se puede usar Bootstrap usando las CDN vía jsDelivr:
+
+- `<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">`
+
+- `<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>`
+
+Ejemplo de uso de Bootstrap, podemos crear la estructura de la página web de la siguiente manera:
+
+```html
+<template>
+  <div id="app">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <img alt="Vue logo" src="./assets/logo.png">
+          <HelloWorld msg="Welcome to MQTT with Vue.js App"/>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+```
+
+Para utilizar Bootstrap en nuestro proyecto, nos vamos al fichero `main.js` y agregamos lo siguiente:
+
+```js
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
+```
+
+Bootstrap previamente se ha instalado en la carpeta `node_modules` del proyecto.
+
+Añadimos un _Button_ en el archivo `App.vue`:
+
+```html
+<button type="button" class="btn btn-primary">Primary</button>
+```
+
+Creamos un nuevo componente dentro de la carpeta `components` llamado `mqttVUE.vue` y añadimos la estructura siguiente:
+
+```html
+<template>
+<!-- Aquí todo el contenido HTML -->
+</template>
+
+<script setup>
+/* Aquí todo el contenido JavaScript */
+/* usando la etiqueta setup no se necesita exportar nada */
+</script>
+
+<style>
+/* Aquí todo el contenidos de estilos en CSS */
+</style>
+```
+
+En el fichero `App.vue` le indicamos que se cargue el componente `mqttVUE.vue`:
+
+```html
+<script setup>
+  import mqttVUE from './components/mqttVUE.vue'
+</script>
+```
+
+### AÑADIENDO EL JAVASCRIPT A NUESTRO EN VUE 3
+
+Los Composer se funciones que podemos crear en un archivo externo, usando Javascript y luego lo importamos en nuestro proyecto.
+
+Creamos una carpeta en `src` llamada `composables` y dentro de ella creamos el archivo `useMQTTservice.js`:
+
+```js
+import { reactive, ref } from 'vue'
+
+const useMQTTservice = () => {
+  const qosList = [0, 1, 2]
+  const connection = reactive({
+    protocol: 'ws',
+    host: 'localhost',
+    port: 8083,
+    endpoint: '/mqtt',
+    clean: true,
+    keepalive: 60,
+    connectTimeout: 40000, //ms
+    reconnectPeriod: 4000, //ms
+    clientId: 'mqtt_vue3_client_' + Math.random().toString(16).substr(2, 8),
+    username: 'emqx_test',
+    password: 'emqx_test',
+  })
+}
+
+export default useMQTTservice
+```
+
+En el fichero de `mqttVUE.vue` importamos el archivo `useMQTTservice.js`:
+
+```js
+<script setup>
+  import { useMQTTservice } from '@/composables/useMQTTservice'
+</script>
+```
+
+### INSTALAR LIBRERÍA MQTT
+
+Instalar la librería [MQTT.js`](https://github.com/mqttjs) desde repo de GitHub. Para la instalación se usa el siguiente comando:
+
+```bash
+npm install mqtt --save
+```
+
+En nuestro proyecto, debemos importar la librería:
+
+```js
+import mqtt from 'mqtt'
+```
+
+Se puede realizar la importación desde el fichero `main.js` o desde el archivo creado en la carpeta `composables`.
+
+Esta librería causa un error, para solucionarlo, debemos instalar:
+
+- `npm install process`
+- `npm install buffer`
+
+Además de, añadir en el archivo `vue.config.js` la siguiente configuración:
+
+```js
+const webpack = require('webpack');
+
+module.exports = {
+  configureWebpack: {
+    plugins: [
+      new webpack.ProvidePlugin({
+        process: 'process/browser',
+        Buffer: ['buffer', 'Buffer'],
+      }),
+    ],
+  },
+};
+```
+
+La solución anterior, no funcionó. Se uso la siguiente solución:
+
+- `npm uninstall mqtt`
+- `npm install@4.3.7 --save`
+
+Es una versión que no usa métodos privados de clase, así que no necesita tocar Babel ni el archivo `vue.config.js`. Es la opción más simple, aunque no usa la última versión.
+
+### CONEXIÓN MQTT EN VUE 3
+
+En los campos de la página web creada con Vue 3 y Bootstrap, definimos los campos de _Conexión MQTT_.
+
+Creamos la función `connect` en el archivo `mqttVUE.vue`:
+
+```js
+function connect() {
+  console.log('Conectando con:', { ...config })
+  // Aquí irá: client = mqtt.connect(config)
+  try {
+    const connectUrl = `${config.protocol}://${config.host}:${config.port}${config.endpoint}`
+    client = mqtt.connect(connectUrl, { ...config })
+  } catch (error) {
+    console.error(error)
+  }
+  isConnected.value = true
+}
+```
+
+### DESTRUIR CONEXIÓN Y FUNCIONES TOAST
+
+Creamos la función de desconexión `disconnect` en el archivo `mqttVUE.vue`:
+
+```html
+<button class="btn btn-danger" @click="disconnect" :disabled="!isConnected">
+  Desconectar
+</button>
+```
+
+Función en Javascript:
+
+```js
+function disconnect() {
+  if (client.value.connected) {
+    try {
+      client.end()
+    } catch (error) {
+      console.error(error)
+    }
+    isConnected.value = false
+  }
+}
+```
+
+La librería [VUE Toastification](https://github.com/Maronato/vue-toastification) nos permite mostrar mensajes en pantalla. Para usarla, debemos instalarla con el siguiente comando:
+
+```bash
+npm install --save vue-toastification@next
+```
+
+Desde el archivo `main.js` importamos la librería. Para llas opciones se usar la siguiente web [VUE Toastification Options](https://vue-toastification.maronato.dev/):
+
+```js
+import Toast from 'vue-toastification'
+import 'vue-toastification/dist/index.css'
+
+const options = {
+  position: 'top-right',
+  timeout: 5000,
+  closeOnClick: true,
+  pauseOnFocusLoss: true,
+  pauseOnHover: true,
+  draggable: true,
+  draggablePercent: 0.6,
+  showCloseButtonOnHover: false,
+  hideProgressBar: true,
+  closeButton: 'button',
+  icon: true,
+  rtl: false,
+}
+
+createApp(App).use(Toast, options).mount('#app')
+```
+
+El archivo `mqttVUE.vue` contiene la siguiente importación de la librería Toast:
+
+```js
+// importación
+import { useToast } from 'vue-toastification'
+
+// Usar la librería
+ToastMsg("Entrando en la plataforma", 5000); // 5000 = 5 segundos
+ToastError("Error en la plataforma", 5000);
+ToastSuccess("Éxito en la plataforma", 5000);
+ToastWarning("Alerta en la plataforma", 5000);
+ToastInfo("Información en la plataforma", 5000);
+
+// Funciones de Toast
+const toast = useToast()
+
+const ToastMsg = (msg, time) =>{
+  toast(msg, { timeout: time });
+}
+
+const ToastError = (msg, time) => {
+  toast.error(msg, { timeout: time });
+}
+
+const ToastSuccess = (msg, time) => {
+  toast.success(msg, { timeout: time });
+}
+
+const ToastWarning = (msg, time) => {
+  toast.warning(msg, { timeout: time });
+}
+
+const ToastInfo = (msg, time) => {
+  toast.info(msg, { timeout: time });
+}
+```
+
+### SUSCRIBIRSE A UN TÓPICO CON VUE 3
+
+Creamos el objeto `subscribe` en el archivo `mqttVUE.vue`:
+
+```js
+// definimos lista de calidad de servicio
+const QosList = [0, 1, 2]
+
+const subscribe = reactive({
+  topic: '',
+  qos: 0
+})
+
+function doSubscribe() {
+  console.log('Suscribirse a:', subscribe.topic, 'QoS:', subscribe.qos)
+  client.value.subscribe(
+    subscribe.topic, 
+    { qos: subscribe.qos }
+    (err, granted) => {
+      if (err) {
+        console.error(err)
+        ToastError('Error al suscribirse al tópico', 5000)
+        return
+      }
+      ToastSuccess('Suscripción realizada con exito', 5000)
+    })
+}
+
+function doUnsubscribe() {
+  console.log('Desuscribirse de:', subscribe.topic)
+  client.unsubscribe(subscribe.topic)
+}
+```
+
+Para la llamada al objeto, desde el archivo `mqttVUE.vue`:
+
+```html
+<div class="col-md-8">
+  <label class="form-label">Topic</label>
+  <input type="text" class="form-control" v-model="subscribe.topic" placeholder="casa/salon/temperatura">
+</div>
+<div class="col-md-4">
+  <label class="form-label">QoS</label>
+  <select class="form-select" v-model.number="subscribe.qos" id="qos">
+    <option v-for="qos in QosList" 
+      :key="qos"
+      :label="qos" 
+      :value="qos">{{ qos }}
+    </option>
+  </select>
+</div>
+<div class="card-footer d-flex gap-2">
+  <button class="btn btn-primary" @click="doSubscribe" :disabled="!isConnected">
+    Suscribirse
+  </button>
+  <button class="btn btn-outline-secondary" @click="doUnsubscribe" :disabled="!isConnected">
+    Desuscribirse
+  </button>
+</div>
+```
+
+### UNSUBSCRIBE DE UN TÓPICO CON VUE 3
+
+Para la llamada al objeto, desde el archivo `mqttVUE.vue`:
+
+```html
+<div class="card-footer d-flex gap-2">
+  <button class="btn btn-primary" @click="doSubscribe" :disabled="!isConnected">
+    Suscribirse
+  </button>
+  <button class="btn btn-outline-secondary" @click="doUnsubscribe" :disabled="!isConnected">
+    Desuscribirse
+  </button>
+</div>
+```
+
+El programa enn JS se encuentra en el archivo `mqttVUE.vue`:
+
+```js
+function doUnsubscribe() {
+  console.log('Desuscribirse de:', subscribe.topic)
+  client.unsubscribe(subscribe.topic, {qos}, (err, granted) => {
+    if (err) {
+      console.error(err)
+      ToastError('Error al desuscribirse del tópico', 5000)
+      return
+    }
+    ToastSuccess('Desuscripción realizada con exito', 5000)
+  })
+}
+```
+
+### PUBLISHER DE UN TÓPICO CON VUE 3
+
+[MQTT.js](https://github.com/mqttjs/MQTT.js#publish)
+
+La función `publish()` necesita: `topic`, `payload`, `options`, `callback`.
+El programa enn JS se encuentra en el archivo `mqttVUE.vue`:
+
+```js
+// objeto publish
+const publish = reactive({
+  topic: '',
+  payload: '{ "msg": "hola" }',
+  qos: 0
+})
+
+function doPublish() {
+  console.log('Publicar en:', publish.topic, 'Contenido:', publish.message)
+  client.publish(publish.topic, publish.payload, {qos}, (err) => {
+    if (err) {
+      console.error(err)
+      ToastError('Error al publicar', 5000)
+      return
+    }
+    ToastSuccess('Publicación realizada con exito', 5000)
+  })
+}
+```
+
+### RECEIVER DE UN TÓPICO CON VUE 3
+
+El programa enn JS se encuentra en el archivo `mqttVUE.vue`:
+
+```js
+// Definimos variables de recibir mensaje y tópicos
+const receiveNews = ref('')
+const receiveTopics = ref('')
+
+// función que recibe el mensaje
+function onMessageArrived(message) {
+  try {
+    // si el mensaje llega en formato JSON
+    if (typeof message.payload.toString() === 'string') {
+      message.payload = JSON.parse(message.payload.toString())
+    } else {
+      // si el mensaje llega en formato string
+      receiveNews.value = message.payload.toString()
+      receiveTopics.value = message.topic
+    }
+  } catch (error) {
+    console.error(error)
+    recieveNews.value = message.payload.toString()
+    receiveTopics.value = message.topic
+  }
+  console.log('Mensaje recibido:', message.payload.toString() from topic:', message.topic)
+  ToastSuccess('Mensaje recibido', 5000)
+}
+```
+
+### GENERAR ARCHIVOS PARA UTILIZAR EN LA PRODUCCIÓN (SERVIDOR WEB CLOUD)
+
+Desde el árbol del directorio del proyecto, localizar el archivo `package.json` y abrirlo. Dentro tendremos que localizar el comando `'build': 'vue-cli-service build'`; este es el comando que nos sirve para generar los archivos para la producción.
+
+- `npm run build`
+
+Los archivos generados, estarán dentro de la carpeta `dist` (_distribución_), siendo los archivos que subiríamos al servidor en la nube.
+
+Para quitar algunos archivos con la extensión `.map` se realiza desde el archivos `vue.config.js` escribiendo los siguientes comandos:
+
+```js
+module.exports = defineConfig({
+  filenameHashing: false,
+  productionSourceMap: false,
+  ...
+}
+```
+
+Si quisiéramos incluir los CSS dentro de los JS, se realiza desde el archivos `vue.config.js` escribiendo los siguientes comandos:
+
+```js
+module.exports = defineConfig({
+  transpileDependencies: true,
+  css: {
+    extract: false
+  },
+  configureWebpack: {
+    optimization: {
+      splitChunks: false
+    },
+    ...
+  },
+  ...
+}
+```
+
+Genera un solo archivo `app.js` con todos los JS y CSS, listo para exportar al servidor junto con el archivo `index.html` y otros archivos.
+
+### APP EN NETLIFY
+
+[Netlify](https://www.netlify.com/)
+
+Es un servicio que permite subir nuestro proyecto, y nos suministra una url temporarl para acceder a nuestra app.
 
 - - -
 
