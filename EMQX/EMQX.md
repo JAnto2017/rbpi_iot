@@ -115,6 +115,8 @@
     - [GENERAR ARCHIVOS PARA UTILIZAR EN LA PRODUCCIÓN (SERVIDOR WEB CLOUD)](#generar-archivos-para-utilizar-en-la-producción-servidor-web-cloud)
     - [APP EN NETLIFY](#app-en-netlify)
   - [S11 - CLIENTE MQTT CON NODE.JS](#s11---cliente-mqtt-con-nodejs)
+    - [INSTALACIONES Y CONFIGURACIONES INICIALES DE NODE.JS](#instalaciones-y-configuraciones-iniciales-de-nodejs)
+    - [CREACIÓN DEL EJECUTABLE PARA WINDOWS Y LINUX](#creación-del-ejecutable-para-windows-y-linux)
   - [S12 - INSTALACIÓN EMQX CON DOCKER](#s12---instalación-emqx-con-docker)
   - [S13 - INSTALACIÓN EMQX V5.8.0 USANDO DOCKER COMPOSE](#s13---instalación-emqx-v580-usando-docker-compose)
   - [S14 - PLATAFORMA IOT CLOUD V1 CONTROL CON ESP32 Y MQTT](#s14---plataforma-iot-cloud-v1-control-con-esp32-y-mqtt)
@@ -3317,6 +3319,158 @@ Es un servicio que permite subir nuestro proyecto, y nos suministra una url temp
 - - -
 
 ## S11 - CLIENTE MQTT CON NODE.JS
+
+### INSTALACIONES Y CONFIGURACIONES INICIALES DE NODE.JS
+
+Creamos una carpeta y con VSCode abrimos la terminal, escribimos el comando `npm init -y` para crear el archivo `package.json`.
+
+Se usa la librería [MQTT.js](https://github.com/mqttjs). Para instalar esta librería, escribir el comando `npm install mqtt --save`.
+
+Para instalar la librería Commander, escribir el comando `npm install commander --save`.
+
+Para instalar la librería Colors, escribir el comando `npm install colors --save`.
+
+Creamos el archivo `index.js` y escribimos el siguiente comando:
+
+```js
+const mqtt = require('mqtt')
+const fs = require('fs')  //file system
+const { Command } = require('commander')
+const colors = require('colors')  // permite agregar letras en colores
+colors.setTheme({
+  silly: 'rainbow',
+  input: 'grey',
+  verbose: 'cyan',
+  prompt: 'grey',
+  info: 'green',
+  data: 'grey',
+  help: 'cyan',
+  warn: 'yellow',
+  debug: 'blue',
+  error: 'red'
+})
+
+// instancia de commander
+const program = new Command()
+program
+  .version('0.0.1')
+  .option('-p, --protocol <type>', 'Protocolos permitidos: mqtt, mqtts, ws, wss; por defecto es mqtt', 'mqtt')
+  .option('-t, --topic <topic>', 'topic')
+  .option('-m, --message <message>', 'message')
+  .option('-q, --qos <qos>', 'qos')
+  .parse(process.argv)
+
+const host = 'localhost'
+const port = 1883
+const clientId = 'mqttjs_' + Math.random().toString(16).substr(2, 8) //usar slice(3) en lugar de substr(2, 8)
+const mountPath = '/mqtt' // sirve para conexiones seguras con WS y WSS
+
+// Las opciones se pueden consultar en la librería MQTT.js
+const OPTIONS = {
+  clientId,
+  clean: true,
+  connectTimeout: 4000, // 4 segundos
+  reconnectPeriod: 1000,
+  username: 'emqx',
+  password: 'public',
+  rejectUnauthorized: false  // no usa el canal TLS
+}
+
+// Array con los protocolos permitidos
+const PROTOCOLS = ['mqtt', 'mqtts', 'ws', 'wss']
+
+// definimos la conexión con LET porque se modifica. Es la usada por defecto
+let connectUrl = `mqtt://${host}:${port}`
+
+if (program.protocol && PROTOCOLS.indexOf(program.protocol) === -1) {) {
+  console.log(colors.warn('Protocolo no permitido. Los protocolos permitidos son: mqtt, mqtts, ws, wss'))
+} else if (program.protocol) === 'mqtts' {
+  connectUrl = `mqtts://${host}:8883`
+} else if (program.protocol) === 'ws' {
+  connectUrl = `ws://${host}:8073${mountPath}`
+} else if (program.protocol) === 'wss' {
+  connectUrl = `wss://${host}:8074${mountPath}`
+} else {}
+
+// definimos un tópico. clientId/user/#
+const topic = 'nodejs/mqtt'
+
+// definimos el cliente
+const client = mqtt.connect(connectUrl, OPTIONS)
+
+// definimos los eventos del cliente cuando nos conectamos
+client.on('connect', () => {
+  console.log(colors.info(`Conectado por ${program.protocol} a ${connectUrl} como ${clientId}`))
+
+  client.subscribe([topic], () => {
+    console.log(colors.info(`Subscribed to ${topic} con el protocolo [${program.protocol}]`))
+  })
+    // publicamos
+    client.publish(topic, 'Hola mundo desde MQTT con Node.js', { qos: 0, retain: false }, (err) => {
+      if (err) {
+        console.log(colors.error(`[${program.protocol}] Error al publicar: ${err}`))
+      }
+    })
+})
+
+// definimos una reconexión
+client.on('reconnect', (error) => {
+  console.log(colors.info(`Reconectado por ${program.protocol} a ${connectUrl} como ${clientId}`))
+})
+
+// definimos un error
+client.on('error', (error) => {
+  console.log(colors.error(`Error: ${error} por ${program.protocol} a ${connectUrl} como ${clientId}`))
+})
+
+// capturamos cuando llega un mensaje con OnMessage
+client.on('message', (topic, payload) => {
+  console.log(colors.warn(`[${program.protocol}] (Tópico) =>${topic}: (Mensaje) => ${payload}`))
+})
+```
+
+Para probar, escribir desde el terminal una de las siguientes opciones:
+
+- `node index.js`
+- `node index.js --protocol mqtts`
+- `node index.js --protocol ws`
+- `node index.js --protocol wss`
+
+### CREACIÓN DEL EJECUTABLE PARA WINDOWS Y LINUX
+
+Desde el proyecto creado con Node.js creamos el ejecutable, para ello, usaremos una dependencia llamada [npm-pkg](https://docs.npmjs.com/cli/v8/commands/npm-pkg) que permite crear el ejecutable para Windows y Linux.
+
+- [pkg](https://www.npmjs.com/package/pkg)
+
+Para instalar la dependencia, de manera global, no necesariamente dentro de la carpeta del proyecto, usaremos el siguiente comando:
+
+- `npm install -g pkg`
+
+Para crear el ejecutable para Windows y Linux usaremos el siguiente comando:
+
+- `pkg index.js`
+
+Para iniciar el proyecto, tenemos el comando:
+
+- `npm run start`
+
+Además de que, en el archivo `package.json` tenemos la siguiente configuración:
+
+```json
+"scripts": {
+  "start": "node index.js",
+  "startWs": "node index.js --protocol ws",
+  "startWss": "node index.js --protocol wss",
+  "startMqtts": "node index.js --protocol mqtts",
+  "build": "pkg index.js"
+}
+```
+
+Y tras ejecutar `npm run start` podemos arrancarlos con la opción WS usando `npm run startWs`.
+
+Para construir el ejecutable para Windows y Linux usaremos el siguiente comando:
+
+- `npm run build`
 
 - - -
 
