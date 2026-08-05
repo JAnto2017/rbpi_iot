@@ -118,6 +118,15 @@
     - [INSTALACIONES Y CONFIGURACIONES INICIALES DE NODE.JS](#instalaciones-y-configuraciones-iniciales-de-nodejs)
     - [CREACIÓN DEL EJECUTABLE PARA WINDOWS Y LINUX](#creación-del-ejecutable-para-windows-y-linux)
   - [S12 - INSTALACIÓN EMQX CON DOCKER](#s12---instalación-emqx-con-docker)
+    - [INSTALACIÓN DE DOCKER EN W10](#instalación-de-docker-en-w10)
+      - [HOLA MUNDO CON DOCKER](#hola-mundo-con-docker)
+    - [DOCKER Y EMQX](#docker-y-emqx)
+    - [DOCKER COMPOSE EMQX](#docker-compose-emqx)
+    - [DOCKER COMPOSE EMQX VOLUMENES](#docker-compose-emqx-volumenes)
+    - [DOCKER COMPOSE MULTICONTAINER](#docker-compose-multicontainer)
+    - [DOCKER COMPOSE NETWORKS](#docker-compose-networks)
+    - [DOCKER COMPOSE CONSULTAS SQL](#docker-compose-consultas-sql)
+    - [INSTALAR DOCKER Y UBUNTU EN ORACLE CLOUD](#instalar-docker-y-ubuntu-en-oracle-cloud)
   - [S13 - INSTALACIÓN EMQX V5.8.0 USANDO DOCKER COMPOSE](#s13---instalación-emqx-v580-usando-docker-compose)
   - [S14 - PLATAFORMA IOT CLOUD V1 CONTROL CON ESP32 Y MQTT](#s14---plataforma-iot-cloud-v1-control-con-esp32-y-mqtt)
   - [S15 - PLATAFORMA IOT CLOUD V1 PROGRAMACIÓN ESP32](#s15---plataforma-iot-cloud-v1-programación-esp32)
@@ -3475,6 +3484,300 @@ Para construir el ejecutable para Windows y Linux usaremos el siguiente comando:
 - - -
 
 ## S12 - INSTALACIÓN EMQX CON DOCKER
+
+- [Docker](https://www.docker.com/)
+- [Docker Docs](https://docs.docker.com/get-started/)
+- [Docker Hub](https://hub.docker.com/)
+- [Docker Compose](https://docs.docker.com/compose/)
+- [Docker Tutorial](https://github.com/joseluisgs/docker-tutorial/blob/master/Docker-Tutorial.pdf)
+- [Docker Cheatsheet](https://docs.docker.com/get-started/docker_cheatsheet.pdf)
+- [Docker Cheat Sheet](https://cheat-sheets.nth-root.nl/docker-cheat-sheet.pdf)
+- [Docker CheatSheet FH pdf]([devtalles.com/files/docker-cheat-sheet.pdf](https://storage.googleapis.com/bidbit-test/auctions/536ab186-3af3-4b1f-8cb3-6bd872ad8fce/dcd32800-de95-43a4-858c-7d880db31b52.pdf))
+
+### INSTALACIÓN DE DOCKER EN W10
+
+Descarga de _Docker Desktop_ para Windows AMD64. Una vez instalado, haer clic sobre el icono de Docker en el escritorio; aceptar los términos y condiciones.
+
+#### HOLA MUNDO CON DOCKER
+
+```bash
+# para cambiar el puerto del getting started de Docker del 80 al 8000
+docker run -d -p 8000:80 docker/getting-started
+```
+
+Para acceder a la web, usaremos la siguiente URL:
+
+- `http://localhost:8000`
+
+Para listar los contenedores:
+
+- `docker container ls`
+
+Para eliminar un contenedor:
+
+- `docker container rm <id>`
+
+Para listar la lista de comandos:
+
+- `docker container --help`
+
+### DOCKER Y EMQX
+
+En [Docker hub](https://hub.docker.com/r/emqx/emqx) tenemos que buscar EMQX y, escogemos _Docker Official Image_ que es la primera opción.
+
+Para usar la imagen v5.5 por ejemplo, tenemos que ejecutar el código siguiente, para usar un servicio EMQX en el puerto 1883:
+
+- `docker run -d --name emqx -p 1883:1883 -p 1883:1883 emqx:5.5`
+
+### DOCKER COMPOSE EMQX
+
+Creamos carpeta `docker_emqx` y creamos el fichero `docker-compose.yml` con el siguiente contenido:
+
+```yaml
+version: '3.8'
+services:
+  emqx:
+    image: emqx/emqx:5.5
+    restart: always
+    ports:
+      - "1883:1883"
+      - "18083:18083"
+```
+
+El archivo `docker-compose.yml` sirve para definir los servicios y con un solo comando en lugar de definir todo directamente en la consola.
+
+- `docker-compose up`
+
+### DOCKER COMPOSE EMQX VOLUMENES
+
+Para conservar el contenedor (_persistencia_) debemos crear los siguientes directorios:
+
+- `/opt/emqx/log`
+- `/opt/emqx/data`
+- `/opt/emqx/etc`
+
+Y, debemos llamarlos en los volúmnes:
+
+```yaml
+version: '3.8'
+volumes:
+  vol-emqx-dat:
+    name: foo-emqx-dat
+  vol-emqx-log:
+    name: foo-emqx-log
+  vol-emqx-etc:
+    name: foo-emqx-etc
+services:
+  emqx:
+    image: emqx/emqx:5.5
+    restart: always
+    ports:
+      - "1883:1883"
+      - "18083:18083"
+    volumes:
+      - vol-emqx-log:/opt/emqx/log:/opt/emqx/log
+      - vol-emqx-dat:/opt/emqx/data:/opt/emqx/data
+      - vol-emqx-etc:/opt/emqx/etc:/opt/emqx/etc
+```
+
+El comando para borrar todos los volúmenes:
+
+- `docker-compose down`
+- `docker volume prune`
+- `docker-compose up`
+
+### DOCKER COMPOSE MULTICONTAINER
+
+Los contenedores se definen dentro de la etiqueta `services`:
+
+```yaml
+version: '3.8'
+
+volumes:
+  mariadb:
+    driver: local
+
+services:
+  emqx:
+    container_name: emqx
+    image: emqx/emqx:5.5
+    restart: always
+    ports:
+      - "1883:1883"
+      - "18083:18083"
+  emqx2:
+    container_name: emqx2
+    image: emqx/emqx:5.5
+    restart: always
+    ports:
+      - "1884:1883"
+      - "18084:18083"
+  mariadb:
+    container_name: mariadb
+    image: mariadb:latest
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: emqx
+      MYSQL_USER: emqx
+      MYSQL_PASSWORD: emqx
+    volumes:
+      - vol-mariadb:/var/lib/mysql:/var/lib/mysql
+    
+  phpmyadmin:
+    depends_on:
+      - mariadb
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
+    restart: always
+    ports:
+      - "4001:80"
+    environment:
+      PMA_HOST: mariadb
+      PMA_USER: emqx
+      PMA_PASSWORD: emqx
+      PMA_PORT: 3306
+```
+
+### DOCKER COMPOSE NETWORKS
+
+Para unir todos los _contenedores_ debemos definir una red:
+
+```yaml
+version: '3.8'
+
+networks:
+  iot:
+    name: emqx-net
+    driver: bridge
+
+services:
+  ...
+    networks:
+    iot:
+      aliases:
+      - mariadb_host
+```
+
+Tras arrancar usando el comando `docker-compose up`, usaremos la siguiente URL para acceder a la web: `http://localhost:4001` para acceder a la web de phpMyAdmin.
+
+Definimos las variables de entorno en el archivo `.env`:
+
+```.env
+# mariadb
+MARIADB_ROOT_PASSWORD=root
+MARIADB_DATABASE=emqx
+MARIADB_USER=emqx
+MARIADB_PASSWORD=123456
+```
+
+Para utilizar el archivo de variables de entorno, añadimos en el archivo `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+
+volumes:
+  mariadb:
+    driver: local
+
+services:
+  ...
+  mariadb:
+    container_name: mariadb
+    image: mariadb:latest
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MARIADB_DATABASE}
+      MYSQL_USER: ${MARIADB_USER}
+      MYSQL_PASSWORD: ${MARIADB_PASSWORD}
+    volumes:
+      - vol-mariadb:/var/lib/mysql:/var/lib/mysql
+```
+
+### DOCKER COMPOSE CONSULTAS SQL
+
+Creamos una carpeta y un archivo `db/init.sql` con el siguiente contenido sobre consultas SQL:
+
+```sql
+/* crea BD si no existe */
+CREATE DATABASE IF NOT EXISTS 'emqx' DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci USE 'emqx';
+
+/* crea la tabla mqtt user */
+CREATE TABLE 'mqtt_users' (
+  'id' int(11) unsigned NOT NULL AUTO_INCREMENT,
+  'username' varchar(255) NOT NULL,
+  'password' varchar(255) NOT NULL,
+  'salt' varchar(255) NOT NULL,
+  'is_superuser' tinyint(1) NOT NULL,
+  'create' datetime DEFAULT NULL,
+  PRIMARY KEY ('id'),
+  UNIQUE KEY 'mqtt_username' ('username')
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+/* inserta un usuario con password = public codificado en SHA256 */
+INSERT INTO 'mqtt_users' ('username', 'password', 'salt', 'is_superuser', 'create') VALUES ('emqx', '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08', 'emqx', 1, now());
+
+/* crea la tabla mqtt_acl */
+CREATE TABLE 'mqtt_acl' (
+  'id' int(11) unsigned NOT NULL AUTO_INCREMENT,
+  'allow' tinyint(1) NOT NULL,
+  'ipaddr' varchar(255) NOT NULL,
+  'username' varchar(255) NOT NULL,
+  'clientid' varchar(255) NOT NULL,
+  'topic' varchar(255) NOT NULL,
+  'access' tinyint(1) NOT NULL,
+  PRIMARY KEY ('id'),
+  INDEX 'ipaddr' ('ipaddr'),
+  INDEX 'username' ('username'),
+  INDEX 'clientid' ('clientid')
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+/* inserta reglas ACL */
+INSERT INTO 'mqtt_acl' ('allow', 'ipaddr', 'username', 'clientid', 'topic', 'access') VALUES (1, '%', 'emqx', '%', '#', 1);
+```
+
+Creamos el fichero `docker-compose.yml` con el siguiente contenido:
+
+```yaml
+version: '3.8'
+
+volumes:
+  mariadb:
+    driver: local
+
+services:
+  ...
+  mariadb:
+    container_name: mariadb
+    image: mariadb:latest
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: emqx
+      MYSQL_USER: emqx
+      MYSQL_PASSWORD: emqx
+    volumes:
+      - vol-mariadb:/var/lib/mysql:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+  ...
+```
+
+Ejecutamos el siguiente comando: `docker-compose up` y accedemos a la web de phpMyAdmin para ver las tablas creadas.
+
+Toda la configuración de EMQX en `etc/emqx.conf` se puede configurar a través de variables de entorno. De forma predeterminada, las variables de entorno con `EMQX_` prefijo se asignan a pares de claves y valores en el archivo de configuración. Por ejemplo, `EMQX_NODE_NAME` se asigna a la clave `node_name` en el archivo de configuración.
+
+### INSTALAR DOCKER Y UBUNTU EN ORACLE CLOUD
+
+En la documentación de [Docker Docs](https://docs.docker.com/engine/install/ubuntu/) en la opción de _Docker Engine for Ubuntu 20.04_ explica los pasos para la instalación usando comando de consola.
+
+[Oracle Cloud](https://www.oracle.com/es/cloud/free/?intcmp=ohp052322ocift_es)
 
 - - -
 
