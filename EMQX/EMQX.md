@@ -3783,6 +3783,108 @@ En la documentación de [Docker Docs](https://docs.docker.com/engine/install/ubu
 
 ## S13 - INSTALACIÓN EMQX V5.8.0 USANDO DOCKER COMPOSE
 
+La página web [EMQX](https://emqx.com/) ofrece la descarga de la versión 5.8.0 de EMQX.
+
+Dentro de la pestaña _Plataform>Enterprise_ se encuentra el enlace para descargar la la última versión de EMQX OPEN SOURCE en el botón _Pruébalo gratis_.
+
+Se puede instalar para Docker, Ubuntu, entre otros. Para Windows directamente no está, se debe realziar a través de Docker Desktop.
+
+[Docker Hub EMQX](https://hub.docker.com/_/emqx)
+
+Creamos el fichero `docker-compose.yml` con el siguiente contenido, además del archivo de variables de entorno `.env`. Por otra parte, se debe crear una carpeta `db` con el fichero `init.sql` con el siguiente contenido:
+
+```yml
+version: '3.8'
+
+volumes:
+  vol-emqx-data:
+    name: foo-emqx-data
+  vol-emqx-log:
+    name: foo-emqx-log
+
+networks:
+  iot:
+    name: emqx-net
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres:16.3-alphine3.20
+    container_name: postgres
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      TZ: ${TZ}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      iot:
+        aliases:
+        - curso_pg_host
+
+  emqx:
+    image: emqx/emqx:latest
+    container_name: emqx
+    depends_on:
+      - postgres
+    restart: always
+    ports:
+      - "1883:1883"
+      - "18083:18083"
+      - "8083:8083"
+      - "8084:8084"
+      - "8883:8883"
+    volumes:
+      - vol-emqx-log:/opt/emqx/log:/opt/emqx/log
+      - vol-emqx-data:/opt/emqx/data:/opt/emqx/data
+      - vol-emqx-etc:/opt/emqx/etc:/opt/emqx/etc
+    environment:
+      TZ: ${TZ}
+      EMQX_NAME: curso_emqx
+      EMQX_HOST: 127.0.0.1
+      EMQX_NODE__COOKIES: 'mycookiecurso_emqx'
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: 'emqxpassword'
+    networks:
+      iot:
+        aliases:
+        - curso_emqx_host
+    extra_hosts:
+      - '127.0.0.1:192.168.1.46'
+      - 'localhost:192.168.1.46'
+```
+
+Contenido de las variables de entorno `.env` que serán llamadas desde el archivo  anterior `docker-compose.yml`:
+
+```.env
+# timezone
+TZ=Europe/Madrid
+
+# database postgres
+POSTGRES_USER=emqx
+POSTGRES_PASSWORD=emqx
+POSTGRES_DB=emqx
+```
+
+Contenido del fichero `init.sql` para la base de datos en Postgres:
+
+```sql
+-- CREATE DATABASE IF NOT EXISTS emqx;
+SELECT 'CREATE DATABASE emqx' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'emqx')\gexec
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+```
+
+Comprobamos la vaersión de Docker con el comando `docker --version`. Para ejecutar el fichero `docker-compose.yml` se debe ejecutar el siguiente comando:
+
+```bash
+docker-compose up -d
+```
+
+[Laragon](https://laragon.org/) ofrece la instalación de PHP y MySQL similar a XAMPP.
 - - -
 
 ## S14 - PLATAFORMA IOT CLOUD V1 CONTROL CON ESP32 Y MQTT
